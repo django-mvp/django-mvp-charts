@@ -4,6 +4,29 @@ import pytest
 from django.urls import reverse
 
 
+@pytest.fixture(scope="session")
+def chromium_or_skip():
+    """Skip rather than fail where no browser is installed.
+
+    Three of this feature's guarantees exist only in a browser: whether the
+    charting library arrived, whether the wrapper resolved to a usable height,
+    and what size that wrapper is now. None can be asserted from rendered
+    markup, so they are measured in a real one.
+
+    Installing that browser on CI is a line in a workflow file, which is
+    outside what this project's automation may change. Until it is added these
+    tests skip there and run locally, and a skip says so out loud where a
+    missing test would not.
+    """
+    from playwright.sync_api import Error, sync_playwright
+
+    try:
+        with sync_playwright() as playwright:
+            playwright.chromium.launch().close()
+    except (Error, ImportError) as exc:  # pragma: no cover - environment probe
+        pytest.skip(f"no chromium available to measure the page with: {exc}")
+
+
 @pytest.fixture
 def overview_page(client, db):
     """The demo project's overview page, rendered, as a string."""

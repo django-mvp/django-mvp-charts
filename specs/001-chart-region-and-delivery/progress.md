@@ -142,3 +142,39 @@ example fails it, restoring it passes. `poetry run pytest tests/test_demo.py` �
 **Watch**: the browser tests from T007 on need `install-playwright: true` on the `call-tests` job,
 which is a workflow file and so the repository owner's to add. Until then they pass locally and
 skip on CI.
+
+## 2026-09-21T13:55Z · Orchestrator · T007
+
+**Did**: `tests/test_components/test_region_e2e.py::TestRegionFillsItsWrapper` loads the chart
+region page in chromium and measures every region against the element wrapping it. The comparison
+is the region's `offsetWidth`/`offsetHeight` against the wrapper's `clientWidth`/`clientHeight` —
+the region's own box against the box it was given. Comparing both elements' `getBoundingClientRect`
+would differ by the wrapper's border width and prove nothing about the region.
+
+Three assertions guard the measurement itself: that five regions were found at all, since every
+other assertion is an `all()` over a list an empty page would satisfy; that the five wrappers are
+genuinely five different heights, so the claim holds across sizes; and that no region measured zero,
+since matching a wrapper that is itself nothing is not a pass.
+
+`chromium_or_skip` in `tests/conftest.py` skips instead of failing where no browser is installed, so
+CI reports these as skips until the workflow installs one.
+
+**One thing this needed that the plan did not foresee**: the browser fixtures run a test inside a
+greenlet with an event loop under it, and Django refuses synchronous database work from an async
+context, so building the test database for `live_server` raised before any page loaded. Scoping the
+allowance to the browser tests does not work — pytest-django builds the database from an autouse
+fixture, which runs before any fixture a test can ask for. It is set once in `pyproject.toml`
+instead, with the reasoning beside it: this package has no models, no views and no ORM calls, so the
+only database work in the suite is the harness building its own test database, and the check has
+nothing here to protect.
+
+**Verified**: reinstated the defect before trusting the measurement — dropping `h-full` from the
+region collapses it to zero height and fails two of the four tests; restoring it passes all four.
+`poetry run pytest` — 43 passed. `poetry run pre-commit run --all-files` — all hooks passed.
+
+**US1 is complete.** T001–T007 all committed and green.
+
+**Next**: T008 — the development delivery, as one pinned integrity-checked tag the project places.
+
+**Watch**: the browser tests need `install-playwright: true` on the `call-tests` job before CI runs
+them rather than skipping them. That is a workflow file, so it is the repository owner's to add.
