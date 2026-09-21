@@ -25,7 +25,16 @@ has been released.
   first user-facing strings.
 - A demo page showing a region in a sized wrapper, four more at four different
   heights, and the markup that produced them.
-
+- `<c-echarts.cdn>`, the development delivery: one script tag, pinned to an
+  exact ECharts version and carrying a subresource integrity hash. A project
+  places it in its own base template. No component emits it, so installing
+  this package adds no external origin a project did not choose.
+- `mvp_charts.versions`, stating the ECharts range the `echarts` namespace is
+  known to render against and the exact version the delivery component pins.
+  ECharts remains undeclared as a dependency, because this package does not
+  ship it.
+- A region loads the package's own module once per page, whatever the number
+  of regions on it. A page carrying no region requests nothing.
 - `demo/templates/cotton/documentation.html`, the display surface django-mvp's
   `{% show_code %}` tag renders through. The tag ships with django-mvp; the
   template it names does not, so a project calling the tag has to supply one.

@@ -195,3 +195,29 @@ class TestDocumentedExample:
             Path(settings.BASE_DIR) / "demo/templates/demo/chart_region.html"
         ).read_text()
         assert " ".join(example.group(1).split()) in " ".join(page.split())
+
+
+class TestTheDemoLoadsTheLibraryItself:
+    """The project places the delivery; no component reaches off-site for it."""
+
+    def test_every_page_carries_the_delivery_the_project_placed(
+        self, overview_page, chart_region_page
+    ):
+        for page in (overview_page, chart_region_page):
+            assert page.count("cdn.jsdelivr.net/npm/echarts@") == 1
+
+    def test_it_is_pinned_and_integrity_checked(self, chart_region_page):
+        script = re.search(r"<script[^>]*jsdelivr[^>]*>", chart_region_page).group(0)
+        assert 'integrity="sha384-' in script
+        assert 'crossorigin="anonymous"' in script
+
+    def test_the_package_module_is_loaded_once_beside_it(self, chart_region_page):
+        """Five regions on the page, one module.
+
+        Counted as real script tags rather than as occurrences of the name.
+        The page also shows a rendered example through ``{% show_code %}``,
+        and that pane carries an escaped copy of the same tag — text in a
+        code block, which no browser fetches.
+        """
+        real_tags = re.findall(r"<script[^>]*chart-region\.js", chart_region_page)
+        assert len(real_tags) == 1

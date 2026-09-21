@@ -178,3 +178,47 @@ region collapses it to zero height and fails two of the four tests; restoring it
 
 **Watch**: the browser tests need `install-playwright: true` on the `call-tests` job before CI runs
 them rather than skipping them. That is a workflow file, so it is the repository owner's to add.
+
+## 2026-09-21T14:15Z · Orchestrator · T008–T012
+
+**Did**: `<c-echarts.cdn />` renders one pinned, integrity-checked script tag that a project places
+in its own base template. `mvp_charts/versions.py` holds the URL, the pinned version, the hash and
+the range the namespace claims, so the three values that have to agree cannot drift apart in markup.
+`{% chart_region_assets %}` emits the package's own module the first time a region on a request asks
+for it and nothing afterwards, so five regions load it once and a page with none loads nothing.
+`chart-region.js` gained its library resolution: it reads `window.echarts`, and a region that finds
+nothing keeps looking rather than judging at its first instant.
+
+**The integrity hash is real.** Fetched `echarts@6.1.0` from the CDN, confirmed the file reports
+`version:"6.1.0"`, and computed the sha384 from those bytes. A hash written from memory would be a
+hash the browser silently refuses, which looks exactly like a network fault.
+
+**Split T010 across two stories, deliberately.** As written it asserts a region "reports nothing"
+under either delivery, but the reporting is US3's work and the plan has the module land as a stub
+here. The half that belongs to this story — a region resolves the library by either route, with no
+setting either way — is implemented and tested now through an observable `waiting` → `ready` state
+on the element. US3 adds the states for the two ways a region cannot draw, on the same attribute.
+
+**Probe pages rather than demo pages.** `tests/templates/probe/` and three routes in `tests/urls.py`
+put a region in exactly the situation each browser test needs: the library arriving as a separate
+file, arriving inline, arriving late, and a page with no region at all. Contorting a page a reader
+visits into those shapes would have made the demo worse to read for the sake of the suite.
+
+**Not tested, deliberately**: whether the public CDN is reachable. The delivery component's tag
+being pinned and integrity-checked is this package's whole contribution to that route, and it is
+asserted from rendered output. Fetching the file during a test run would make the suite fail for
+reasons that say nothing about this package. The browser tests serve a stand-in.
+
+**One pre-existing test restated**: `test_no_javascript_is_rendered` asserted no script tag at all,
+which was the same claim while the region had no module. It now asserts what it was always about —
+the author writes none, the package inlines none, and whatever a region needs arrives as one
+external module. The `x-data` half is untouched: the plan rejected a per-region framework component
+and that rejection still holds.
+
+**Verified**: reinstated the defect before trusting the no-region assertions — putting a region on
+the probe page that should have none fails them, removing it passes. `poetry run pytest` — 70
+passed. `poetry run pre-commit run --all-files` — all hooks passed.
+
+**Next**: T013 — a missing library reported in the page, after the wait.
+
+**Watch**: nothing new.

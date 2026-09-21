@@ -79,10 +79,23 @@ class TestChartRegion:
         assert f'aria-describedby="{figure_id}-description"' in surface
         assert figcaption_id == f"{figure_id}-description"
 
-    def test_no_javascript_is_rendered(self):
+    def test_the_author_writes_no_javascript_and_none_is_inlined(self):
+        """The page author writes none, and the package inlines none.
+
+        This began as "no script tag at all", which was the same claim while
+        the region had no module to load. It has one now — the library check,
+        the height check and the resize contract exist only in a browser — so
+        the claim is restated at the level it was always about: whatever the
+        region needs arrives as one external module, never as script written
+        into the markup, and never as a per-region component that would tie
+        the package to a framework's registration lifecycle.
+        """
         html = render(A_REGION)
-        assert "<script" not in html
         assert "x-data" not in html
+        scripts = re.findall(r"<script[^>]*>(.*?)</script>", html, re.S)
+        assert len(scripts) == 1
+        assert scripts[0].strip() == ""
+        assert 'src="' in re.search(r"<script[^>]*>", html).group(0)
 
 
 class TestChartRegionIdentity:
@@ -179,3 +192,26 @@ class TestTranslatedMessages:
     def test_the_english_source_string_shows_with_no_translation_active(self):
         html = render('<c-echarts.region description="Revenue by month." />')
         assert "This chart region has no name." in html
+
+
+class TestTheModuleLoadsOncePerPage:
+    """T009: the package's own asset, shared by every region on a page."""
+
+    def test_a_page_with_regions_loads_the_module(self):
+        assert "chart-region.js" in render(A_REGION)
+
+    def test_five_regions_load_it_once(self):
+        """The cost of the module is per page, not per region."""
+        html = render(A_REGION * 5)
+        assert html.count("chart-region.js") == 1
+
+    def test_a_page_with_no_region_asks_for_nothing(self):
+        """Installing the package costs a page that uses none of it nothing."""
+        html = render("<p>A page with no chart on it.</p>")
+        assert "chart-region.js" not in html
+        assert "mvp_charts" not in html
+
+    def test_a_region_that_could_not_render_asks_for_nothing_either(self):
+        """The guard replaces the region, so there is nothing to drive."""
+        html = render('<c-echarts.region name="Revenue" />')
+        assert "chart-region.js" not in html

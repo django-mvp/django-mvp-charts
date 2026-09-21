@@ -64,6 +64,32 @@ Leave either out, or pass an empty string, and the region is replaced by a messa
 
 You can pass `id` to set the element id yourself. Without it each region on a page is numbered as it renders, so several regions on one page stay separately identifiable and each one's description is tied to the right chart.
 
+## Getting ECharts to the browser
+
+A region reads one thing: `window.echarts`. Anything that puts the library there works, and nothing in this package records or asks which route you chose.
+
+**In development**, put the delivery component in your own base template and you are done — no Node toolchain, no build step:
+
+```html
+{% block extra_js %}
+  {{ block.super }}
+  <c-echarts.cdn />
+{% endblock %}
+```
+
+It renders one script tag, pinned to an exact version and carrying a subresource integrity hash, so the browser refuses the file if it is not the one this package was built against.
+
+**In production**, build a bundle and expose the library as `window.echarts`. Delete the line above and change nothing else. ECharts ships per-chart-type and per-component entry points, so a page importing a line chart and a tooltip pays for a fraction of a full build — which is the reason this package ships no copy of the library and never loads one on a reader's behalf. A project that installs it gains no external origin it did not choose, and a page that places no region requests nothing from the package at all.
+
+`mvp_charts.versions` states what the `echarts` namespace is known to render against:
+
+| | |
+|---|---|
+| Supported range | `>=6.0,<7.0` |
+| Version the delivery component pins | `6.1.0` |
+
+The library is not a dependency of this package, so neither of those is enforced at install time. They are what the namespace claims, and a bundle outside the range is untested rather than blocked.
+
 ## Scope & philosophy
 
 **What this is.** A presentation layer for charts: Cotton components that take data and options as attributes and render the markup and initialisation a charting library needs. Charts read their colours from the daisyUI theme the host project is running, so they re-theme with the rest of the site instead of pinning literal colours into the template.
