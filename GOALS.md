@@ -19,5 +19,6 @@ Importance is a tag on each goal, not a ranking:
 | G1 | A chart is put on a page by passing attributes to a component, data included, and the page author writes no JavaScript | Essential | | |
 | G2 | The chart types an application dashboard needs are available | Expected | | |
 | G3 | A second charting library has its own namespace alongside ECharts | Aspirational | | |
+| G4 | Whatever the charting library can do stays reachable from the template, without writing JavaScript | Essential | | |
 
 _Written 2026-09-21. Revise as the goals change._
