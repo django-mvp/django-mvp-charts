@@ -224,3 +224,77 @@ as edits to `plan.md` and `tasks.md`:
   wait for it.
 
 **Revisit if**: nothing. These are absorbed.
+
+---
+
+# Implementation decisions
+
+Appended during implementation. Everything above was settled before any code existed.
+
+## Pre-existing tests this branch changed, and why
+
+The guardrail flags any edit to a test that existed before the branch, because the usual reason for
+one is making a failing test agree with new code. Three edits here, none of that shape.
+
+**`test_that_is_the_only_entry`** asserted the sidebar held one entry. Its own docstring said "no
+chart pages exist, so nothing else belongs in the sidebar yet": a statement about the state at the
+time, not about what the navigation should hold forever. This feature adds chart pages, so the
+enduring claim — the sidebar holds exactly the pages that exist — is what it asserts now, as the
+list of hrefs rather than a count of list items. That is a stronger assertion than the one it
+replaced, and adding a page without thinking about where it belongs still fails it.
+
+**`test_no_section_is_drawn_with_nothing_under_it`** asserted two things: that no navigation node
+carries `href="None"`, and that the Charts section was absent. The first is the real guard and is
+untouched. The second was true only while the section had no pages under it, which is the condition
+the feature changes.
+
+**`test_no_javascript_is_rendered`** asserted no script tag at all. The same claim while the region
+had no module to load — it has one now, because whether the library arrived, whether the wrapper
+resolved to a height and what size it is now exist only in a browser. It asserts what it was always
+about: the author writes no JavaScript, the package inlines none, and whatever the region needs
+arrives as one external module. The half rejecting a per-region framework component is untouched.
+
+No pre-existing assertion was deleted, and none was loosened to accommodate new code. Two were
+restated at the state the feature creates, and one was sharpened.
+
+## The one `skip` on the branch
+
+`chromium_or_skip` skips the browser tests where no browser is installed. It is an environment
+probe, not a disabled test: every one of them runs and passes locally.
+
+Installing a browser on CI is a line in a workflow file, and this project's automation is
+deliberately not allowed to change those. Until the repository owner adds it, these tests report as
+skipped there. A skip is the honest state — it says out loud, on every run, that something was not
+checked, where quietly not writing the test would say nothing at all.
+
+## A layer written and then deleted
+
+The resize path was built with `requestAnimationFrame` batching under it, on the reasoning that a
+drag-resize fires a stream of observer callbacks. Its test was then run against the module with the
+batching removed and passed unchanged: `ResizeObserver` already delivers at most one callback per
+frame, carrying the size the element ended up at rather than each size it passed through.
+
+The batching is gone (Articles II and III: a layer whose removal changes nothing observable is not
+earning its place). The test stays, because the requirement stays, and its docstring now says that
+it proves the behaviour holds rather than that this package is what provides it.
+
+## Two defects found by measuring rather than reading
+
+Both were introduced on this branch and both were invisible to review. Recorded because the shape of
+each is more useful than the fix.
+
+**A multi-line `{# ... #}` comment was served to the reader as page text.** Django's comment tag is
+single-line. Nothing raises, the markup still renders, and the symptoms are an explanation of the
+component printed into the page and an element sized by a paragraph that should not be there. It
+presented as a browser test insisting the region would not fill its wrapper.
+`test_no_comment_spans_more_than_one_line` now fails on any shipped template that opens a comment it
+does not close on the same line.
+
+**The pages built for the browser tests loaded no stylesheet.** The package ships none by design and
+its markup uses classes django-mvp's prebuilt one emits, so the sizing rule never applied and
+`sr-only` never hid the caption. The test was measuring a line of caption text and reading it as a
+sizing defect in the component.
+
+Both say the same thing: a test page that is not the page a reader gets will agree with a defect. The
+probe pages now carry the stylesheet, and the demo pages — which inherit the real shell — are what
+the sizing measurements run against.
