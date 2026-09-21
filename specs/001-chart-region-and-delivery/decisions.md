@@ -136,6 +136,10 @@ factored out when there is a second namespace to share it with, not before.
 messages are the shared plumbing Article XIII names, and they move once — with two real callers to
 shape the move.
 
+**ADR:** none. Article XIII of the constitution already decides that a component tied to a library
+lives in that library's namespace, and this is that rule applied rather than a choice made. An ADR
+would restate a standard the repository already holds.
+
 ## D7 — the module ships as one static file, loaded once per page by the component
 
 **Decision**: the browser behaviour is a dependency-free JavaScript file in this package's static
@@ -154,6 +158,11 @@ that needs none: two observers, a poll and a custom event.
 
 **Revisit if**: regions start being inserted after page load, by htmx or otherwise. The module's
 initialisation is idempotent, but nothing currently re-runs it for markup that arrives later.
+
+**ADR:** docs/adr/0001-the-browser-module-is-one-file-loaded-once-per-page.md
+
+Durable, architectural and non-obvious: it binds how every future component in this package delivers
+browser behaviour, and it rejects the idiomatic answer in this stack for a stated reason.
 
 ## D8 — the browser tests are the evidence, and CI cannot run them yet
 
@@ -175,6 +184,12 @@ a skipped browser test that reads as a pass is how this goes wrong quietly.
 **Revisit if**: the workflow line lands. Then the guard's CI branch does the work django-mvp's does —
 a missing browser on CI becomes an error rather than a skip.
 
+**ADR:** docs/adr/0002-browser-guarantees-are-tested-in-a-browser.md
+
+Durable and architectural: it sets what counts as evidence for this package's central claim, and it
+accepts a known gap deliberately rather than by oversight, which is the part a later reader most
+needs to find.
+
 ## D9 — the delivery contract is the `window.echarts` global
 
 **Decision**: a region looks for `window.echarts` and uses whatever it finds. Both delivery routes are
@@ -187,6 +202,11 @@ the route, a registry — would be a declaration, which is what the requirement 
 
 **Revisit if**: a second backend needs the same treatment. The global's name is the backend's, so this
 is a per-namespace fact rather than a package-wide one.
+
+**ADR:** docs/adr/0003-window-echarts-is-the-delivery-contract.md
+
+The single contract between this package and every project that installs it, and the reason no
+configuration exists. Nothing else in the feature is more load-bearing.
 
 ## D10 — the height is judged at first visibility, not at first paint
 
@@ -203,6 +223,11 @@ visibility is the one moment where a zero height means what the requirement says
 **Revisit if**: a region is legitimately placed somewhere that never becomes visible and a project
 wants to know why it is empty. Today that region reports nothing, which is the deliberate reading of
 "losing a height later is not a failure" extended to never gaining one.
+
+**ADR:** none. The behaviour is already a requirement in `spec.md` (FR-014, FR-015, FR-022) and its
+reasoning is in the clarifications there. This is the mechanism that meets it, which is
+implementation detail — an ADR would duplicate an approved specification rather than record a choice
+the specification left open.
 
 ## D11 — findings from the design review, and what was done with each
 
@@ -224,6 +249,9 @@ as edits to `plan.md` and `tasks.md`:
   wait for it.
 
 **Revisit if**: nothing. These are absorbed.
+
+**ADR:** none. A record of a review and what it changed, not a decision — the decisions it produced
+are D7 and D8 above, and each carries its own verdict.
 
 ---
 

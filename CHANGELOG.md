@@ -59,6 +59,11 @@ has been released.
   It shows a component live, the Cotton that produced it, and the HTML it
   rendered to.
 
+- `docs/adr/`, with the three architectural decisions this feature settled:
+  how browser behaviour is delivered, what counts as evidence for a guarantee
+  that only exists in a running page, and the single contract between this
+  package and the project that installs it.
+
 ### Changed
 
 - The demo project runs on django-mvp's application shell — sidebar, header,

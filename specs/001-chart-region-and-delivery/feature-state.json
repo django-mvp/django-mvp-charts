@@ -2,7 +2,7 @@
   "feature": "001-chart-region-and-delivery",
   "branch": "001-chart-region-and-delivery",
   "repo": "django-mvp/django-mvp-charts",
-  "state": "IMPLEMENT",
+  "state": "CONVERGE",
   "state_history": [
     {
       "state": "QUEUED",
@@ -23,6 +23,11 @@
       "state": "IMPLEMENT",
       "at": "2026-09-21T12:59:15Z",
       "note": "US1 dispatched to an implementer in the feature worktree"
+    },
+    {
+      "state": "CONVERGE",
+      "at": "2026-09-21T14:16:07Z",
+      "note": "All four stories complete and reported; machine verify green on all six steps"
     }
   ],
   "gates": {
@@ -210,7 +215,7 @@
   ],
   "budgets": {
     "converge_cycles": {
-      "used": 0,
+      "used": 1,
       "max": 2
     },
     "review_cycles": {
