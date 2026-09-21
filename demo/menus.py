@@ -26,6 +26,11 @@ CHART_PAGES: list[MenuItem] = [
         view_name="chart_region",
         extra_context={"label": "Chart region", "icon": "chart"},
     ),
+    MenuItem(
+        name="chart_region_failures",
+        view_name="chart_region_failures",
+        extra_context={"label": "When a region cannot draw", "icon": "info"},
+    ),
 ]
 
 AppMenu.extend(

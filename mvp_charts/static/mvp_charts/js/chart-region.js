@@ -23,6 +23,17 @@
   var LIBRARY_POLL_MS = 100;
 
   /*
+   * How long after the page has finished loading to keep waiting.
+   *
+   * Long enough that a bundle fetched over a slow connection is not accused
+   * of not existing, short enough that someone staring at an empty box is
+   * told why within a few seconds. Only reached when the page has already
+   * fired `load`, so it is a grace window on top of that rather than a
+   * timeout from first paint.
+   */
+  var LIBRARY_GRACE_MS = 3000;
+
+  /*
    * A region reads one thing, and it is the same sentence for both ways the
    * library can arrive: a public copy the project put in its own base
    * template, or the project's own bundle. Neither route is named anywhere,
@@ -67,14 +78,130 @@
     };
   }
 
+  /*
+   * Put a message where the chart would have been.
+   *
+   * In the page, not in the console: the person who can act on this is
+   * usually looking at the page, and a console message is invisible to
+   * everyone who does not already suspect something is wrong. Identical in
+   * development and in production for the same reason — a blank rectangle in
+   * production is exactly as undiagnosable as one in development.
+   *
+   * The wording comes from the server, so it is translated and asserted
+   * without a browser. This function decides only when to show it.
+   */
+  function report(region, kind) {
+    var surface = region.querySelector("[data-mvp-chart-region-surface]");
+    if (!surface) {
+      return;
+    }
+    var message = region.getAttribute("data-mvp-chart-region-" + kind);
+    surface.textContent = "";
+    var note = document.createElement("p");
+    note.className = "text-error p-4 text-sm";
+    note.setAttribute("role", "status");
+    note.textContent = message || "";
+    surface.appendChild(note);
+    setState(region, kind);
+  }
+
+  /*
+   * A region with no height cannot show a message about having no height, so
+   * it is given just enough room to be read. This is the one place the
+   * package sets a height, and it applies only where the alternative is an
+   * invisible failure.
+   */
+  function makeMessageReadable(region) {
+    region.style.minHeight = "4rem";
+  }
+
+  function hasUsableHeight(region) {
+    return region.getBoundingClientRect().height >= 1;
+  }
+
+  /*
+   * Judge the height at first visibility, not at first paint.
+   *
+   * A region inside a collapsed panel or an unselected tab has no height for
+   * reasons that are not a mistake, and measuring at load would report every
+   * one of them. Once a region has been seen with a usable height it is never
+   * judged again: losing height later is a panel closing, which is the page
+   * working as designed.
+   */
+  function watchHeight(region) {
+    var settled = false;
+    var judge = function () {
+      if (settled) {
+        return true;
+      }
+      if (!isVisible(region)) {
+        return false;
+      }
+      settled = true;
+      if (!hasUsableHeight(region)) {
+        makeMessageReadable(region);
+        report(region, "no-height");
+      }
+      return true;
+    };
+    if (judge()) {
+      return;
+    }
+    if (!window.IntersectionObserver) {
+      return;
+    }
+    var observer = new window.IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i += 1) {
+        if (entries[i].isIntersecting && judge()) {
+          observer.disconnect();
+          return;
+        }
+      }
+    });
+    observer.observe(region);
+  }
+
+  function isVisible(region) {
+    var box = region.getBoundingClientRect();
+    return box.width > 0 || box.height > 0;
+  }
+
   function initRegion(region) {
     if (region.dataset[STATE]) {
       return;
     }
     setState(region, "waiting");
-    whenLibraryArrives(function () {
-      setState(region, "ready");
+    watchHeight(region);
+
+    var stopWaiting = whenLibraryArrives(function () {
+      if (region.dataset[STATE] !== "no-height") {
+        setState(region, "ready");
+      }
     });
+
+    /*
+     * Give up only once waiting has stopped being a reasonable explanation:
+     * after the page has finished loading, and then after a grace window on
+     * top of that. Before both, a missing library is a bundle still on its
+     * way.
+     */
+    afterLoad(function () {
+      window.setTimeout(function () {
+        if (libraryIsPresent() || region.dataset[STATE] === "no-height") {
+          return;
+        }
+        stopWaiting();
+        report(region, "missing-library");
+      }, LIBRARY_GRACE_MS);
+    });
+  }
+
+  function afterLoad(run) {
+    if (document.readyState === "complete") {
+      run();
+      return;
+    }
+    window.addEventListener("load", run, { once: true });
   }
 
   /*

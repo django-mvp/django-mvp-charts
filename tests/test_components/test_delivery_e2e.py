@@ -58,9 +58,7 @@ class TestEitherRouteWorks:
     def test_the_library_is_reachable_from_the_page(self, delivery_page, route):
         assert delivery_page(route).evaluate("() => Boolean(window.echarts)")
 
-    def test_the_two_pages_differ_only_in_how_the_library_arrived(
-        self, delivery_page
-    ):
+    def test_the_two_pages_differ_only_in_how_the_library_arrived(self, delivery_page):
         """The point of the story, stated as an assertion.
 
         Same component, same markup, same absence of configuration — the only

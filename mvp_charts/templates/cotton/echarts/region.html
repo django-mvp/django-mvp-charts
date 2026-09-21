@@ -34,7 +34,19 @@
   </div>
 {% else %}
   {% if not id %}{% chart_region_id as id %}{% endif %}
-  <figure id="{{ id }}" class="relative h-full w-full" data-mvp-chart-region>
+  {% comment %}
+    Both messages travel with the region rather than living in the module.
+    The module cannot translate, and a second copy of these strings in
+    JavaScript would be a second place for them to be written, reviewed and
+    kept in step. Carried as data attributes they go through the same catalog
+    as every other string here, and their wording is asserted from rendered
+    output on every pull request rather than only where a browser runs.
+  {% endcomment %}
+  <figure id="{{ id }}"
+          class="relative h-full w-full"
+          data-mvp-chart-region
+          data-mvp-chart-region-missing-library="{% trans 'No charting library to draw with. Add the c-echarts.cdn component to your base template, or expose ECharts as window.echarts from your bundle.' %}"
+          data-mvp-chart-region-no-height="{% trans 'No height to fill. Give the element around this chart a height: a chart region takes its size from its wrapper and has none of its own.' %}">
     <div class="absolute inset-0"
          role="img"
          aria-label="{{ name }}"

@@ -17,3 +17,12 @@ class ChartRegionView(MVPTemplateView):
     page_title = "Chart region"
     page_subtitle = "The space a chart draws into, sized by the element around it"
     breadcrumbs = [{"text": "Charts"}, {"text": "Chart region"}]
+
+
+class ChartRegionFailuresView(MVPTemplateView):
+    """The two states where a region cannot draw, shown on purpose."""
+
+    template_name = "demo/chart_region_failures.html"
+    page_title = "When a region cannot draw"
+    page_subtitle = "What the page says instead of showing an empty box"
+    breadcrumbs = [{"text": "Charts"}, {"text": "When a region cannot draw"}]

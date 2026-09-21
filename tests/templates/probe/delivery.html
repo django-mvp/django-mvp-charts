@@ -10,6 +10,13 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
+    {% comment %}
+      The package ships no stylesheet: its markup uses classes django-mvp's
+      prebuilt one emits. Without it here, `h-full` never applies and a probe
+      page measures the text of a caption that `sr-only` failed to hide,
+      which looks exactly like a sizing defect in the component.
+    {% endcomment %}
+    <link rel="stylesheet" href="{% static 'css/django-mvp.css' %}">
     <title>{{ route }}</title>
     {% if route == "separate-file" %}
       <script src="{% static 'probe/echarts-stand-in.js' %}"></script>

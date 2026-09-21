@@ -64,6 +64,18 @@ Leave either out, or pass an empty string, and the region is replaced by a messa
 
 You can pass `id` to set the element id yourself. Without it each region on a page is numbered as it renders, so several regions on one page stay separately identifiable and each one's description is tied to the right chart.
 
+## When a region cannot draw
+
+Two things stop a region drawing, and both look identical on screen: an empty box, no error, nothing to act on. So neither is left as one. The region says what is wrong, in the page, where the chart would have been — the same in development and in production, because a blank rectangle in production is exactly as undiagnosable as one in development.
+
+**No charting library.** The region waits first. A bundle that loads a moment after the page does is an ordinary project, and accusing it would send someone to fix something that is not broken. Once waiting stops being a reasonable explanation — the page has finished loading, and a few seconds have passed since — it says so and names both ways to supply one.
+
+**No height to fill.** The wrapper resolved to nothing, usually a percentage height inside an ancestor sized by its own content. The region takes enough room to say so, and points at the element that should be carrying the height.
+
+The height is judged the first time the region is visible, not the first time the page paints. A region inside a collapsed panel or an unselected tab has no height for reasons that are not a mistake, and it is measured when it is revealed. Once a region has been seen at a usable height it is never judged again, so closing that panel later reports nothing: that is the page working, not a fault.
+
+One region failing leaves every other region on the page working.
+
 ## Getting ECharts to the browser
 
 A region reads one thing: `window.echarts`. Anything that puts the library there works, and nothing in this package records or asks which route you chose.

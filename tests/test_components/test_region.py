@@ -7,6 +7,7 @@ the demo project actually serves it, and test_region_e2e.py covers what only
 a real browser can measure.
 """
 
+import html as html_module
 import re
 from pathlib import Path
 
@@ -215,3 +216,46 @@ class TestTheModuleLoadsOncePerPage:
         """The guard replaces the region, so there is nothing to drive."""
         html = render('<c-echarts.region name="Revenue" />')
         assert "chart-region.js" not in html
+
+
+class TestFailureMessages:
+    """T013: both messages ship with the region, in the page, in the catalog.
+
+    The module decides *when* a region cannot draw. What it then says is
+    server-rendered and travels with the markup, so the wording, the
+    translation and the presence of both are asserted on every run rather
+    than only where a browser is installed.
+    """
+
+    def test_the_region_carries_both_messages(self):
+        figure = re.search(r"<figure[^>]*>", render(A_REGION)).group(0)
+        assert "data-mvp-chart-region-missing-library=" in figure
+        assert "data-mvp-chart-region-no-height=" in figure
+
+    def test_the_missing_library_message_names_both_ways_to_supply_it(self):
+        """A message that only says what is wrong leaves the reader stuck."""
+        message = self.message(render(A_REGION), "missing-library")
+        assert "c-echarts.cdn" in message
+        assert "window.echarts" in message
+
+    def test_the_no_height_message_says_where_the_height_belongs(self):
+        message = self.message(render(A_REGION), "no-height")
+        assert "element around this chart" in message
+        assert "takes its size from its wrapper" in message
+
+    def test_neither_message_is_empty(self):
+        for attribute in ("missing-library", "no-height"):
+            assert len(self.message(render(A_REGION), attribute)) > 40
+
+    def test_the_messages_are_translated(self):
+        """They go through the package's catalog, like every other string here."""
+        with override_settings(LOCALE_PATHS=[FIXTURE_LOCALE]):
+            with translation.override("de"):
+                message = self.message(render(A_REGION), "missing-library")
+        assert message.startswith("Keine Diagrammbibliothek")
+
+    @staticmethod
+    def message(html, attribute):
+        """One message, read off the figure and unescaped."""
+        raw = re.search(rf'data-mvp-chart-region-{attribute}="([^"]*)"', html).group(1)
+        return html_module.unescape(raw)

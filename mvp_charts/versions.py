@@ -28,7 +28,9 @@ ECHARTS_CDN_VERSION = "6.1.0"
 #: Computed from the bytes the CDN serves. The browser refuses the script if
 #: what arrives does not hash to this, which is what keeps a compromised or
 #: substituted CDN from running arbitrary code on a page that trusted it.
-ECHARTS_CDN_INTEGRITY = "sha384-C2iskrW/uPW46KzOjrvJIQo4YkV8lkD+QS0CrDN18IIPIpT/g2USu8bTP3nvmIAD"
+ECHARTS_CDN_INTEGRITY = (
+    "sha384-C2iskrW/uPW46KzOjrvJIQo4YkV8lkD+QS0CrDN18IIPIpT/g2USu8bTP3nvmIAD"
+)
 
 #: Where that file comes from.
 ECHARTS_CDN_URL = (

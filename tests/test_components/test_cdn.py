@@ -59,9 +59,7 @@ class TestDevelopmentDelivery:
         """
         low, high = ECHARTS_SUPPORTED_VERSIONS.split(",")
         assert low.startswith(">=") and high.startswith("<")
-        as_numbers = lambda text: tuple(  # noqa: E731 - one expression, used twice
-            int(part) for part in re.findall(r"\d+", text)
-        )
+        as_numbers = lambda text: tuple(int(part) for part in re.findall(r"\d+", text))
         pinned = as_numbers(ECHARTS_CDN_VERSION)
         assert as_numbers(low) <= pinned[: len(as_numbers(low))]
         assert pinned[: len(as_numbers(high))] < as_numbers(high)

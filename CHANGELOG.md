@@ -35,6 +35,18 @@ has been released.
   ship it.
 - A region loads the package's own module once per page, whatever the number
   of regions on it. A page carrying no region requests nothing.
+- A region that cannot draw says why, in the page, where the chart would have
+  been. A missing charting library is reported once waiting for a late bundle
+  stops being a reasonable explanation, and names both ways to supply one. A
+  wrapper that resolves to no height is reported too, with enough room taken
+  for the message to be read. Both messages are translatable and identical in
+  development and production.
+- The height is judged at a region's first visibility rather than at first
+  paint, so a region in a collapsed panel or an unselected tab is measured
+  when it is revealed. A region that loses its height afterwards reports
+  nothing.
+- One region failing leaves every other region on the page working.
+- A second demo page showing both failure states on purpose.
 - `demo/templates/cotton/documentation.html`, the display surface django-mvp's
   `{% show_code %}` tag renders through. The tag ships with django-mvp; the
   template it names does not, so a project calling the tag has to supply one.

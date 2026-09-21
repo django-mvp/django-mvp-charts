@@ -222,3 +222,41 @@ passed. `poetry run pre-commit run --all-files` — all hooks passed.
 **Next**: T013 — a missing library reported in the page, after the wait.
 
 **Watch**: nothing new.
+
+## 2026-09-21T14:45Z · Orchestrator · T013–T018
+
+**Did**: both messages now travel with the region as data attributes rendered through the package's
+catalog, so their wording and their translation are asserted without a browser and the module holds
+no English. The module reports a missing library only after the page has fired `load` and a further
+three seconds, judges height at a region's first visibility through an `IntersectionObserver`, never
+judges a region twice, and sets a readable minimum height only where the alternative is an invisible
+failure. Each region is initialised in its own `try`/`catch`. A second demo page shows all three
+states deliberately, suppressing the inherited delivery with an empty `extra_js` block.
+
+**Two defects found by measuring rather than by reading.** The browser insisted a region would not
+fill its wrapper, and both causes were mine from this session:
+
+1. The explanatory comment added to `region.html` used `{# … #}` across several lines. Django's
+   comment tag is single-line, so everything after the first line was served to the reader as page
+   text — an explanation of the component printed into the page, and an element sized by a paragraph
+   that should not exist. Nothing raises. Now `{% comment %}`, and
+   `tests/test_components/test_shipped_templates.py` fails on any shipped template that opens a
+   comment it does not close on the same line. Confirmed by reinstating it.
+2. The probe pages loaded no stylesheet. The package ships none by design and its markup uses
+   classes django-mvp's prebuilt one emits, so `h-full` never applied and `sr-only` never hid the
+   caption — the test was measuring a line of caption text and reading it as a sizing defect in the
+   component. The probe pages link the stylesheet now.
+
+**One assertion was wrong rather than the page**: the failures page test asserted the CDN host was
+absent, and django-mvp serves its icon font from the same host. Narrowed to ECharts by name.
+
+**Also added**: a check that every user-facing string in a shipped template is wrapped for
+translation, since the same file was already walking the templates.
+
+**Verified**: `poetry run pytest` — 100 passed. Both new guards were confirmed against the defects
+they exist for.
+
+**Next**: T019–T023 — the resize contract.
+
+**Watch**: the missing-library browser tests wait out the grace window, so the browser suite now
+takes around 35 seconds. Acceptable; worth revisiting only if it grows.

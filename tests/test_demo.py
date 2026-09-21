@@ -59,15 +59,18 @@ class TestSidebarMenu:
     def test_the_charts_section_holds_exactly_the_chart_pages(self, sidebar_navigation):
         """The sidebar holds the pages that exist and nothing else.
 
-        One chart page exists, so the Charts section holds one entry. This
-        started out asserting the sidebar held only Overview, which was the
-        same claim while ``CHART_PAGES`` was empty.
+        This started out asserting the sidebar held only Overview, which was
+        the same claim while ``CHART_PAGES`` was empty. Adding a chart page is
+        meant to fail it: the list below is the one place that says what the
+        navigation should hold, so a page added without a thought about where
+        it belongs stops here.
         """
         assert "Charts</span>" in sidebar_navigation
         assert "<span>Chart region</span>" in sidebar_navigation
         assert re.findall(r'href="([^"]*)"', sidebar_navigation) == [
             "/",
             "/chart-region/",
+            "/chart-region/failures/",
         ]
 
     def test_no_section_is_drawn_with_nothing_under_it(self, overview_page):
@@ -221,3 +224,47 @@ class TestTheDemoLoadsTheLibraryItself:
         """
         real_tags = re.findall(r"<script[^>]*chart-region\.js", chart_region_page)
         assert len(real_tags) == 1
+
+
+class TestChartRegionFailuresPage:
+    """T018: the demo shows both failure states on purpose."""
+
+    @pytest.fixture
+    def failures_page(self, client, db):
+        return client.get(reverse("chart_region_failures")).content.decode()
+
+    def test_the_page_is_served(self, failures_page):
+        assert "When a region cannot draw" in failures_page
+
+    def test_it_does_not_load_the_charting_library(self, failures_page):
+        """The one page whose subject is a region without one.
+
+        The project puts the delivery in its own base template, so every page
+        inherits it. This one overrides that block with an empty one. Without
+        that, the library loads, the region resolves, and the state the page
+        exists to show cannot happen.
+
+        Asserted against ECharts by name rather than against the CDN host:
+        django-mvp serves its icon font from the same one, so a check on the
+        host would fail on a page that is behaving correctly.
+        """
+        assert "echarts@" not in failures_page
+        assert not re.search(r"<script[^>]*echarts", failures_page)
+
+    def test_it_still_loads_the_package_module(self, failures_page):
+        """Which is what makes the states visible rather than merely absent."""
+        assert re.search(r"<script[^>]*chart-region\.js", failures_page)
+
+    def test_it_shows_a_region_that_will_report_a_missing_library(self, failures_page):
+        assert "data-mvp-chart-region-missing-library=" in failures_page
+
+    def test_it_shows_a_region_whose_wrapper_resolves_to_no_height(self, failures_page):
+        shown = re.sub(r"&quot;|&#39;", '"', failures_page)
+        assert 'style="height: 100%"' in shown
+
+    def test_it_shows_the_missing_attribute_state(self, failures_page):
+        assert 'role="alert"' in failures_page
+        assert "has no description" in failures_page
+
+    def test_the_sidebar_carries_its_entry(self, failures_page):
+        assert 'href="/chart-region/failures/"' in failures_page

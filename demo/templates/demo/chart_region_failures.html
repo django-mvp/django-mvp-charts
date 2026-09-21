@@ -1,0 +1,67 @@
+{% extends "page_view.html" %}
+{% load mvp %}
+{% comment %}
+  This page suppresses the development delivery the project puts in its own
+  base template. Without the empty override below — no block.super — the
+  library loads here too, window.echarts resolves, and the one state this
+  page exists to show cannot occur.
+{% endcomment %}
+{% block extra_js %}{% endblock extra_js %}
+{% block page.content %}
+  <c-section title="Why this page exists" icon="info">
+    <c-text>
+      Both of the ways a chart region can fail to draw produce the same thing on
+      screen: an empty box, no error, nothing to act on. So neither is left as an
+      empty box. Each one says what is wrong, in the page, where the chart would
+      have been.
+    </c-text>
+    <c-alert variant="warning" soft>
+      <span>
+        This page deliberately does not load the charting library, so every
+        example below is in a failing state on purpose.
+      </span>
+    </c-alert>
+  </c-section>
+  <c-section title="No charting library" icon="chart">
+    <c-text>
+      The library never arrives. The region waits first, because a bundle that
+      loads a moment after the page does is an ordinary project and accusing it
+      would send someone to fix something that is not broken. Once waiting stops
+      being a reasonable explanation it says so, and names both ways to supply
+      one.
+    </c-text>
+    <div class="rounded-box border-base-300 border" style="height: 200px">
+      <c-echarts.region name="Monthly revenue"
+                        description="Revenue by month over the last year." />
+    </div>
+  </c-section>
+  <c-section title="No height to fill" icon="overview">
+    <c-text>
+      The region below sits in an element with no resolved height — a percentage
+      height inside an ancestor sized by its own content, which is the common
+      shape of this mistake. A region takes its size from its wrapper and has
+      none of its own, so it has nothing to fill, and it takes just enough room
+      to say so.
+    </c-text>
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div style="height: 100%">
+          <c-echarts.region name="Signups"
+                            description="New accounts per week." />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+  <c-section title="No name, or no description" icon="document">
+    <c-text>
+      Both are required. A chart drawn into a canvas is invisible to anyone who
+      cannot see it, so neither is defaulted to nothing — the region is replaced
+      by a message naming which one is missing.
+    </c-text>
+    {% show_code %}
+      {% cotton:verbatim %}
+        <c-echarts.region name="Open tickets" />
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+{% endblock page.content %}
