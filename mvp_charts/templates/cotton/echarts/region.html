@@ -9,13 +9,18 @@
 {#   name        – accessible name for the chart (required)      #}
 {#   description – text alternative for what the chart shows     #}
 {#                 (required)                                    #}
+{#   id          – element id; auto-assigned per request when    #}
+{#                 omitted, so several regions on one page stay  #}
+{#                 independently identifiable                    #}
 {# ============================================================ #}
-<c-vars name="" description="" />
-<figure id="mvp-chart-region" class="relative h-full w-full" data-mvp-chart-region>
+<c-vars name="" description="" id="" />
+{% load mvp_charts %}
+{% if not id %}{% chart_region_id as id %}{% endif %}
+<figure id="{{ id }}" class="relative h-full w-full" data-mvp-chart-region>
   <div class="absolute inset-0"
        role="img"
        aria-label="{{ name }}"
-       aria-describedby="mvp-chart-region-description"
+       aria-describedby="{{ id }}-description"
        data-mvp-chart-region-surface></div>
-  <figcaption id="mvp-chart-region-description" class="sr-only">{{ description }}</figcaption>
+  <figcaption id="{{ id }}-description" class="sr-only">{{ description }}</figcaption>
 </figure>

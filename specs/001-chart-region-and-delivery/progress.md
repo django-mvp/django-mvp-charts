@@ -31,3 +31,19 @@ passed.
 **Next**: T002 — per-request ids so several regions on one page stay independently identifiable.
 
 **Watch**: nothing new.
+
+## 2026-09-21T13:15Z · Implementer US1 · T002
+
+**Did**: added `mvp_charts/templatetags/mvp_charts.py` with `ChartRegionAssets`, holding the
+per-request region counter, and the `chart_region_id` tag wrapping it. `region.html` now takes `id`
+as an optional author-supplied prop and calls the tag only when it is omitted.
+
+**Verified**: `poetry run pytest tests/test_templatetags/ tests/test_components/test_region.py` — 11
+passed. `poetry run mypy mvp_charts/templatetags/mvp_charts.py` — clean. `poetry run pre-commit run
+--files mvp_charts/templates/cotton/echarts/region.html mvp_charts/templatetags/__init__.py
+mvp_charts/templatetags/mvp_charts.py tests/test_templatetags/__init__.py
+tests/test_templatetags/test_mvp_charts.py tests/test_components/test_region.py` — all hooks passed.
+
+**Next**: T003 — a region with no name or no text alternative reports which is missing.
+
+**Watch**: nothing new.

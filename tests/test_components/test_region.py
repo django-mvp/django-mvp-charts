@@ -81,3 +81,40 @@ class TestChartRegion:
         html = render(A_REGION)
         assert "<script" not in html
         assert "x-data" not in html
+
+
+class TestChartRegionIdentity:
+    """Several regions on one page stay independently identifiable."""
+
+    def test_two_regions_in_one_template_get_different_ids(self):
+        html = render(
+            REGION.format(name="Revenue", description="Revenue by month.")
+            + REGION.format(name="Signups", description="New signups by week.")
+        )
+        ids = re.findall(r'<figure id="([^"]+)"', html)
+        assert len(ids) == 2
+        assert ids[0] != ids[1]
+
+    def test_each_regions_description_is_associated_with_that_region_and_no_other(self):
+        html = render(
+            REGION.format(name="Revenue", description="Revenue by month.")
+            + REGION.format(name="Signups", description="New signups by week.")
+        )
+        figure_ids = re.findall(r'<figure id="([^"]+)"', html)
+        surfaces = re.findall(r"<div[^>]*data-mvp-chart-region-surface[^>]*>", html)
+        assert len(figure_ids) == len(surfaces) == 2
+        for figure_id, surface in zip(figure_ids, surfaces, strict=True):
+            assert f'aria-describedby="{figure_id}-description"' in surface
+
+    def test_an_author_supplied_id_is_used_instead(self):
+        html = render(
+            '<c-echarts.region name="Revenue" description="Revenue by month." id="revenue-chart" />'
+        )
+        assert '<figure id="revenue-chart"' in html
+
+    def test_numbering_restarts_for_a_new_request(self):
+        html_a = render(A_REGION, request=rf.get("/"))
+        html_b = render(A_REGION, request=rf.get("/"))
+        id_a = re.search(r'<figure id="([^"]+)"', html_a).group(1)
+        id_b = re.search(r'<figure id="([^"]+)"', html_b).group(1)
+        assert id_a == id_b
