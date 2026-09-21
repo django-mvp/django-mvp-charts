@@ -7,7 +7,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.0.1]
-
-Initial scaffold. Build pipeline, test harness and demo project; no components
-yet.
+Initial scaffold: build pipeline, test harness and demo project. No components
+yet, and nothing released.
