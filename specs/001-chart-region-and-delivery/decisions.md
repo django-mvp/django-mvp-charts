@@ -113,3 +113,93 @@ Named deliberately, so a later reader does not mistake silence for an oversight:
   its appearance.
 - How a region is identified among its siblings. Independence is the requirement. The mechanism is
   implementation work.
+
+---
+
+# Planning decisions
+
+Added at the planning stage, after the specification merged. The entries above record why the
+specification reads as it does; these record how it is being built.
+
+## D6 — the region belongs to the ECharts namespace
+
+**Decision**: the component is `<c-echarts.region>`, in `cotton/echarts/`, rather than a
+library-neutral tag.
+
+**Why**: the region checks for a specific library's presence, reports that library by name when it is
+absent, and states the range of that library's versions it renders against. All three tie it to
+ECharts. Article XIII makes the namespace the way a template author chooses a backend, so a region
+that is about ECharts belongs in the ECharts namespace. Article III says the shared plumbing is
+factored out when there is a second namespace to share it with, not before.
+
+**Revisit if**: a second backend arrives. At that point the sizing markup, the module and the failure
+messages are the shared plumbing Article XIII names, and they move once — with two real callers to
+shape the move.
+
+## D7 — the module ships as one static file, loaded once per page by the component
+
+**Decision**: the browser behaviour is a dependency-free JavaScript file in this package's static
+files. The region emits its script tag through a template tag that returns the tag on its first call
+in a request and nothing afterwards.
+
+**Why**: three constraints meet here. A page with no region must load nothing new, which rules out
+putting the tag in the project's base template. A page with five regions must not load five copies or
+carry five inline copies of the logic, which rules out both a per-region script tag and an inline
+Alpine component. And the author must configure nothing, which rules out asking the project to
+include it. A once-per-request tag satisfies all three, and it is a dozen lines.
+
+Alpine is available — django-mvp bundles it — and is deliberately not used. Registering an Alpine
+component requires code that runs before Alpine starts, which is a lifecycle dependency for behaviour
+that needs none: two observers, a poll and a custom event.
+
+**Revisit if**: regions start being inserted after page load, by htmx or otherwise. The module's
+initialisation is idempotent, but nothing currently re-runs it for markup that arrives later.
+
+## D8 — the browser tests are the evidence, and CI cannot run them yet
+
+**Decision**: the guarantees whose subject is the browser are tested with Playwright against real
+pages. They pass in this repository's environment and skip where no browser is installed, which
+includes CI.
+
+**Why**: the sizing, the library wait and the resize behaviour do not exist server-side, so a rendered
+output assertion cannot reach them. django-mvp already solves this with pytest-playwright and a
+skip guard, and the shared test workflow already supports installing the browser — it takes
+`install-playwright: true` on the caller. This repository's workflow does not pass it, and
+automation here does not push `.github/workflows/**` at all, by design.
+
+So the choice is between writing the tests now and having them run everywhere later, or not writing
+them and having the behaviour unproven anywhere. The first is better, provided the gap is visible:
+it is in the plan, in the pull request body, and in an issue asking for the one-line change, because
+a skipped browser test that reads as a pass is how this goes wrong quietly.
+
+**Revisit if**: the workflow line lands. Then the guard's CI branch does the work django-mvp's does —
+a missing browser on CI becomes an error rather than a skip.
+
+## D9 — the delivery contract is the `window.echarts` global
+
+**Decision**: a region looks for `window.echarts` and uses whatever it finds. Both delivery routes are
+the same sentence, and nothing branches on a setting.
+
+**Why**: the requirement is that neither route is declared. A script tag from a CDN defines that
+global, and a bundle that imports the library and assigns it produces the same one, so the contract
+already exists and does not have to be invented. Anything else — a setting, a data attribute naming
+the route, a registry — would be a declaration, which is what the requirement forbids.
+
+**Revisit if**: a second backend needs the same treatment. The global's name is the backend's, so this
+is a per-namespace fact rather than a package-wide one.
+
+## D10 — the height is judged at first visibility, not at first paint
+
+**Decision**: a region measures itself when it first becomes visible, using an
+`IntersectionObserver`, and reports having no height only from that measurement. A region that
+measured a usable height once never reports height again.
+
+**Why**: the specification requires a zero-height wrapper to be reported and a region revealed after
+load to fill its wrapper then, and a region inside a hidden container has no height at load for a
+reason that is not a mistake. Judging at first paint would report every hidden region as
+misconfigured, which is the false-alarm case the specification's own reasoning rules out. First
+visibility is the one moment where a zero height means what the requirement says it means.
+
+**Revisit if**: a region is legitimately placed somewhere that never becomes visible and a project
+wants to know why it is empty. Today that region reports nothing, which is the deliberate reading of
+"losing a height later is not a failure" extended to never gaining one.
