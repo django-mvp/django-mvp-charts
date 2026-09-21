@@ -23,12 +23,19 @@ ALLOWED_HOSTS = ["*"]
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 
+# This project's own apps come first so its templates win over any the
+# libraries ship under the same name. That is what lets the demo supply
+# cotton/documentation.html, the display surface the {% show_code %} tag
+# renders its examples through.
 INSTALLED_APPS = [
+    "demo",
+    "mvp_charts",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "django.contrib.sites",
     "django.contrib.staticfiles",
     "mvp",
     "easy_icons",
@@ -36,14 +43,17 @@ INSTALLED_APPS = [
     "crispy_tailwind",
     "flex_menu",
     "django_cotton",
-    "mvp_charts",
-    "demo",
 ]
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
+    # The shell puts the site's name in every page title, reading it from
+    # request.site. This middleware is what puts it there.
+    "django.contrib.sites.middleware.CurrentSiteMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -80,6 +90,47 @@ DATABASES = {
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = ["tailwind"]
 CRISPY_TEMPLATE_PACK = "tailwind"
+
+# Which class draws the sidebar tree declared in demo/menus.py, and which draws
+# the dock shown below the sidebar breakpoint.
+FLEX_MENUS = {
+    "renderers": {
+        "sidebar": "mvp.renderers.SidebarRenderer",
+        "dock": "mvp.renderers.MobileFooterNavRenderer",
+    },
+    "log_url_failures": DEBUG,
+}
+
+# Icons are referenced by name. django-mvp's pack covers the names the shell
+# uses for itself; anything this project names goes on top of it. An
+# unregistered name raises rather than drawing nothing.
+EASY_ICONS = {
+    "default": {
+        "renderer": "easy_icons.renderers.ProviderRenderer",
+        "config": {"tag": "i"},
+        "packs": ["mvp.utils.BS5_ICONS"],
+        "icons": {
+            "chart": "bi bi-bar-chart",
+        },
+    },
+}
+
+# Deep-merged over django-mvp's defaults, so only the differences appear here.
+MVP_CONFIG = {
+    "layout": {
+        "sidebar": {
+            "title": "django-mvp-charts",
+            # Collapse to an icon rail rather than sliding away, so a chart
+            # page can be given the full width without losing its navigation.
+            "collapse": "icons",
+        },
+    },
+    "theme": {
+        # A chart reads its colours from the theme the host project is running,
+        # so the demo offers several to switch between.
+        "choices": ["light", "dark", "corporate", "dracula"],
+    },
+}
 
 STATIC_URL = "/static/"
 

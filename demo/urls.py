@@ -1,7 +1,7 @@
 from django.urls import path
 
-from demo.views import LandingView
+from demo.views import OverviewView
 
 urlpatterns = [
-    path("", LandingView.as_view(), name="landing"),
+    path("", OverviewView.as_view(), name="overview"),
 ]
