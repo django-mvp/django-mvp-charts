@@ -1,0 +1,113 @@
+{% extends "page_view.html" %}
+{% load mvp %}
+{% block page.content %}
+  <c-section title="Pairs, written out" icon="chart">
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div class="rounded-box border-base-300 border p-2" style="height: 320px">
+          <c-echarts.scatter name="Tests against build time"
+                             description="Nine builds plotted by the number of tests they ran against how long they took in seconds. Longer suites take longer."
+                             values="[[12, 34], [18, 41], [25, 52], [31, 58], [44, 79], [52, 88], [61, 104], [74, 118], [88, 141]]" />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+  <c-section title="The same chart, from values the view already has" icon="chart">
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div class="rounded-box border-base-300 border p-2" style="height: 320px">
+          <c-echarts.scatter name="Repository size against clone time"
+                             description="Sixty repositories plotted by size in megabytes against the seconds a clone took. The spread widens as repositories get larger."
+                             :values="sizes" />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+  <c-section title="Three named series" icon="overview">
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div class="rounded-box border-base-300 border p-2" style="height: 380px">
+          <c-echarts.scatter name="Seats against monthly usage by plan"
+                             description="Accounts on the free, team and enterprise plans plotted by seats against monthly usage. The three groups overlap at their edges and rise together."
+                             :series="cohorts" />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+  <c-section title="The whole chart built in Python" icon="document">
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div class="rounded-box border-base-300 border p-2" style="height: 360px">
+          <c-echarts.scatter :config="correlation_chart" />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+  <c-section title="A colour that means something" icon="chart">
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div class="rounded-box border-base-300 border p-2" style="height: 320px">
+          <c-echarts.scatter name="Response time against payload size"
+                             description="Requests plotted by payload size in kilobytes against response time in milliseconds, split into those that succeeded and those that timed out. The timeouts cluster at the largest payloads."
+                             :series="[{'name': 'Succeeded', 'color': 'success',
+                                        'data': [[4, 88], [9, 96], [14, 110], [21, 132], [28, 141], [33, 160], [41, 178], [48, 205]]},
+                                       {'name': 'Timed out', 'color': 'error',
+                                        'data': [[52, 820], [58, 910], [63, 880], [71, 960], [78, 1010]]}]" />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+  <c-section title="Reaching an option the component does not name" icon="document">
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div class="rounded-box border-base-300 border p-2" style="height: 360px">
+          <c-echarts.scatter :config="correlation_chart"
+                             :options="{'yAxis': {'axisLabel': {'formatter': '{value}s'}},
+                                        'series': [{'symbolSize': 6,
+                                                    'itemStyle': {'opacity': 0.55},
+                                                    'markLine': {'silent': True,
+                                                                 'symbol': 'none',
+                                                                 'lineStyle': {'color': 'mvp:warning'},
+                                                                 'data': [{'yAxis': 120, 'name': 'Budget'}]}}]}" />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+  <c-section title="Edges" icon="info">
+    <div class="grid gap-4 lg:grid-cols-2">
+      <div>
+        <h3 class="mb-2 text-sm font-semibold">Nothing to draw</h3>
+        <div class="rounded-box border-base-300 border p-2" style="height: 200px">
+          <c-echarts.scatter name="Repository size against clone time"
+                             description="Repositories plotted by size against clone time. Nothing has been measured yet."
+                             values="" />
+        </div>
+      </div>
+      <div>
+        <h3 class="mb-2 text-sm font-semibold">One point</h3>
+        <div class="rounded-box border-base-300 border p-2" style="height: 200px">
+          <c-echarts.scatter name="Repository size against clone time"
+                             description="One repository measured so far: 18 megabytes, cloned in 41 seconds."
+                             values="[[18, 41]]" />
+        </div>
+      </div>
+      <div>
+        <h3 class="mb-2 text-sm font-semibold">Six hundred points</h3>
+        <div class="rounded-box border-base-300 border p-2" style="height: 200px">
+          <c-echarts.scatter name="Latency against throughput"
+                             description="Six hundred samples of latency against throughput, clustered around fifty requests a second at four hundred milliseconds."
+                             :values="dense" />
+        </div>
+      </div>
+      <div>
+        <h3 class="mb-2 text-sm font-semibold">Values spanning four orders of magnitude</h3>
+        <div class="rounded-box border-base-300 border p-2" style="height: 200px">
+          <c-echarts.scatter name="Downloads against stars"
+                             description="Packages plotted by monthly downloads against repository stars, spanning tens to tens of thousands."
+                             values="[[12, 40], [48, 210], [190, 880], [760, 3100], [2400, 9800], [9100, 41000]]"
+                             :options="{'xAxis': {'type': 'log'}, 'yAxis': {'type': 'log'}}" />
+        </div>
+      </div>
+    </div>
+  </c-section>
+{% endblock page.content %}

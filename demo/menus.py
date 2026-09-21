@@ -19,7 +19,28 @@ from mvp.menus import AppMenu, MenuGroup
 #: Leaving the group out until it holds a page is the only shape that draws
 #: correctly at every point, and it costs nothing: the first chart type brings
 #: its group with it.
-CHART_TYPE_PAGES: list[MenuItem] = []
+CHART_TYPE_PAGES: list[MenuItem] = [
+    MenuItem(
+        name="line_chart",
+        view_name="line_chart",
+        extra_context={"label": "Line", "icon": "chart"},
+    ),
+    MenuItem(
+        name="bar_chart",
+        view_name="bar_chart",
+        extra_context={"label": "Bar", "icon": "chart"},
+    ),
+    MenuItem(
+        name="pie_chart",
+        view_name="pie_chart",
+        extra_context={"label": "Pie", "icon": "chart"},
+    ),
+    MenuItem(
+        name="scatter_chart",
+        view_name="scatter_chart",
+        extra_context={"label": "Scatter", "icon": "chart"},
+    ),
+]
 
 AppMenu.extend(
     [

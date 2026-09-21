@@ -1,0 +1,113 @@
+{% extends "page_view.html" %}
+{% load mvp %}
+{% block page.content %}
+  <c-section title="Slices, written out" icon="chart">
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div class="rounded-box border-base-300 border p-2" style="height: 340px">
+          <c-echarts.pie name="Sessions by channel"
+                         description="Where sessions came from: 42 percent direct, 31 percent search, 17 percent referral and 10 percent social."
+                         labels="Direct,Search,Referral,Social"
+                         values="42,31,17,10" />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+  <c-section title="The same chart, from values the view already has" icon="chart">
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div class="rounded-box border-base-300 border p-2" style="height: 340px">
+          <c-echarts.pie name="Sessions by channel"
+                         description="Where sessions came from across four channels, with direct the largest and social the smallest."
+                         :labels="channels"
+                         :values="channel_share" />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+  <c-section title="Twelve categories into six slices" icon="overview">
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div class="rounded-box border-base-300 border p-2" style="height: 340px">
+          <c-echarts.pie name="Bytes by language"
+                         description="Source bytes by language across twelve languages. Python is the largest at around 412,000 bytes, then JavaScript, HTML, CSS and SQL; the remaining seven are folded together."
+                         :labels="languages"
+                         :values="language_bytes" />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+  <c-section title="Folding sooner" icon="overview">
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div class="rounded-box border-base-300 border p-2" style="height: 340px">
+          <c-echarts.pie name="Bytes by language"
+                         description="Source bytes by language, with everything after the three largest folded together."
+                         :labels="languages"
+                         :values="language_bytes"
+                         slices="4" />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+  <c-section title="The whole chart built in Python" icon="document">
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div class="rounded-box border-base-300 border p-2" style="height: 340px">
+          <c-echarts.pie :config="spend_chart" />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+  <c-section title="Reaching an option the component does not name" icon="document">
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div class="rounded-box border-base-300 border p-2" style="height: 340px">
+          <c-echarts.pie :config="spend_chart"
+                         :options="{'series': [{'radius': ['46%', '64%'],
+                                                'label': {'formatter': '{b}\n{d}%'}}]}" />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+  <c-section title="Edges" icon="info">
+    <div class="grid gap-4 lg:grid-cols-2">
+      <div>
+        <h3 class="mb-2 text-sm font-semibold">Nothing to draw</h3>
+        <div class="rounded-box border-base-300 border p-2" style="height: 240px">
+          <c-echarts.pie name="Sessions by channel"
+                         description="Where sessions came from. Nothing has been recorded yet."
+                         :labels="channels"
+                         values="" />
+        </div>
+      </div>
+      <div>
+        <h3 class="mb-2 text-sm font-semibold">One slice</h3>
+        <div class="rounded-box border-base-300 border p-2" style="height: 240px">
+          <c-echarts.pie name="Sessions by channel"
+                         description="Where sessions came from. Every session so far arrived direct."
+                         labels="Direct"
+                         values="100" />
+        </div>
+      </div>
+      <div>
+        <h3 class="mb-2 text-sm font-semibold">Long slice names</h3>
+        <div class="rounded-box border-base-300 border p-2" style="height: 240px">
+          <c-echarts.pie name="Tickets by state"
+                         description="Open tickets by state: 47 closed without a change, 34 awaiting a customer response, 22 in progress with engineering and 15 scheduled for the next release."
+                         :labels="long_names"
+                         :values="long_name_counts" />
+        </div>
+      </div>
+      <div>
+        <h3 class="mb-2 text-sm font-semibold">One slice far larger than the rest</h3>
+        <div class="rounded-box border-base-300 border p-2" style="height: 240px">
+          <c-echarts.pie name="Requests by status"
+                         description="Requests by response status: almost all succeeded, with a handful of redirects, client errors and server errors."
+                         labels="200 OK,304 Not Modified,404 Not Found,500 Server Error"
+                         values="98400,1100,380,24" />
+        </div>
+      </div>
+    </div>
+  </c-section>
+{% endblock page.content %}

@@ -67,17 +67,28 @@ class TestSidebarMenu:
         assert re.findall(r'href="([^"]*)"', sidebar_navigation) == [
             "/",
             "/chart-region/",
+            "/charts/line/",
+            "/charts/bar/",
+            "/charts/pie/",
+            "/charts/scatter/",
         ]
 
     def test_the_chart_region_page_is_a_top_level_entry(self, sidebar_navigation):
         """Not filed under Charts, which is for chart types.
 
-        The region is not a chart type, and burying the one page that exists
-        under a section for pages that do not would make it harder to find
-        than it needs to be.
+        The region is not a chart type. It is the space they draw into, so it
+        sits above the group rather than inside it.
         """
         assert "<span>Chart region</span>" in sidebar_navigation
-        assert "Charts</span>" not in sidebar_navigation
+        assert sidebar_navigation.index("<span>Chart region</span>") < (
+            sidebar_navigation.index("Charts</span>")
+        )
+
+    def test_every_chart_type_is_filed_under_charts(self, sidebar_navigation):
+        """The group appears once there is a chart type to put in it."""
+        assert "Charts</span>" in sidebar_navigation
+        for label in ("Line", "Bar", "Pie", "Scatter"):
+            assert f"<span>{label}</span>" in sidebar_navigation
 
     def test_no_section_is_drawn_with_nothing_under_it(self, overview_page):
         """A container added before it has children renders as a dead control.

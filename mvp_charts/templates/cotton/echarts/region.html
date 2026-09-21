@@ -1,23 +1,17 @@
-{# ============================================================ #}
-{# <c-echarts.region> — the sized area a chart draws into        #}
-{#                                                                #}
-{# Fills its wrapper exactly; has no height of its own. The      #}
-{# wrapper — the host project's own sized element — is the only  #}
-{# thing that decides how big a region is.                       #}
-{#                                                                #}
-{# Props:                                                         #}
-{#   name        – accessible name for the chart (required)      #}
-{#   description – text alternative for what the chart shows     #}
-{#                 (required)                                    #}
-{#   id          – element id; auto-assigned per request when    #}
-{#                 omitted, so several regions on one page stay  #}
-{#                 independently identifiable                    #}
-{#                                                                #}
-{# A missing or empty name or description replaces the region    #}
-{# with a visible message naming what is missing, rather than    #}
-{# rendering with an empty value.                                #}
-{# ============================================================ #}
-<c-vars name="" description="" id="" />
+{# @description The sized area a chart draws into. Fills its wrapper exactly and has no height of its own. #}
+{# @strict #}
+{# @prop name:text | required | description:"Accessible name — what a screen reader announces this chart as" #}
+{# @prop description:text | required | description:"Text alternative — what the chart shows, for anyone who cannot see it" #}
+{# @prop id:text | description:"Element id. Assigned per request when omitted, so several regions on one page stay independently identifiable" #}
+{# @prop chart:text | description:"Id of a script element holding ECharts options for this region to draw. A region given none stays empty, which is what the chart types are built on" #}
+{% comment %}
+  The wrapper — the host project's own sized element — is the only thing that
+  decides how big a region is.
+
+  A missing or empty name or description replaces the region with a visible
+  message naming what is missing, rather than rendering with an empty value.
+{% endcomment %}
+<c-vars name description id="" chart="" />
 {% load i18n %}
 {% load mvp_charts %}
 {% if not name or not description %}
@@ -45,6 +39,7 @@
   <figure id="{{ id }}"
           class="relative h-full w-full"
           data-mvp-chart-region
+          {% if chart %}data-mvp-echarts-options="{{ chart }}"{% endif %}
           data-mvp-chart-region-missing-library="{% trans 'No charting library to draw with. Add the c-echarts.cdn component to your base template, or expose ECharts as window.echarts from your bundle.' %}"
           data-mvp-chart-region-no-height="{% trans 'No height to fill. Give the element around this chart a height: a chart region takes its size from its wrapper and has none of its own.' %}">
     <div class="absolute inset-0"
@@ -55,4 +50,5 @@
     <figcaption id="{{ id }}-description" class="sr-only">{{ description }}</figcaption>
   </figure>
   {% chart_region_assets %}
+  {% if chart %}{% echarts_assets %}{% endif %}
 {% endif %}

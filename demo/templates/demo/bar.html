@@ -1,0 +1,129 @@
+{% extends "page_view.html" %}
+{% load mvp %}
+{% block page.content %}
+  <c-section title="One series, written out" icon="chart">
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div class="rounded-box border-base-300 border p-2" style="height: 320px">
+          <c-echarts.bar name="Bookings by quarter"
+                         description="Bookings taken in each quarter: 148, 172, 165 and 203, peaking in the fourth quarter."
+                         labels="Q1,Q2,Q3,Q4"
+                         values="148,172,165,203" />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+  <c-section title="The same chart, from values the view already has" icon="chart">
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div class="rounded-box border-base-300 border p-2" style="height: 320px">
+          <c-echarts.bar name="Bookings by quarter"
+                         description="Bookings taken in each quarter of the year, peaking in the fourth quarter at 203."
+                         :labels="quarters"
+                         :values="bookings" />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+  <c-section title="Several named series, side by side" icon="overview">
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div class="rounded-box border-base-300 border p-2" style="height: 360px">
+          <c-echarts.bar name="Bookings by quarter and plan"
+                         description="Bookings in each quarter split across the starter, team and enterprise plans. Starter is the largest in every quarter and enterprise the smallest."
+                         :labels="quarters"
+                         :series="by_plan" />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+  <c-section title="Turned on its side, for long category names" icon="chart">
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div class="rounded-box border-base-300 border p-2" style="height: 320px">
+          <c-echarts.bar name="Headcount by department"
+                         description="People in each of five departments: research and development has 58, customer operations 41, sales and marketing 37, finance and legal 16, and people and workplace 12."
+                         :labels="departments"
+                         :values="headcount"
+                         horizontal />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+  <c-section title="The whole chart built in Python" icon="document">
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div class="rounded-box border-base-300 border p-2" style="height: 320px">
+          <c-echarts.bar :config="storage_chart" />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+  <c-section title="The same object, turned on its side by the tag" icon="document">
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div class="rounded-box border-base-300 border p-2" style="height: 320px">
+          <c-echarts.bar :config="storage_chart" horizontal />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+  <c-section title="Reaching an option the component does not name" icon="document">
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div class="rounded-box border-base-300 border p-2" style="height: 320px">
+          <c-echarts.bar name="Budget variance by month"
+                         description="Difference from budget in thousands of euros for the first six months. January, March and May are under budget; February, April and June are over."
+                         :labels="variance_labels"
+                         :values="variance"
+                         :options="{'yAxis': {'axisLabel': {'formatter': '{value}k'}},
+                                    'series': [{'itemStyle': {'borderRadius': 4},
+                                                'markLine': {'silent': True,
+                                                             'symbol': 'none',
+                                                             'lineStyle': {'color': 'mvp:base-content/40'},
+                                                             'data': [{'yAxis': 0}]}}]}" />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+  <c-section title="Edges" icon="info">
+    <div class="grid gap-4 lg:grid-cols-2">
+      <div>
+        <h3 class="mb-2 text-sm font-semibold">Nothing to draw</h3>
+        <div class="rounded-box border-base-300 border p-2" style="height: 200px">
+          <c-echarts.bar name="Bookings by quarter"
+                         description="Bookings taken in each quarter. None have been recorded yet."
+                         :labels="quarters"
+                         values="" />
+        </div>
+      </div>
+      <div>
+        <h3 class="mb-2 text-sm font-semibold">One bar</h3>
+        <div class="rounded-box border-base-300 border p-2" style="height: 200px">
+          <c-echarts.bar name="Bookings by quarter"
+                         description="Bookings taken so far this year. Only the first quarter is complete, at 148."
+                         labels="Q1"
+                         values="148" />
+        </div>
+      </div>
+      <div>
+        <h3 class="mb-2 text-sm font-semibold">Above and below zero</h3>
+        <div class="rounded-box border-base-300 border p-2" style="height: 200px">
+          <c-echarts.bar name="Budget variance by month"
+                         description="Difference from budget for the first six months, three of them under and three over."
+                         :labels="variance_labels"
+                         :values="variance" />
+        </div>
+      </div>
+      <div>
+        <h3 class="mb-2 text-sm font-semibold">More bars than labels can fit</h3>
+        <div class="rounded-box border-base-300 border p-2" style="height: 200px">
+          <c-echarts.bar name="Commits by month"
+                         description="Commits pushed in each of the last twelve months, between 24 and 91 a month."
+                         :labels="months"
+                         values="41,38,52,49,63,58,71,66,84,79,91,74" />
+        </div>
+      </div>
+    </div>
+  </c-section>
+{% endblock page.content %}
