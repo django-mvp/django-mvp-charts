@@ -23,6 +23,7 @@ MEASURE_REGIONS = """
 () => Array.from(document.querySelectorAll('[data-mvp-chart-region]')).map(
   (region) => ({
     id: region.id,
+    state: region.dataset.mvpChartRegionState,
     region: { width: region.offsetWidth, height: region.offsetHeight },
     wrapper: {
       width: region.parentElement.clientWidth,
@@ -35,19 +36,35 @@ MEASURE_REGIONS = """
 
 @pytest.fixture
 def chart_region_measurements(chromium_or_skip, live_server, page):
-    """Every region on the demo's chart region page, measured."""
+    """The regions on the demo's chart region page that can draw, measured.
+
+    The page also carries a region whose wrapper deliberately resolves to no
+    height, to show what that state looks like. It is excluded here: it is
+    reporting rather than drawing, and it is given a readable minimum height
+    to say so, which is the one case where a region is *not* its wrapper.
+    `TestTheReportingRegionIsExcludedOnPurpose` asserts it is really there,
+    so this filter cannot quietly empty the list.
+    """
     page.goto(f"{live_server.url}/chart-region/")
-    return page.evaluate(MEASURE_REGIONS)
+    page.wait_for_function(
+        "() => Array.from(document.querySelectorAll('[data-mvp-chart-region]'))"
+        ".every((r) => r.dataset.mvpChartRegionState)",
+        timeout=5000,
+    )
+    measured = page.evaluate(MEASURE_REGIONS)
+    return [m for m in measured if m["state"] == "ready"]
 
 
 class TestRegionFillsItsWrapper:
     """T007: the region's box is its wrapper's box, measured rather than asserted."""
 
-    def test_every_region_on_the_page_was_measured(self, chart_region_measurements):
+    def test_every_drawable_region_on_the_page_was_measured(
+        self, chart_region_measurements
+    ):
         """Guards the rest of the class against passing on an empty page.
 
         Every assertion below is over a list. A page that failed to render its
-        regions would give an empty one, and every ``all()`` over it would be
+        regions would give an empty one, and every loop over it would be
         vacuously true.
         """
         assert len(chart_region_measurements) == 5
@@ -74,11 +91,9 @@ class TestRegionFillsItsWrapper:
             assert measured["region"]["width"] > 0, measured["id"]
 
 
-#: Record every resize event a region dispatches, so a test can count them
-#: as well as read the last one. Installed before the size is changed.
 #: The demo's wrappers carry a one-pixel border on every side, so a wrapper
 #: styled to 420px gives the region 418px to fill. The region filling its
-#: wrapper's *inner* box is the contract; this is what turns that into the
+#: wrapper's *inner* box is the contract, and this is what turns that into a
 #: number a test can assert.
 WRAPPER_BORDER = 2
 
@@ -87,6 +102,8 @@ RESIZE_FIRST_WRAPPER = (
     ".parentElement.style.height = '{height}px'; }}"
 )
 
+#: Record every resize event a region dispatches, so a test can count them as
+#: well as read the last one. Installed before the size is changed.
 RECORD_RESIZES = """
 () => {
   window.__resizes = [];
@@ -197,3 +214,38 @@ class TestHoldsItsShape:
         assert 0 < len(reported) <= 5
         assert reported[-1]["height"] == settled
         assert self.measure(page_with_regions)[0]["region"]["height"] == settled
+
+
+class TestTheReportingRegionIsExcludedOnPurpose:
+    """The page's deliberate no-height region, which the filter above drops.
+
+    Without this, a change that stopped that region reporting would silently
+    shrink what the measurements cover instead of failing anything.
+    """
+
+    def test_the_page_carries_one_region_reporting_no_height(
+        self, chromium_or_skip, live_server, page
+    ):
+        page.goto(f"{live_server.url}/chart-region/")
+        page.wait_for_function(
+            "() => Array.from(document.querySelectorAll('[data-mvp-chart-region]'))"
+            ".filter((r) => r.dataset.mvpChartRegionState === 'no-height')"
+            ".length === 1",
+            timeout=5000,
+        )
+
+    def test_it_takes_enough_room_for_its_message_to_be_read(
+        self, chromium_or_skip, live_server, page
+    ):
+        page.goto(f"{live_server.url}/chart-region/")
+        page.wait_for_function(
+            "() => Array.from(document.querySelectorAll('[data-mvp-chart-region]'))"
+            ".some((r) => r.dataset.mvpChartRegionState === 'no-height')",
+            timeout=5000,
+        )
+        height = page.evaluate(
+            "() => Array.from(document.querySelectorAll('[data-mvp-chart-region]'))"
+            ".find((r) => r.dataset.mvpChartRegionState === 'no-height')"
+            ".getBoundingClientRect().height"
+        )
+        assert height >= 48

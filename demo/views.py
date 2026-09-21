@@ -1,3 +1,4 @@
+from django.views.generic import TemplateView
 from mvp.views import MVPTemplateView
 
 
@@ -15,14 +16,19 @@ class ChartRegionView(MVPTemplateView):
 
     template_name = "demo/chart_region.html"
     page_title = "Chart region"
-    page_subtitle = "The space a chart draws into, sized by the element around it"
-    breadcrumbs = [{"text": "Charts"}, {"text": "Chart region"}]
+    page_subtitle = (
+        "The space a chart draws into, and how it behaves when nothing draws"
+    )
+    breadcrumbs = [{"text": "Chart region"}]
 
 
-class ChartRegionFailuresView(MVPTemplateView):
-    """The two states where a region cannot draw, shown on purpose."""
+class ChartRegionNoLibraryView(TemplateView):
+    """One region on a page with no charting library, for the frame above.
 
-    template_name = "demo/chart_region_failures.html"
-    page_title = "When a region cannot draw"
-    page_subtitle = "What the page says instead of showing an empty box"
-    breadcrumbs = [{"text": "Charts"}, {"text": "When a region cannot draw"}]
+    Not in the navigation and not a page anyone visits. The check for the
+    library reads a global, so it is a fact about the whole document — the
+    only way to show that state beside a working one is to put it in a
+    document of its own and embed it.
+    """
+
+    template_name = "demo/chart_region_no_library.html"

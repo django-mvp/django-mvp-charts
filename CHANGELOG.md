@@ -24,7 +24,8 @@ has been released.
 - `mvp_charts/locale/`, with a base English catalog. These are the package's
   first user-facing strings.
 - A demo page showing a region in a sized wrapper, four more at four different
-  heights, and the markup that produced them.
+  heights, the markup that produced them, and every state a region can be in
+  when it cannot draw.
 - `<c-echarts.cdn>`, the development delivery: one script tag, pinned to an
   exact ECharts version and carrying a subresource integrity hash. A project
   places it in its own base template. No component emits it, so installing
@@ -46,7 +47,6 @@ has been released.
   when it is revealed. A region that loses its height afterwards reports
   nothing.
 - One region failing leaves every other region on the page working.
-- A second demo page showing both failure states on purpose.
 - `mvp-chart-region:resize`, dispatched on a region whenever its box changes
   and carrying the measured `{ width, height }`. This is the contract a chart
   type subscribes to in order to redraw, designed before any chart type exists

@@ -56,22 +56,28 @@ class TestSidebarMenu:
         assert "<span>Overview</span>" in sidebar_navigation
         assert 'href="/"' in sidebar_navigation
 
-    def test_the_charts_section_holds_exactly_the_chart_pages(self, sidebar_navigation):
+    def test_it_holds_exactly_the_pages_that_exist(self, sidebar_navigation):
         """The sidebar holds the pages that exist and nothing else.
 
         This started out asserting the sidebar held only Overview, which was
-        the same claim while ``CHART_PAGES`` was empty. Adding a chart page is
-        meant to fail it: the list below is the one place that says what the
-        navigation should hold, so a page added without a thought about where
-        it belongs stops here.
+        the same claim while there were no other pages. The list below is the
+        one place that says what the navigation should hold, so a page added
+        without a thought about where it belongs stops here.
         """
-        assert "Charts</span>" in sidebar_navigation
-        assert "<span>Chart region</span>" in sidebar_navigation
         assert re.findall(r'href="([^"]*)"', sidebar_navigation) == [
             "/",
             "/chart-region/",
-            "/chart-region/failures/",
         ]
+
+    def test_the_chart_region_page_is_a_top_level_entry(self, sidebar_navigation):
+        """Not filed under Charts, which is for chart types.
+
+        The region is not a chart type, and burying the one page that exists
+        under a section for pages that do not would make it harder to find
+        than it needs to be.
+        """
+        assert "<span>Chart region</span>" in sidebar_navigation
+        assert "Charts</span>" not in sidebar_navigation
 
     def test_no_section_is_drawn_with_nothing_under_it(self, overview_page):
         """A container added before it has children renders as a dead control.
@@ -79,9 +85,8 @@ class TestSidebarMenu:
         django-mvp draws a navigation node from its leaf template until it has
         children, so a section declared while its page list is empty reaches
         the page as a button carrying ``href="None"``. This is what keeps that
-        from being reintroduced without anyone noticing — it is why the Charts
-        section is conditional on holding a page, and it stays true now that
-        it holds one.
+        from being reintroduced without anyone noticing, and it is why the
+        Charts group is conditional on holding a page.
         """
         assert 'href="None"' not in overview_page
 
@@ -149,10 +154,15 @@ class TestChartRegionPage:
         shown_source = re.sub(r"&quot;|&#39;", '"', chart_region_page)
         assert "height: 320px" in shown_source
 
-    def test_it_shows_five_independent_regions(self, chart_region_page):
+    def test_it_shows_seven_independent_regions(self, chart_region_page):
+        """Five that work, plus the two failing states this document can hold.
+
+        The third failing state needs a document with no charting library, so
+        it is framed rather than placed here.
+        """
         ids = re.findall(r'<figure id="([^"]+)"', chart_region_page)
-        assert len(ids) == 5
-        assert len(set(ids)) == 5
+        assert len(ids) == 6
+        assert len(set(ids)) == 6
 
     def test_every_region_describes_its_own_caption(self, chart_region_page):
         """Independence is what the ids are for, so assert what they buy.
@@ -166,11 +176,10 @@ class TestChartRegionPage:
             chart_region_page,
             re.S,
         )
-        assert len(pairs) == 5
+        assert len(pairs) == 6
         assert all(described == f"{region}-description" for region, described in pairs)
 
-    def test_the_charts_section_carries_an_entry_for_the_page(self, chart_region_page):
-        assert "Charts</span>" in chart_region_page
+    def test_the_sidebar_carries_its_entry(self, chart_region_page):
         assert 'href="/chart-region/"' in chart_region_page
         assert "Chart region</span>" in chart_region_page
 
@@ -226,45 +235,36 @@ class TestTheDemoLoadsTheLibraryItself:
         assert len(real_tags) == 1
 
 
-class TestChartRegionFailuresPage:
-    """T018: the demo shows both failure states on purpose."""
+class TestTheStatesAreShownOnThatPage:
+    """T018: every state a region can be in is demonstrated, not described."""
 
-    @pytest.fixture
-    def failures_page(self, client, db):
-        return client.get(reverse("chart_region_failures")).content.decode()
+    def test_it_shows_a_region_whose_wrapper_resolves_to_no_height(
+        self, chart_region_page
+    ):
+        assert 'style="height: 100%"' in chart_region_page
 
-    def test_the_page_is_served(self, failures_page):
-        assert "When a region cannot draw" in failures_page
+    def test_it_shows_the_missing_attribute_state(self, chart_region_page):
+        assert 'role="alert"' in chart_region_page
+        assert "has no description" in chart_region_page
 
-    def test_it_does_not_load_the_charting_library(self, failures_page):
-        """The one page whose subject is a region without one.
+    def test_it_frames_the_missing_library_state(self, chart_region_page):
+        """The library check reads a global, so that state needs its own document.
 
-        The project puts the delivery in its own base template, so every page
-        inherits it. This one overrides that block with an empty one. Without
-        that, the library loads, the region resolves, and the state the page
-        exists to show cannot happen.
-
-        Asserted against ECharts by name rather than against the CDN host:
-        django-mvp serves its icon font from the same one, so a check on the
-        host would fail on a page that is behaving correctly.
+        A frame keeps it on the one page a reader visits while still showing
+        it live rather than describing it.
         """
-        assert "echarts@" not in failures_page
-        assert not re.search(r"<script[^>]*echarts", failures_page)
+        assert 'src="/chart-region/no-library/"' in chart_region_page
+        assert "<iframe" in chart_region_page
 
-    def test_it_still_loads_the_package_module(self, failures_page):
-        """Which is what makes the states visible rather than merely absent."""
-        assert re.search(r"<script[^>]*chart-region\.js", failures_page)
+    def test_the_framed_document_has_no_charting_library(self, client, db):
+        framed = client.get(reverse("chart_region_no_library")).content.decode()
+        assert "echarts@" not in framed
+        assert not re.search(r"<script[^>]*echarts", framed)
 
-    def test_it_shows_a_region_that_will_report_a_missing_library(self, failures_page):
-        assert "data-mvp-chart-region-missing-library=" in failures_page
+    def test_the_framed_document_still_loads_the_package_module(self, client, db):
+        """Which is what makes the state visible rather than merely absent."""
+        framed = client.get(reverse("chart_region_no_library")).content.decode()
+        assert re.search(r"<script[^>]*chart-region\.js", framed)
 
-    def test_it_shows_a_region_whose_wrapper_resolves_to_no_height(self, failures_page):
-        shown = re.sub(r"&quot;|&#39;", '"', failures_page)
-        assert 'style="height: 100%"' in shown
-
-    def test_it_shows_the_missing_attribute_state(self, failures_page):
-        assert 'role="alert"' in failures_page
-        assert "has no description" in failures_page
-
-    def test_the_sidebar_carries_its_entry(self, failures_page):
-        assert 'href="/chart-region/failures/"' in failures_page
+    def test_the_framed_document_is_not_in_the_navigation(self, sidebar_navigation):
+        assert "no-library" not in sidebar_navigation

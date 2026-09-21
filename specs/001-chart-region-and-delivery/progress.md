@@ -323,3 +323,39 @@ prebuilt stylesheet. The package ships no CSS, so a class upstream does not use 
 its build and the message would render unstyled.
 
 **Next**: S7 walkthrough.
+
+## 2026-09-21T16:05Z · Orchestrator · walkthrough feedback
+
+Two corrections from the owner at the walkthrough, both applied.
+
+**The Charts section is a `MenuGroup`, not a `MenuCollapse`.** django-mvp offers both; a group is a
+section heading with its entries always visible, a collapse hides them behind a control that starts
+closed. Chart types should not be a click away. It stays conditional on holding a page for the
+reason it always was — a navigation node with no children renders as an inert button rather than a
+heading.
+
+**Two demo pages became one, and it sits above the group.** Neither of the pages showed a chart, so
+filing them under Charts was wrong twice over: they were not chart types, and the section for chart
+types had nothing else in it. There is now a single *Chart region* entry at the top level, and the
+Charts group is empty until the first chart type brings it back.
+
+**What that cost, and how it was kept.** FR-019 requires the demo to show both failure states
+deliberately, and the missing-library state needs a document without the library — the check reads a
+global, so it is a fact about a whole page rather than about one region. The state is now shown in a
+frame, served by a route that is not in the navigation. One page to visit, three states shown live,
+the requirement intact.
+
+**A defect this uncovered in the previous version of the page.** The no-height example was a wrapper
+with `height: 100%` inside a grid cell, and a stretched grid cell has a definite height, so the
+percentage resolved and the region drew normally. The example had never shown the state it claimed
+to. `items-start` on the grid makes the column content-sized, which is what makes the percentage
+resolve to nothing. It was invisible on the old page because that page had no measurement over it;
+it surfaced here because moving the example onto the measured page made a browser test count six
+regions where it expected five.
+
+**The measurements now filter to regions that can draw**, since the page deliberately carries one
+that cannot, and a reporting region is given a readable minimum height — the one case where a region
+is not its wrapper. `TestTheReportingRegionIsExcludedOnPurpose` asserts that region is really there,
+so the filter cannot quietly empty the list it feeds.
+
+**Verified**: `poetry run pytest` — 110 passed. `forge verify` green on all six steps.

@@ -3,15 +3,16 @@
 {% block page.content %}
   <c-section title="Placing a region" icon="info">
     <c-text>
-      A chart region is placed like any other component, inside an element the project
-      has already given a height. It fills that element exactly and has no height of
-      its own, so the wrapper below carries one and the region takes it.
+      A chart region is placed like any other component, inside an element the
+      project has already given a height. It fills that element exactly and has
+      no height of its own, so the wrapper below carries one and the region
+      takes it.
     </c-text>
     <c-text>
-      The name and the description are both required. The name is what a screen reader
-      announces the chart as, and the description is what it says the chart shows —
-      neither is optional, because a chart drawn into a canvas is invisible without
-      them.
+      The name and the description are both required. The name is what a screen
+      reader announces the chart as, and the description is what it says the
+      chart shows. Neither is optional, because a chart drawn into a canvas is
+      invisible without them.
     </c-text>
     {% comment %}
       cotton:verbatim is required, not decoration: without it Cotton compiles
@@ -28,15 +29,16 @@
     {% endshow_code %}
     <c-alert variant="info" soft>
       <span>
-        Nothing is drawn yet. The region is the space a chart type will draw into, and
-        the chart types arrive in later releases.
+        The region above is working. It is empty because no chart type exists
+        yet — the region is the space one will draw into, and the chart types
+        arrive in later releases.
       </span>
     </c-alert>
   </c-section>
   <c-section title="Several on one page" icon="overview">
     <c-text>
-      Each region is its own, whatever size it is given. They take four different
-      heights here, and none of them knows the others exist.
+      Each region is its own, whatever size it is given. They take four
+      different heights here, and none of them knows the others exist.
     </c-text>
     <div class="grid gap-4 md:grid-cols-2">
       <div class="rounded-box border-base-300 border" style="height: 200px">
@@ -57,12 +59,52 @@
       </div>
     </div>
   </c-section>
-  <c-section title="The wrapper is not optional" icon="document">
+  <c-section title="When it cannot draw" icon="document">
     <c-text>
-      A region put in an element with no resolved height gets none itself, and a chart
-      with no height is a blank rectangle nobody can diagnose. That is why the region
-      says so instead, on the page, where the chart would have been. The page on what
-      happens when a region cannot draw shows that state deliberately.
+      Three things stop a region working, and all three look the same on screen:
+      an empty box, no error, nothing to act on. So none of them is left as one.
+      Each says what is wrong, in the page, where the chart would have been.
     </c-text>
+    <div class="grid items-start gap-6 lg:grid-cols-3">
+      <div>
+        <h3 class="text-base font-semibold">No height to fill</h3>
+        <c-text tight muted>
+          The element around it resolved to nothing, usually a percentage height
+          inside an ancestor sized by its own content.
+        </c-text>
+        {% comment %}
+          The wrapper asks for a percentage of an ancestor that is sized by
+          its own content, so it resolves to nothing. `items-start` on the
+          grid above is what keeps that true: a stretched grid cell has a
+          definite height, and the percentage would resolve against it.
+        {% endcomment %}
+        <div class="rounded-box border-base-300 mt-3 border" style="height: 100%">
+          <c-echarts.region name="Signups"
+                            description="New accounts per week." />
+        </div>
+      </div>
+      <div>
+        <h3 class="text-base font-semibold">No description</h3>
+        <c-text tight muted>
+          Both the name and the description are required, and neither is
+          defaulted to nothing.
+        </c-text>
+        <div class="mt-3">
+          <c-echarts.region name="Open tickets" />
+        </div>
+      </div>
+      <div>
+        <h3 class="text-base font-semibold">No charting library</h3>
+        <c-text tight muted>
+          Framed from a document of its own, because the check reads a global
+          and so applies to a whole page. Takes a few seconds: a bundle still
+          loading is an ordinary project, so the region waits before it judges.
+        </c-text>
+        <iframe src="{% url 'chart_region_no_library' %}"
+                title="A chart region on a page with no charting library"
+                class="rounded-box border-base-300 mt-3 w-full border"
+                style="height: 180px"></iframe>
+      </div>
+    </div>
   </c-section>
 {% endblock page.content %}

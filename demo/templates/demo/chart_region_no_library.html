@@ -1,0 +1,22 @@
+{% comment %}
+  One region, in a document with no charting library. Framed by the chart
+  region page so that state can be seen beside a working one.
+
+  Deliberately not extending the demo's base: the project places the
+  development delivery there, so a page inheriting it would have the library
+  and could not show this.
+{% endcomment %}
+{% load static %}<!DOCTYPE html>
+<html lang="en" data-theme="corporate">
+  <head>
+    <meta charset="utf-8">
+    <title>A chart region with no charting library</title>
+    <link rel="stylesheet" href="{% static 'css/django-mvp.css' %}">
+  </head>
+  <body class="bg-base-100 text-base-content">
+    <div style="height: 180px">
+      <c-echarts.region name="Monthly revenue"
+                        description="Revenue by month over the last year." />
+    </div>
+  </body>
+</html>
