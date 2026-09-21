@@ -20,7 +20,10 @@ author's name as its accessible name, a `figcaption` carrying the description as
 sizing classes that make the region exactly its wrapper. No class-presence assertion stands alone —
 each one is asserted as part of the element contract it belongs to.
 
-*Implement*: `mvp_charts/templates/cotton/echarts/region.html` per plan.md *The region's markup*.
+*Implement*: `mvp_charts/templates/cotton/echarts/region.html` per plan.md *The region's markup*. Add
+`"tests/test_components/"` to `[tool.forge.conformance] non-mirror-paths` in `pyproject.toml` beside
+the two entries already there — this directory's subject is a template, so there is no module to
+mirror, and Article X requires the declaration rather than inferring it.
 
 Closes FR-001, FR-002, FR-003, FR-005. Serves SC-001, SC-006.
 
@@ -153,10 +156,15 @@ Closes SC-008.
 
 ### T013 — a missing library is reported in the page, after the wait
 
-*Test first*: `tests/test_components/test_region_e2e.py::TestMissingLibrary` — load the failures page
-with no library available, wait past the grace window, and assert the region's own area carries a
-message naming ECharts and both ways to supply it, and that it is in the page rather than only in the
-console.
+*Test first, without a browser*: `tests/test_components/test_region.py::TestFailureMessages` — render a
+region and assert both messages are already in the page as `data-` attributes, with the wording the
+reader will see and translated under a second active language. The message text is server-rendered,
+so it is asserted on every pull request whatever CI does about browsers, and only the timing is left
+to the browser test.
+
+*Then in a browser*: `tests/test_components/test_region_e2e.py::TestMissingLibrary` — load the failures
+page with no library available, wait past the grace window, and assert the region's own area now shows
+the message naming ECharts and both ways to supply it, in the page rather than only in the console.
 
 *Implement*: the module's wait-then-report path; the messages passed in as `data-` attributes through
 `{% trans %}`.
@@ -208,7 +216,10 @@ region with no resolved height, a region missing its text alternative, and one w
 sidebar carries its entry.
 
 *Implement*: `demo/templates/demo/chart_region_failures.html`, its view, route and menu entry, and the
-README section naming both messages and what each one means.
+README section naming both messages and what each one means. The page overrides
+`{% block extra_js %}` with an empty block — no `{{ block.super }}` — so it does not inherit the
+development delivery line from the demo's `base.html`. Without that override the library loads and the
+missing-library state cannot occur on the one page whose subject it is.
 
 Closes FR-019. Serves SC-005.
 

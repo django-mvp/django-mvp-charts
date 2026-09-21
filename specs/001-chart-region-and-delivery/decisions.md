@@ -203,3 +203,24 @@ visibility is the one moment where a zero height means what the requirement says
 **Revisit if**: a region is legitimately placed somewhere that never becomes visible and a project
 wants to know why it is empty. Today that region reports nothing, which is the deliberate reading of
 "losing a height later is not a failure" extended to never gaining one.
+
+## D11 — findings from the design review, and what was done with each
+
+The design review ran on the plan before any code existed. Three findings, all verified, all applied
+as edits to `plan.md` and `tasks.md`:
+
+- **The failures demo page would have had a library.** The development delivery line lives in the
+  demo's `base.html`, so every page inherits it, including the page whose subject is a region with no
+  library. The page now overrides `{% block extra_js %}` with an empty block. Caught before the page
+  existed, where it cost a sentence.
+- **The test-layout declaration was written as though it had already been made.** `pyproject.toml`
+  names two non-mirror paths and not the new component test directory. Adding it is now part of T001
+  rather than an assumption in the plan.
+- **The failure messages are server-rendered, so their text does not need a browser to assert.** The
+  module decides when a message appears; the page already carries what it says. The wording and its
+  translation are now a rendered-output test that runs on every pull request, and the browser test is
+  left with the part that is genuinely browser-shaped. This matters because the browser tests skip on
+  CI until the workflow line lands (D8), and this is the half of the guarantee that did not have to
+  wait for it.
+
+**Revisit if**: nothing. These are absorbed.

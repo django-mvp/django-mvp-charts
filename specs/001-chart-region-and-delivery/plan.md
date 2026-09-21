@@ -71,7 +71,7 @@ module, one JavaScript module, two demo pages, four stories, 23 tasks.
 | VII — Dependency discipline | No new dependency of any kind. `deptry` unaffected. |
 | VIII — Internationalization | Every message the region can show is wrapped for translation, and the package gains `locale/` with a base English catalog — its first user-facing strings arrive with this feature. |
 | IX — Data-model conventions | N/A. No models, no migrations. |
-| X — Test structure | `tests/test_templatetags/test_mvp_charts.py` mirrors `mvp_charts/templatetags/mvp_charts.py`. Component and browser tests have no Python module to mirror, so `tests/test_components/` is declared under `[tool.forge.conformance] non-mirror-paths`. |
+| X — Test structure | `tests/test_templatetags/test_mvp_charts.py` mirrors `mvp_charts/templatetags/mvp_charts.py`. Component and browser tests have no Python module to mirror, so `tests/test_components/` is added to the `[tool.forge.conformance] non-mirror-paths` list in `pyproject.toml`, which currently names only `tests/test_app.py` and `tests/test_demo.py`. That edit is part of T001, not an assumption. |
 | XI — Cohesion | The template tags share a subject — the region's per-request identity and its one-time asset tag — so they are methods on one class, with the tags as thin registered wrappers. |
 | XII — No library vendored or served | ECharts is never committed, never placed in static files, never bundled. The development delivery is a component the **project** places in its own base template; no region injects a script. |
 | XIII — One namespace per backend | The region is `<c-echarts.region>`, in the namespace that names the library whose presence it checks for. |
@@ -249,6 +249,12 @@ The strings live in the JavaScript module, which cannot use `gettext`, so they a
 the server: the region element carries them as `data-` attributes rendered through `{% trans %}`.
 That keeps one translation catalog for the package and keeps the module free of English.
 
+**Because the messages are server-rendered, their text is asserted without a browser.** The module
+decides *when* a message is shown; the page already carries *what* it says, so the wording, the
+translation and the presence of both attributes are a rendered-output test that runs on every pull
+request whatever CI does about browsers. The browser tests then assert only the part that is
+genuinely browser-shaped: that the message becomes visible in the region's own area, and when.
+
 ### The demo project
 
 Two pages, both under a new **Charts** section that arrives with the first of them (the empty
@@ -257,9 +263,16 @@ Two pages, both under a new **Charts** section that arrives with the first of th
 1. **Chart region** — one region in a wrapper with an explicit inline height, its markup shown
    through `{% show_code %}`, and five regions in five differently sized wrappers to demonstrate
    independence (FR-007, SC-002).
-2. **When a region cannot draw** — the missing-library state (a region on a page that deliberately
-   does not include the CDN line), the no-height state (a region in a wrapper with no resolved
-   height), a missing text alternative, and one working region beside a failing one (FR-019).
+2. **When a region cannot draw** — the missing-library state, the no-height state (a region in a
+   wrapper with no resolved height), a missing text alternative, and one working region beside a
+   failing one (FR-019).
+
+**The failures page suppresses the inherited delivery.** The development delivery line lives in the
+demo's own `base.html`, inside `{% block extra_js %}`, so every page in the project inherits it —
+including the page whose subject is a region with no library. The failures page therefore overrides
+that block with an empty one (no `{{ block.super }}`), which is ordinary Django block inheritance
+across a grandparent template and needs no mechanism of its own. Without it the page loads ECharts,
+`window.echarts` resolves, and the state the page exists to show cannot occur.
 
 ## Task graph
 
