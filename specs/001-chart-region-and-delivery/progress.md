@@ -14,3 +14,20 @@ project serves on its own port from this worktree.
 **Watch**: the browser tests cannot run on CI until one line is added to this repository's test
 workflow, and automation does not push workflow files. Recorded in `plan.md`, filed as an issue, and
 stated in the pull request rather than left implicit.
+
+## 2026-09-21T13:05Z · Implementer US1 · T001
+
+**Did**: wrote `mvp_charts/templates/cotton/echarts/region.html` per plan.md *The region's markup* —
+a `figure` carrying `data-mvp-chart-region`, sized `relative h-full w-full`, a `role="img"` drawing
+surface carrying the author's `name` as its accessible name, and a `figcaption` carrying `description`
+as reachable text. The id is a fixed literal for this task; T002 replaces it with the per-request
+generator. Declared `tests/test_components/` in `[tool.forge.conformance] non-mirror-paths`.
+
+**Verified**: `poetry run pytest tests/test_components/test_region.py::TestChartRegion` — 5 passed.
+`poetry run pre-commit run --files mvp_charts/templates/cotton/echarts/region.html
+tests/test_components/__init__.py tests/test_components/test_region.py pyproject.toml` — all hooks
+passed.
+
+**Next**: T002 — per-request ids so several regions on one page stay independently identifiable.
+
+**Watch**: nothing new.
