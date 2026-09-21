@@ -47,3 +47,19 @@ tests/test_templatetags/test_mvp_charts.py tests/test_components/test_region.py`
 **Next**: T003 — a region with no name or no text alternative reports which is missing.
 
 **Watch**: nothing new.
+
+## 2026-09-21T13:22Z · Implementer US1 · T003
+
+**Did**: `region.html` now guards on `name`/`description`: when either is missing or an empty
+string, it renders a `role="alert"` message naming which one, translated with `{% trans %}`, and
+renders no region at all — no `figure`, no id generated. Empty string and omission both trip the
+guard, per D5.
+
+**Verified**: `poetry run pytest tests/test_components/test_region.py` — 14 passed (full file, not
+just the new class, since the guard sits in front of every other path through the same template).
+`poetry run pre-commit run --files mvp_charts/templates/cotton/echarts/region.html
+tests/test_components/test_region.py` — all hooks passed.
+
+**Next**: T004 — ship the base English catalog and prove the wrapped strings translate.
+
+**Watch**: nothing new.

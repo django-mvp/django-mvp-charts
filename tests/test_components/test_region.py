@@ -118,3 +118,38 @@ class TestChartRegionIdentity:
         id_a = re.search(r'<figure id="([^"]+)"', html_a).group(1)
         id_b = re.search(r'<figure id="([^"]+)"', html_b).group(1)
         assert id_a == id_b
+
+
+class TestMissingAttributes:
+    """A missing name or text alternative replaces the region rather than degrading it."""
+
+    def test_missing_name_names_it_and_renders_no_region(self):
+        html = render('<c-echarts.region description="Revenue by month." />')
+        alert = re.search(r'<div[^>]*role="alert"[^>]*>(.*?)</div>', html, re.S)
+        assert alert is not None
+        assert "name" in alert.group(1).lower()
+        assert "<figure" not in html
+
+    def test_missing_description_names_it_and_renders_no_region(self):
+        html = render('<c-echarts.region name="Revenue" />')
+        alert = re.search(r'<div[^>]*role="alert"[^>]*>(.*?)</div>', html, re.S)
+        assert alert is not None
+        assert "description" in alert.group(1).lower()
+        assert "<figure" not in html
+
+    def test_empty_string_name_is_treated_as_missing(self):
+        html = render('<c-echarts.region name="" description="Revenue by month." />')
+        assert 'role="alert"' in html
+        assert "<figure" not in html
+
+    def test_empty_string_description_is_treated_as_missing(self):
+        html = render('<c-echarts.region name="Revenue" description="" />')
+        assert 'role="alert"' in html
+        assert "<figure" not in html
+
+    def test_both_missing_names_both(self):
+        html = render("<c-echarts.region />")
+        alert = re.search(r'<div[^>]*role="alert"[^>]*>(.*?)</div>', html, re.S)
+        assert alert is not None
+        assert "name" in alert.group(1).lower()
+        assert "description" in alert.group(1).lower()

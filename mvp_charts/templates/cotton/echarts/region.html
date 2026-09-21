@@ -12,15 +12,34 @@
 {#   id          – element id; auto-assigned per request when    #}
 {#                 omitted, so several regions on one page stay  #}
 {#                 independently identifiable                    #}
+{#                                                                #}
+{# A missing or empty name or description replaces the region    #}
+{# with a visible message naming what is missing, rather than    #}
+{# rendering with an empty value.                                #}
 {# ============================================================ #}
 <c-vars name="" description="" id="" />
+{% load i18n %}
 {% load mvp_charts %}
-{% if not id %}{% chart_region_id as id %}{% endif %}
-<figure id="{{ id }}" class="relative h-full w-full" data-mvp-chart-region>
-  <div class="absolute inset-0"
-       role="img"
-       aria-label="{{ name }}"
-       aria-describedby="{{ id }}-description"
-       data-mvp-chart-region-surface></div>
-  <figcaption id="{{ id }}-description" class="sr-only">{{ description }}</figcaption>
-</figure>
+{% if not name or not description %}
+  <div class="alert alert-error" role="alert" data-mvp-chart-region-error>
+    <span>
+      {% if not name and not description %}
+        {% trans "This chart region has no name or description." %}
+      {% elif not name %}
+        {% trans "This chart region has no name." %}
+      {% else %}
+        {% trans "This chart region has no description." %}
+      {% endif %}
+    </span>
+  </div>
+{% else %}
+  {% if not id %}{% chart_region_id as id %}{% endif %}
+  <figure id="{{ id }}" class="relative h-full w-full" data-mvp-chart-region>
+    <div class="absolute inset-0"
+         role="img"
+         aria-label="{{ name }}"
+         aria-describedby="{{ id }}-description"
+         data-mvp-chart-region-surface></div>
+    <figcaption id="{{ id }}-description" class="sr-only">{{ description }}</figcaption>
+  </figure>
+{% endif %}
