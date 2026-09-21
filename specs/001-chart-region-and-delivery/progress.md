@@ -289,3 +289,37 @@ what established the batching was redundant in the first place.
 **Next**: S5 converge.
 
 **Watch**: nothing new.
+
+## 2026-09-21T15:35Z · Orchestrator · S5 converge and S6 review
+
+**Converge**: `forge verify` green on all six steps. Two things the gate caught, both fixed: an en
+dash in a docstring, and four module-level tests in the new shipped-template file that the structure
+standard requires grouped into a class.
+
+**ADR graduation**: six decisions carried no verdict. Three graduated — the browser module's delivery
+shape (0001), browser guarantees being measured in a real browser and skipping where there is none
+(0002), and `window.echarts` as the whole delivery contract (0003). Three declined with reasons: the
+namespace choice is the constitution applied rather than a decision, the first-visibility height
+check implements a requirement the specification already carries, and the design-review entry is a
+record rather than a decision.
+
+**Tamper guardrail**: three flags, all expected, all justified in `decisions.md` — two pre-existing
+test files edited and one `skip`. No assertion was deleted or loosened.
+
+**Review finding, verified and fixed**: on a page with both no charting library and no resolved
+height, the library poll never stopped. Every other path out of the wait clears it — the library
+arriving clears it, and reporting it missing clears it — but a region that had already reported
+having no height returned early without doing so, and that region never draws whichever way the
+library question resolves. A page left open in that state woke the browser every hundred
+milliseconds for as long as it was open, invisibly.
+
+Counting live intervals through an init script is what made it assertable. The first version of that
+test passed against the defect, because the probe page for the no-height case supplies a library and
+so never starts a poll at all — the leak needs both problems at once, which is now its own probe
+case. Confirmed by reinstating the defect: the test times out with it, passes without it.
+
+**Also checked, not a finding**: every class the failure message uses is emitted by django-mvp's
+prebuilt stylesheet. The package ships no CSS, so a class upstream does not use would be absent from
+its build and the message would render unstyled.
+
+**Next**: S7 walkthrough.

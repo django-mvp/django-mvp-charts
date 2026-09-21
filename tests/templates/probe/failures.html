@@ -20,7 +20,7 @@
     {% endcomment %}
     <link rel="stylesheet" href="{% static 'css/django-mvp.css' %}">
     <title>{{ case }}</title>
-    {% if case != "no-library" and case != "mixed" %}
+    {% if case != "no-library" and case != "mixed" and case != "neither" %}
       <script>window.echarts = { version: "stand-in" };</script>
     {% endif %}
     <style>
@@ -32,7 +32,12 @@
     </style>
   </head>
   <body>
-    {% if case == "no-height" %}
+    {% if case == "no-height" or case == "neither" %}
+      {% comment %}
+        `neither` withholds the library as well as the height. A region in
+        that state never draws whichever way the library question resolves,
+        so it is the one page where nothing is left to stop the wait.
+      {% endcomment %}
       <div class="unresolved-wrapper" id="wrapper">
         <c-echarts.region name="Revenue" description="Revenue by month, in EUR." />
       </div>

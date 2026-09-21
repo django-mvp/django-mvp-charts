@@ -221,10 +221,17 @@
      */
     afterLoad(function () {
       window.setTimeout(function () {
+        /*
+         * Stop looking first, whatever the verdict turns out to be. A region
+         * that has already reported having no height will never draw however
+         * the library question resolves, and leaving the poll running for it
+         * means a page in that state keeps waking the browser every tenth of
+         * a second for as long as it is open.
+         */
+        stopWaiting();
         if (libraryIsPresent() || region.dataset[STATE] === "no-height") {
           return;
         }
-        stopWaiting();
         report(region, "missing-library");
       }, LIBRARY_GRACE_MS);
     });

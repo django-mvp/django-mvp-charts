@@ -196,3 +196,65 @@ class TestOneFailingRegionLeavesTheOthers:
             ".slice(1).map((r) => [r.offsetHeight, r.parentElement.clientHeight])"
         )
         assert measured == [[200, 200], [160, 160]]
+
+
+class TestNothingKeepsRunningAfterwards:
+    """A page left open must not keep waking the browser.
+
+    The wait for a late library is a poll, and every path out of it has to
+    clear that poll. The one that did not was a region reporting no height on
+    a page with no library: it never draws whatever the library does, so
+    nothing was ever going to stop the timer. It is invisible in the page,
+    which is why it is counted here rather than looked for.
+    """
+
+    @pytest.fixture
+    def counted_timers(self, chromium_or_skip, live_server, page):
+        """Count intervals that are started and never cleared."""
+        page.add_init_script(
+            """
+            window.__liveIntervals = new Set();
+            const start = window.setInterval;
+            const stop = window.clearInterval;
+            window.setInterval = function (...args) {
+              const handle = start.apply(window, args);
+              window.__liveIntervals.add(handle);
+              return handle;
+            };
+            window.clearInterval = function (handle) {
+              window.__liveIntervals.delete(handle);
+              return stop.call(window, handle);
+            };
+            """
+        )
+        return page
+
+    def test_the_library_poll_stops_when_a_region_reports_no_height(
+        self, counted_timers, live_server
+    ):
+        """No library *and* no height: the case with nothing left to stop it.
+
+        The height alone does not start a poll, and the library alone stops
+        its own on arrival. Only a region that has both problems reaches the
+        path where the timer had no owner.
+        """
+        counted_timers.goto(f"{live_server.url}/probe/failures/neither/")
+        counted_timers.wait_for_function(
+            "() => document.querySelector('[data-mvp-chart-region]')"
+            "?.dataset.mvpChartRegionState === 'no-height'",
+            timeout=5000,
+        )
+        counted_timers.wait_for_function(
+            "() => window.__liveIntervals.size === 0", timeout=15000
+        )
+
+    def test_the_library_poll_stops_once_a_missing_library_is_reported(
+        self, counted_timers, live_server
+    ):
+        counted_timers.goto(f"{live_server.url}/probe/failures/no-library/")
+        counted_timers.wait_for_function(
+            "() => document.querySelector('[data-mvp-chart-region]')"
+            "?.dataset.mvpChartRegionState === 'missing-library'",
+            timeout=15000,
+        )
+        assert counted_timers.evaluate("() => window.__liveIntervals.size") == 0
