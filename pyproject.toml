@@ -130,7 +130,10 @@ ignore_missing_model_attributes = "True"
 # package rather than inside it and is not distributed. There is no module
 # under mvp_charts/ for it to mirror, and adding demo/ to the distributed
 # packages purely to create one would ship the demonstration to every install.
-non-mirror-paths = ["tests/test_app.py", "tests/test_demo.py"]
+#
+# tests/test_components/'s subject is Cotton component templates, which have
+# no Python module of their own to mirror.
+non-mirror-paths = ["tests/test_app.py", "tests/test_demo.py", "tests/test_components/"]
 
 [tool.deptry]
 extend_exclude = ["tests/", "demo/", "docs/"]

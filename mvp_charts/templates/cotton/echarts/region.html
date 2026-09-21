@@ -1,0 +1,21 @@
+{# ============================================================ #}
+{# <c-echarts.region> — the sized area a chart draws into        #}
+{#                                                                #}
+{# Fills its wrapper exactly; has no height of its own. The      #}
+{# wrapper — the host project's own sized element — is the only  #}
+{# thing that decides how big a region is.                       #}
+{#                                                                #}
+{# Props:                                                         #}
+{#   name        – accessible name for the chart (required)      #}
+{#   description – text alternative for what the chart shows     #}
+{#                 (required)                                    #}
+{# ============================================================ #}
+<c-vars name="" description="" />
+<figure id="mvp-chart-region" class="relative h-full w-full" data-mvp-chart-region>
+  <div class="absolute inset-0"
+       role="img"
+       aria-label="{{ name }}"
+       aria-describedby="mvp-chart-region-description"
+       data-mvp-chart-region-surface></div>
+  <figcaption id="mvp-chart-region-description" class="sr-only">{{ description }}</figcaption>
+</figure>
