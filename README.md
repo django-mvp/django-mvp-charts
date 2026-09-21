@@ -64,6 +64,28 @@ Leave either out, or pass an empty string, and the region is replaced by a messa
 
 You can pass `id` to set the element id yourself. Without it each region on a page is numbered as it renders, so several regions on one page stay separately identifiable and each one's description is tied to the right chart.
 
+## Keeping its shape
+
+A page is not a fixed rectangle. The window is resized, a sidebar collapses, a tab reveals content that was hidden when the page loaded. A region tracks the element around it through all of that, so it is never left at a size the page has stopped having.
+
+When its box changes, a region dispatches `mvp-chart-region:resize` on itself, carrying the measured box:
+
+```js
+document.querySelector('#revenue-chart').addEventListener(
+  'mvp-chart-region:resize',
+  (event) => { chart.resize(event.detail); }
+);
+```
+
+| | |
+|---|---|
+| Event | `mvp-chart-region:resize`, bubbling |
+| Target | the region element |
+| `detail` | `{ width, height }` in CSS pixels |
+| Fires | whenever the region's box changes, including when it is first revealed |
+
+This is what a chart type subscribes to in order to redraw. It exists before any chart type does, so the first one has a contract to meet rather than a gap to work around. The event carries the box because the alternative is every listener measuring the same element again.
+
 ## When a region cannot draw
 
 Two things stop a region drawing, and both look identical on screen: an empty box, no error, nothing to act on. So neither is left as one. The region says what is wrong, in the page, where the chart would have been — the same in development and in production, because a blank rectangle in production is exactly as undiagnosable as one in development.

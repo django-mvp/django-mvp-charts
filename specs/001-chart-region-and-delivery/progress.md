@@ -260,3 +260,32 @@ they exist for.
 
 **Watch**: the missing-library browser tests wait out the grace window, so the browser suite now
 takes around 35 seconds. Acceptable; worth revisiting only if it grows.
+
+## 2026-09-21T15:05Z · Orchestrator · T019–T023
+
+**Did**: a `ResizeObserver` on each region dispatches `mvp-chart-region:resize` carrying the measured
+box. Browser tests cover a window resize, a wrapper resized with the window untouched, a region
+revealed after starting hidden, and a burst of thirty size changes. README documents the event, its
+target and its payload.
+
+**Deleted a layer this story added.** The resize path was written with `requestAnimationFrame`
+batching underneath it, on the reasoning that a drag-resize fires a stream of callbacks. The burst
+test was then run against the module with that batching removed, and passed unchanged:
+`ResizeObserver` already delivers at most one callback per frame, carrying the size the element
+ended up at rather than each size it passed through. A layer whose removal changes nothing
+observable is a layer to take out (Articles II and III), so it is out, and the test's docstring now
+says what it does and does not prove rather than claiming credit for the browser's behaviour.
+
+**Assertions corrected, not the code**: the demo's wrappers carry a one-pixel border, so a wrapper
+styled to 420px gives the region 418px. The tests assert the region fills its wrapper's inner box,
+with the border named once as a constant, rather than comparing against the styled number.
+
+**Verified**: `poetry run pytest tests/test_components` — 68 passed. The burst test was confirmed
+against the defect it now guards by checking it against a module with no batching at all, which is
+what established the batching was redundant in the first place.
+
+**US4 is complete.** All 23 tasks committed.
+
+**Next**: S5 converge.
+
+**Watch**: nothing new.

@@ -47,6 +47,12 @@ has been released.
   nothing.
 - One region failing leaves every other region on the page working.
 - A second demo page showing both failure states on purpose.
+- `mvp-chart-region:resize`, dispatched on a region whenever its box changes
+  and carrying the measured `{ width, height }`. This is the contract a chart
+  type subscribes to in order to redraw, designed before any chart type exists
+  so the first one has something to meet rather than a gap to work around.
+- A region keeps filling its wrapper through a window resize, a wrapper
+  resized on its own, and being revealed after starting hidden.
 - `demo/templates/cotton/documentation.html`, the display surface django-mvp's
   `{% show_code %}` tag renders through. The tag ships with django-mvp; the
   template it names does not, so a project calling the tag has to supply one.

@@ -166,12 +166,46 @@
     return box.width > 0 || box.height > 0;
   }
 
+  /*
+   * Tell whoever is drawing what size they have now.
+   *
+   * A chart type has to redraw when its box changes, and no chart type
+   * exists yet — so this is the contract being designed before there is a
+   * consumer for it, which is the only order that leaves the consumer
+   * nothing to work around. The event carries the measured box, because the
+   * alternative is every listener measuring the same element again.
+   *
+   * No coalescing layer here, deliberately. A drag-resize writes a stream of
+   * sizes, and the obvious defence is to batch them through
+   * requestAnimationFrame — but ResizeObserver already delivers at most one
+   * callback per frame, carrying the size the element ended up at rather
+   * than each size it passed through. The batching was written, and then
+   * removed once the test for it passed with it gone: a layer whose removal
+   * changes nothing observable is a layer to take out.
+   */
+  function watchSize(region) {
+    if (!window.ResizeObserver) {
+      return;
+    }
+    var observer = new window.ResizeObserver(function () {
+      var box = region.getBoundingClientRect();
+      region.dispatchEvent(
+        new CustomEvent("mvp-chart-region:resize", {
+          bubbles: true,
+          detail: { width: box.width, height: box.height },
+        })
+      );
+    });
+    observer.observe(region);
+  }
+
   function initRegion(region) {
     if (region.dataset[STATE]) {
       return;
     }
     setState(region, "waiting");
     watchHeight(region);
+    watchSize(region);
 
     var stopWaiting = whenLibraryArrives(function () {
       if (region.dataset[STATE] !== "no-height") {

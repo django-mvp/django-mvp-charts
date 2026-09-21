@@ -72,3 +72,128 @@ class TestRegionFillsItsWrapper:
         for measured in chart_region_measurements:
             assert measured["region"]["height"] > 0, measured["id"]
             assert measured["region"]["width"] > 0, measured["id"]
+
+
+#: Record every resize event a region dispatches, so a test can count them
+#: as well as read the last one. Installed before the size is changed.
+#: The demo's wrappers carry a one-pixel border on every side, so a wrapper
+#: styled to 420px gives the region 418px to fill. The region filling its
+#: wrapper's *inner* box is the contract; this is what turns that into the
+#: number a test can assert.
+WRAPPER_BORDER = 2
+
+RESIZE_FIRST_WRAPPER = (
+    "() => {{ document.querySelector('[data-mvp-chart-region]')"
+    ".parentElement.style.height = '{height}px'; }}"
+)
+
+RECORD_RESIZES = """
+() => {
+  window.__resizes = [];
+  document.querySelectorAll('[data-mvp-chart-region]').forEach((region) => {
+    region.addEventListener('mvp-chart-region:resize', (event) => {
+      window.__resizes.push({ id: region.id, ...event.detail });
+    });
+  });
+}
+"""
+
+
+class TestHoldsItsShape:
+    """T019–T022: the region tracks its wrapper through everything a page does."""
+
+    @pytest.fixture
+    def page_with_regions(self, chromium_or_skip, live_server, page):
+        page.goto(f"{live_server.url}/chart-region/")
+        page.wait_for_selector("[data-mvp-chart-region]", timeout=5000)
+        page.evaluate(RECORD_RESIZES)
+        return page
+
+    @staticmethod
+    def measure(page):
+        return page.evaluate(MEASURE_REGIONS)
+
+    def test_a_window_resize_leaves_every_region_filling_its_wrapper(
+        self, page_with_regions
+    ):
+        page_with_regions.set_viewport_size({"width": 700, "height": 900})
+        page_with_regions.wait_for_timeout(200)
+        for measured in self.measure(page_with_regions):
+            assert measured["region"] == measured["wrapper"], measured["id"]
+
+    def test_the_viewport_change_really_changed_the_layout(self, page_with_regions):
+        """Otherwise the test above would pass by resizing nothing."""
+        before = self.measure(page_with_regions)[0]["wrapper"]["width"]
+        page_with_regions.set_viewport_size({"width": 700, "height": 900})
+        page_with_regions.wait_for_timeout(200)
+        after = self.measure(page_with_regions)[0]["wrapper"]["width"]
+        assert after != before
+
+    def test_a_wrapper_resized_without_the_window_changing_is_followed(
+        self, page_with_regions
+    ):
+        """No window change, so nothing but the wrapper told the region."""
+        before = self.measure(page_with_regions)[0]["region"]["height"]
+        page_with_regions.evaluate(RESIZE_FIRST_WRAPPER.format(height=420))
+        page_with_regions.wait_for_timeout(200)
+        first = self.measure(page_with_regions)[0]
+        assert first["region"]["height"] != before
+        assert first["region"] == first["wrapper"]
+        assert first["region"]["height"] == 420 - WRAPPER_BORDER
+
+    def test_the_resize_event_carries_the_new_box(self, page_with_regions):
+        """The contract a chart type will subscribe to, before one exists."""
+        settled = 420 - WRAPPER_BORDER
+        page_with_regions.evaluate(RESIZE_FIRST_WRAPPER.format(height=420))
+        page_with_regions.wait_for_function(
+            f"() => window.__resizes.some((r) => r.height === {settled})",
+            timeout=5000,
+        )
+        last = page_with_regions.evaluate("() => window.__resizes.pop()")
+        assert last["height"] == settled
+        assert last["width"] > 0
+        assert last["id"] == self.measure(page_with_regions)[0]["id"]
+
+    def test_only_the_region_that_changed_reports(self, page_with_regions):
+        """Five regions on the page, one resized, four silent."""
+        page_with_regions.evaluate("() => { window.__resizes.length = 0; }")
+        page_with_regions.evaluate(RESIZE_FIRST_WRAPPER.format(height=420))
+        page_with_regions.wait_for_function(
+            "() => window.__resizes.length > 0", timeout=5000
+        )
+        page_with_regions.wait_for_timeout(200)
+        reporters = page_with_regions.evaluate(
+            "() => [...new Set(window.__resizes.map((r) => r.id))]"
+        )
+        assert len(reporters) == 1
+
+    def test_a_burst_of_changes_settles_once_at_the_final_size(self, page_with_regions):
+        """A drag-resize must not queue one redraw per event.
+
+        Thirty size changes inside a few frames; the region reports far fewer
+        times than that and ends at the last size, not at one it passed
+        through on the way.
+
+        What this does *not* prove is that the package is what coalesces
+        them. It was written against a hand-rolled batching layer, and it
+        passed unchanged when that layer was deleted, because
+        ``ResizeObserver`` already delivers at most one callback per frame.
+        The requirement is the browser's to keep; this is what would notice
+        if a future change started doing the work per event instead.
+        """
+        page_with_regions.evaluate("() => { window.__resizes.length = 0; }")
+        page_with_regions.evaluate(
+            """() => {
+              const wrapper = document.querySelector('[data-mvp-chart-region]')
+                .parentElement;
+              for (let height = 200; height < 500; height += 10) {
+                wrapper.style.height = height + 'px';
+              }
+            }"""
+        )
+        page_with_regions.wait_for_timeout(400)
+        settled = 490 - WRAPPER_BORDER
+        reported = page_with_regions.evaluate("() => window.__resizes")
+        assert 0 < len(reported) <= 5
+        assert reported[-1]["height"] == settled
+        assert self.measure(page_with_regions)[0]["region"]["height"] == settled
