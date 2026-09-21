@@ -1,0 +1,33 @@
+{% comment %}
+  A region and nothing else, so a browser test can say how the charting
+  library arrived and assert the region does not care.
+
+  Deliberately not extending the demo's base: the demo puts the development
+  delivery in its own template, and a page inheriting that would supply the
+  library before the route under test had a chance to.
+{% endcomment %}
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    {% comment %}
+      The package ships no stylesheet: its markup uses classes django-mvp's
+      prebuilt one emits. Without it here, `h-full` never applies and a probe
+      page measures the text of a caption that `sr-only` failed to hide,
+      which looks exactly like a sizing defect in the component.
+    {% endcomment %}
+    <link rel="stylesheet" href="{% static 'css/django-mvp.css' %}">
+    <title>{{ route }}</title>
+    {% if route == "separate-file" %}
+      <script src="{% static 'probe/echarts-stand-in.js' %}"></script>
+    {% endif %}
+  </head>
+  <body>
+    {% if route == "inline-bundle" %}
+      <script>window.echarts = { version: "stand-in" };</script>
+    {% endif %}
+    <div style="height: 240px">
+      <c-echarts.region name="Revenue" description="Revenue by month, in EUR." />
+    </div>
+  </body>
+</html>

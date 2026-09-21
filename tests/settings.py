@@ -31,3 +31,9 @@ DATABASES = {
 # The demo's routes, behind a urlconf of the suite's own so a test-only route
 # has somewhere to go.
 ROOT_URLCONF = "tests.urls"
+
+# Templates and static files that exist only to put a component in one exact
+# situation a browser test needs. They are not part of the demo project and
+# are never distributed.
+TEMPLATES[0]["DIRS"] = [BASE_DIR / "tests" / "templates"]  # noqa: F405
+STATICFILES_DIRS = [BASE_DIR / "tests" / "static"]  # noqa: F405

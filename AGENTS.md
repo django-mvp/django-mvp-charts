@@ -53,6 +53,12 @@ renders as empty output, a Tailwind class the packaged stylesheet does not emit 
 menu entry whose URL will not resolve is dropped — which is why `tests/test_demo.py` asserts against
 the rendered page.
 
+The sidebar holds the pages that exist: **Overview**, then **Chart region**, then a **Charts**
+group once there is a chart type to put in it. The group is a `MenuGroup` — a section heading with
+its entries always visible — rather than something that collapses, so a chart type is never a click
+away behind a closed control. It is left out of the tree entirely while `CHART_TYPE_PAGES` is empty,
+because a navigation node with no children renders as an inert button rather than a heading.
+
 **Adding a page for a new chart type** takes a view, a route, a template and one menu entry:
 
 1. A view in `demo/views.py` on `mvp.views.MVPTemplateView`, setting `page_title` and `breadcrumbs`.
@@ -61,9 +67,8 @@ the rendered page.
    `{% show_code %}{% cotton:verbatim %}…{% endcotton:verbatim %}{% endshow_code %}` to get the
    component, its source and its rendered HTML together. The `cotton:verbatim` wrapper is required:
    without it Cotton compiles the markup before the tag can capture it.
-4. A `MenuItem` in `CHART_PAGES` in `demo/menus.py`. The Charts section appears with the first
-   entry — a navigation node with no children renders as an inert button, not as a heading, so the
-   section is deliberately left out of the tree until it holds a page.
+4. A `MenuItem` in `CHART_TYPE_PAGES` in `demo/menus.py`. The Charts group appears with the first
+   entry.
 
 `{% show_code %}` renders through a template named `cotton/documentation.html`. django-mvp ships the
 tag but not that template, so this project supplies its own in `demo/templates/`. It is written in

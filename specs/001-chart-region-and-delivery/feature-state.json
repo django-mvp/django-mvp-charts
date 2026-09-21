@@ -1,0 +1,238 @@
+{
+  "feature": "001-chart-region-and-delivery",
+  "branch": "001-chart-region-and-delivery",
+  "repo": "django-mvp/django-mvp-charts",
+  "state": "CONVERGE",
+  "state_history": [
+    {
+      "state": "QUEUED",
+      "at": "2026-09-21T12:17:05Z",
+      "note": "specification merged in #6; epic #4, stories #7-#10"
+    },
+    {
+      "state": "PLAN",
+      "at": "2026-09-21T12:40:00Z",
+      "note": "plan.md, research.md, tasks.md"
+    },
+    {
+      "state": "DESIGN_REVIEW",
+      "at": "2026-09-21T12:50:16Z",
+      "note": "one reviewer, three lenses, no diff exists"
+    },
+    {
+      "state": "IMPLEMENT",
+      "at": "2026-09-21T12:59:15Z",
+      "note": "US1 dispatched to an implementer in the feature worktree"
+    },
+    {
+      "state": "CONVERGE",
+      "at": "2026-09-21T14:16:07Z",
+      "note": "All four stories complete and reported; machine verify green on all six steps"
+    }
+  ],
+  "gates": {
+    "spec": {
+      "approved_by": "SamuelJennings",
+      "at": "2026-09-21T12:17:05Z",
+      "self_resolved": [
+        "specification pull request #6, merge commit 74c1f30445eabd7b80cf63ecb9fa632b0d8c1ea5"
+      ]
+    },
+    "plan": {
+      "approved_by": null,
+      "at": null
+    },
+    "merge": {
+      "approved_by": null,
+      "at": null
+    },
+    "design_review": {
+      "approved_by": "design-panel",
+      "at": "2026-09-21T12:56:00Z",
+      "self_resolved": [
+        "DR-001 high: failures demo page overrides extra_js so it does not inherit the delivery line \u2014 applied to plan.md and tasks.md T018",
+        "DR-002 medium: tests/test_components/ added to non-mirror-paths as part of T001 rather than assumed \u2014 applied to tasks.md T001",
+        "DR-003 medium: failure-message text asserted server-side as well as in the browser \u2014 applied to tasks.md T013"
+      ]
+    }
+  },
+  "stories": [
+    {
+      "id": "US1",
+      "priority": "P1",
+      "issue": 7,
+      "worktree": "/home/sam/projects/django-mvp/charts-chart-region",
+      "status": "done",
+      "replans": 0,
+      "tasks": [
+        {
+          "id": "T001",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T002",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T003",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T004",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T005",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T006",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T007",
+          "status": "todo",
+          "attempts": 0
+        }
+      ]
+    },
+    {
+      "id": "US2",
+      "priority": "P2",
+      "issue": 8,
+      "worktree": "/home/sam/projects/django-mvp/charts-chart-region",
+      "status": "done",
+      "replans": 0,
+      "tasks": [
+        {
+          "id": "T008",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T009",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T010",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T011",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T012",
+          "status": "todo",
+          "attempts": 0
+        }
+      ]
+    },
+    {
+      "id": "US3",
+      "priority": "P3",
+      "issue": 9,
+      "worktree": "/home/sam/projects/django-mvp/charts-chart-region",
+      "status": "done",
+      "replans": 0,
+      "tasks": [
+        {
+          "id": "T013",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T014",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T015",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T016",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T017",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T018",
+          "status": "todo",
+          "attempts": 0
+        }
+      ]
+    },
+    {
+      "id": "US4",
+      "priority": "P4",
+      "issue": 10,
+      "worktree": "/home/sam/projects/django-mvp/charts-chart-region",
+      "status": "done",
+      "replans": 0,
+      "tasks": [
+        {
+          "id": "T019",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T020",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T021",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T022",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T023",
+          "status": "todo",
+          "attempts": 0
+        }
+      ]
+    }
+  ],
+  "budgets": {
+    "converge_cycles": {
+      "used": 1,
+      "max": 2
+    },
+    "review_cycles": {
+      "used": 0,
+      "max": 1
+    },
+    "design_review_cycles": {
+      "used": 1,
+      "max": 1
+    },
+    "tokens": {
+      "used": 0,
+      "max": 120
+    }
+  },
+  "pr": {
+    "number": 11,
+    "draft": true
+  }
+}

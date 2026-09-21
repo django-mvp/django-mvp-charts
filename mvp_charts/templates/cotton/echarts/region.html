@@ -1,0 +1,58 @@
+{# ============================================================ #}
+{# <c-echarts.region> — the sized area a chart draws into        #}
+{#                                                                #}
+{# Fills its wrapper exactly; has no height of its own. The      #}
+{# wrapper — the host project's own sized element — is the only  #}
+{# thing that decides how big a region is.                       #}
+{#                                                                #}
+{# Props:                                                         #}
+{#   name        – accessible name for the chart (required)      #}
+{#   description – text alternative for what the chart shows     #}
+{#                 (required)                                    #}
+{#   id          – element id; auto-assigned per request when    #}
+{#                 omitted, so several regions on one page stay  #}
+{#                 independently identifiable                    #}
+{#                                                                #}
+{# A missing or empty name or description replaces the region    #}
+{# with a visible message naming what is missing, rather than    #}
+{# rendering with an empty value.                                #}
+{# ============================================================ #}
+<c-vars name="" description="" id="" />
+{% load i18n %}
+{% load mvp_charts %}
+{% if not name or not description %}
+  <div class="alert alert-error" role="alert" data-mvp-chart-region-error>
+    <span>
+      {% if not name and not description %}
+        {% trans "This chart region has no name or description." %}
+      {% elif not name %}
+        {% trans "This chart region has no name." %}
+      {% else %}
+        {% trans "This chart region has no description." %}
+      {% endif %}
+    </span>
+  </div>
+{% else %}
+  {% if not id %}{% chart_region_id as id %}{% endif %}
+  {% comment %}
+    Both messages travel with the region rather than living in the module.
+    The module cannot translate, and a second copy of these strings in
+    JavaScript would be a second place for them to be written, reviewed and
+    kept in step. Carried as data attributes they go through the same catalog
+    as every other string here, and their wording is asserted from rendered
+    output on every pull request rather than only where a browser runs.
+  {% endcomment %}
+  <figure id="{{ id }}"
+          class="relative h-full w-full"
+          data-mvp-chart-region
+          data-mvp-chart-region-missing-library="{% trans 'No charting library to draw with. Add the c-echarts.cdn component to your base template, or expose ECharts as window.echarts from your bundle.' %}"
+          data-mvp-chart-region-no-height="{% trans 'No height to fill. Give the element around this chart a height: a chart region takes its size from its wrapper and has none of its own.' %}">
+    <div class="absolute inset-0"
+         role="img"
+         aria-label="{{ name }}"
+         aria-describedby="{{ id }}-description"
+         data-mvp-chart-region-surface></div>
+    <figcaption id="{{ id }}-description" class="sr-only">{{ description }}</figcaption>
+  </figure>
+  {% chart_region_assets %}
+{% endif %}

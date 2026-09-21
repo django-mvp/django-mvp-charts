@@ -66,6 +66,18 @@ addopts = [
     "--tb=short",
     "-ra",
 ]
+# The browser tests run inside a greenlet with an event loop under it, and
+# Django refuses synchronous database work from an async context — so building
+# the test database for `live_server` raises before any page loads. The check
+# exists to stop application code calling the ORM from an async view. This
+# package has no models, no views and no ORM calls of any kind, so the only
+# database work in the suite is the harness building and tearing down its own
+# test database. There is nothing here for the check to protect.
+#
+# Scoping it to the browser tests was tried and does not work: pytest-django
+# sets the database up from an autouse fixture, which runs before any fixture
+# a test can ask for.
+env = ["DJANGO_ALLOW_ASYNC_UNSAFE=1"]
 
 [tool.coverage.report]
 skip_empty = true
@@ -130,7 +142,10 @@ ignore_missing_model_attributes = "True"
 # package rather than inside it and is not distributed. There is no module
 # under mvp_charts/ for it to mirror, and adding demo/ to the distributed
 # packages purely to create one would ship the demonstration to every install.
-non-mirror-paths = ["tests/test_app.py", "tests/test_demo.py"]
+#
+# tests/test_components/'s subject is Cotton component templates, which have
+# no Python module of their own to mirror.
+non-mirror-paths = ["tests/test_app.py", "tests/test_demo.py", "tests/test_components/"]
 
 [tool.deptry]
 extend_exclude = ["tests/", "demo/", "docs/"]

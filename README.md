@@ -12,7 +12,7 @@ This package moves the wiring into a component, so the intent is what stays in y
 
 ## Status
 
-Version 0.0.1. The repository is scaffolded and the test harness is green. No components are written yet, and nothing here is stable.
+Version 0.0.1. The chart region is in place and nothing draws into it yet — the chart types come next. Nothing here is stable.
 
 ## Requirements
 
@@ -41,6 +41,88 @@ Components are then available under the namespace of the library they render wit
 ```html
 <c-echarts.bar ... />
 ```
+
+## Placing a chart region
+
+A chart region is the space a chart is drawn into. Put it inside an element that already has a height:
+
+```html
+<div class="rounded-box border-base-300 border" style="height: 320px">
+  <c-echarts.region name="Monthly revenue"
+                    description="Revenue by month over the last year, rising from January to a December peak." />
+</div>
+```
+
+**The wrapper is where the height lives.** A region fills the element around it and has no height of its own — no default, no minimum, no aspect ratio. That is deliberate: a height invented by this package would be wrong on most pages and would stop a chart sharing a grid row with anything else. It does mean a region placed in an element with no resolved height gets none itself, which is the most common way a first attempt goes wrong, so the region says so on the page instead of rendering as an empty box.
+
+Both attributes are required:
+
+- `name` is what a screen reader announces the chart as.
+- `description` is what the chart shows, in words. A chart drawn into a canvas is invisible to anyone who cannot see it, and to anyone who cannot tell its colours apart.
+
+Leave either out, or pass an empty string, and the region is replaced by a message saying which one is missing. Neither is defaulted to nothing.
+
+You can pass `id` to set the element id yourself. Without it each region on a page is numbered as it renders, so several regions on one page stay separately identifiable and each one's description is tied to the right chart.
+
+## Keeping its shape
+
+A page is not a fixed rectangle. The window is resized, a sidebar collapses, a tab reveals content that was hidden when the page loaded. A region tracks the element around it through all of that, so it is never left at a size the page has stopped having.
+
+When its box changes, a region dispatches `mvp-chart-region:resize` on itself, carrying the measured box:
+
+```js
+document.querySelector('#revenue-chart').addEventListener(
+  'mvp-chart-region:resize',
+  (event) => { chart.resize(event.detail); }
+);
+```
+
+| | |
+|---|---|
+| Event | `mvp-chart-region:resize`, bubbling |
+| Target | the region element |
+| `detail` | `{ width, height }` in CSS pixels |
+| Fires | whenever the region's box changes, including when it is first revealed |
+
+This is what a chart type subscribes to in order to redraw. It exists before any chart type does, so the first one has a contract to meet rather than a gap to work around. The event carries the box because the alternative is every listener measuring the same element again.
+
+## When a region cannot draw
+
+Two things stop a region drawing, and both look identical on screen: an empty box, no error, nothing to act on. So neither is left as one. The region says what is wrong, in the page, where the chart would have been — the same in development and in production, because a blank rectangle in production is exactly as undiagnosable as one in development.
+
+**No charting library.** The region waits first. A bundle that loads a moment after the page does is an ordinary project, and accusing it would send someone to fix something that is not broken. Once waiting stops being a reasonable explanation — the page has finished loading, and a few seconds have passed since — it says so and names both ways to supply one.
+
+**No height to fill.** The wrapper resolved to nothing, usually a percentage height inside an ancestor sized by its own content. The region takes enough room to say so, and points at the element that should be carrying the height.
+
+The height is judged the first time the region is visible, not the first time the page paints. A region inside a collapsed panel or an unselected tab has no height for reasons that are not a mistake, and it is measured when it is revealed. Once a region has been seen at a usable height it is never judged again, so closing that panel later reports nothing: that is the page working, not a fault.
+
+One region failing leaves every other region on the page working.
+
+## Getting ECharts to the browser
+
+A region reads one thing: `window.echarts`. Anything that puts the library there works, and nothing in this package records or asks which route you chose.
+
+**In development**, put the delivery component in your own base template and you are done — no Node toolchain, no build step:
+
+```html
+{% block extra_js %}
+  {{ block.super }}
+  <c-echarts.cdn />
+{% endblock %}
+```
+
+It renders one script tag, pinned to an exact version and carrying a subresource integrity hash, so the browser refuses the file if it is not the one this package was built against.
+
+**In production**, build a bundle and expose the library as `window.echarts`. Delete the line above and change nothing else. ECharts ships per-chart-type and per-component entry points, so a page importing a line chart and a tooltip pays for a fraction of a full build — which is the reason this package ships no copy of the library and never loads one on a reader's behalf. A project that installs it gains no external origin it did not choose, and a page that places no region requests nothing from the package at all.
+
+`mvp_charts.versions` states what the `echarts` namespace is known to render against:
+
+| | |
+|---|---|
+| Supported range | `>=6.0,<7.0` |
+| Version the delivery component pins | `6.1.0` |
+
+The library is not a dependency of this package, so neither of those is enforced at install time. They are what the namespace claims, and a bundle outside the range is untested rather than blocked.
 
 ## Scope & philosophy
 

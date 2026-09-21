@@ -1,0 +1,23 @@
+{# ============================================================ #}
+{# <c-echarts.cdn> — the development delivery                    #}
+{#                                                                #}
+{# Loads ECharts from a public CDN, at a pinned version, with an  #}
+{# integrity hash the browser checks before running it.           #}
+{#                                                                #}
+{# A project places this in its own base template. No region      #}
+{# emits it: installing this package adds no external origin a    #}
+{# project did not choose (Article XII). A project that builds    #}
+{# its own bundle leaves this line out and exposes the library    #}
+{# as window.echarts instead — nothing else changes, and no       #}
+{# setting says which route is in use.                            #}
+{#                                                                #}
+{# crossorigin is not decoration. A browser only checks integrity #}
+{# on a cross-origin request made in CORS mode, so without it the #}
+{# hash is never verified while still looking as though it is.    #}
+{# ============================================================ #}
+{% load mvp_charts %}
+{% echarts_cdn as echarts %}
+<script src="{{ echarts.url }}"
+        integrity="{{ echarts.integrity }}"
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
