@@ -249,9 +249,11 @@ class TestFailureMessages:
 
     def test_the_messages_are_translated(self):
         """They go through the package's catalog, like every other string here."""
-        with override_settings(LOCALE_PATHS=[FIXTURE_LOCALE]):
-            with translation.override("de"):
-                message = self.message(render(A_REGION), "missing-library")
+        with (
+            override_settings(LOCALE_PATHS=[FIXTURE_LOCALE]),
+            translation.override("de"),
+        ):
+            message = self.message(render(A_REGION), "missing-library")
         assert message.startswith("Keine Diagrammbibliothek")
 
     @staticmethod

@@ -59,9 +59,16 @@ def test_every_user_facing_string_is_wrapped_for_translation(template):
     project can translate and one no catalog will ever list.
     """
     source = template.read_text()
-    source = re.sub(r"\{%\s*comment\s*%\}.*?\{%\s*endcomment\s*%\}", "", source, flags=re.S)
+    source = re.sub(
+        r"\{%\s*comment\s*%\}.*?\{%\s*endcomment\s*%\}", "", source, flags=re.S
+    )
     source = re.sub(r"\{#.*?#\}", "", source)
-    source = re.sub(r"\{%\s*(trans|blocktrans).*?%\}.*?(\{%\s*endblocktrans\s*%\}|$)", "", source, flags=re.S)
+    source = re.sub(
+        r"\{%\s*(trans|blocktrans).*?%\}.*?(\{%\s*endblocktrans\s*%\}|$)",
+        "",
+        source,
+        flags=re.S,
+    )
     source = re.sub(r"<[^>]*>", "\n", source)
     source = re.sub(r"\{\{.*?\}\}|\{%.*?%\}", "", source, flags=re.S)
     leftover = [line.strip() for line in source.splitlines() if line.strip()]
@@ -74,8 +81,6 @@ def test_a_rendered_region_carries_no_explanation_of_itself():
     A reader of a page should see the chart's own content and nothing about
     how the component works.
     """
-    html = render(
-        '<c-echarts.region name="Revenue" description="Revenue by month." />'
-    )
+    html = render('<c-echarts.region name="Revenue" description="Revenue by month." />')
     for tell in ("the module", "Article", "data attributes", "{#", "#}"):
         assert tell not in html

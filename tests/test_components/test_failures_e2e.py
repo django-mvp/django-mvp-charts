@@ -132,7 +132,9 @@ class TestHeightIsJudgedAtFirstVisibility:
             "?.dataset.mvpChartRegionState === 'ready'",
             timeout=5000,
         )
-        page.evaluate("() => { document.getElementById('panel').style.height = '0px'; }")
+        page.evaluate(
+            "() => { document.getElementById('panel').style.height = '0px'; }"
+        )
         page.wait_for_timeout(300)
         assert page.evaluate(REGION_STATE) == "ready"
         assert page.evaluate(MESSAGE_TEXT) == ""
@@ -144,7 +146,9 @@ class TestHeightIsJudgedAtFirstVisibility:
             "?.dataset.mvpChartRegionState === 'ready'",
             timeout=5000,
         )
-        page.evaluate("() => { document.getElementById('panel').style.height = '0px'; }")
+        page.evaluate(
+            "() => { document.getElementById('panel').style.height = '0px'; }"
+        )
         page.wait_for_timeout(200)
         page.evaluate(
             "() => { document.getElementById('panel').style.height = '240px'; }"
@@ -164,8 +168,7 @@ class TestOneFailingRegionLeavesTheOthers:
         page = failure_page("mixed")
         page.evaluate("() => { window.echarts = { version: 'stand-in' }; }")
         page.wait_for_function(
-            "() => document.querySelectorAll('[data-mvp-chart-region]')"
-            ".length === 3",
+            "() => document.querySelectorAll('[data-mvp-chart-region]').length === 3",
             timeout=5000,
         )
         page.wait_for_function(
