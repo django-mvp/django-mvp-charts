@@ -2,8 +2,8 @@
 {# @strict #}
 {# @prop name:text | required | description:"Accessible name — what a screen reader announces this chart as" #}
 {# @prop description:text | required | description:"Text alternative — what the chart shows, for anyone who cannot see it" #}
-{# @prop labels:text | description:"What the slices are called. A comma-separated list, or a Python sequence passed with a colon" #}
-{# @prop values:text | description:"The slice sizes, in the same order as labels" #}
+{# @prop :labels:text | description:"What the slices are called. A Python sequence, passed with a colon" #}
+{# @prop :values:text | description:"The slice sizes, in the same order as labels" #}
 {# @prop :series:text | description:"The same thing written the long way: a single series whose data are the slice sizes" #}
 {# @prop slices:number | description:"How many slices to draw before the rest are folded into one. Defaults to 6, the point past which slices stop being tellable apart" #}
 {# @prop :config:text | description:"An object carrying any of these same attributes, built in Python. An attribute written on the tag wins over the same key here" #}

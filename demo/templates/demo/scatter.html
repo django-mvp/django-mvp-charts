@@ -7,7 +7,7 @@
         <div class="rounded-box border-base-300 border p-2" style="height: 320px">
           <c-echarts.scatter name="Tests against build time"
                              description="Nine builds plotted by the number of tests they ran against how long they took in seconds. Longer suites take longer."
-                             values="[[12, 34], [18, 41], [25, 52], [31, 58], [44, 79], [52, 88], [61, 104], [74, 118], [88, 141]]" />
+                             :values="[[12, 34], [18, 41], [25, 52], [31, 58], [44, 79], [52, 88], [61, 104], [74, 118], [88, 141]]" />
         </div>
       {% endcotton:verbatim %}
     {% endshow_code %}
@@ -49,9 +49,9 @@
         <div class="rounded-box border-base-300 border p-2" style="height: 320px">
           <c-echarts.scatter name="Response time against payload size"
                              description="Requests plotted by payload size in kilobytes against response time in milliseconds, split into those that succeeded and those that timed out. The timeouts cluster at the largest payloads."
-                             :series="[{'name': 'Succeeded', 'color': 'success',
+                             :series="[{'name': 'Succeeded', 'color': '#00a96e',
                                         'data': [[4, 88], [9, 96], [14, 110], [21, 132], [28, 141], [33, 160], [41, 178], [48, 205]]},
-                                       {'name': 'Timed out', 'color': 'error',
+                                       {'name': 'Timed out', 'color': '#ff5861',
                                         'data': [[52, 820], [58, 910], [63, 880], [71, 960], [78, 1010]]}]" />
         </div>
       {% endcotton:verbatim %}
@@ -67,7 +67,7 @@
                                                     'itemStyle': {'opacity': 0.55},
                                                     'markLine': {'silent': True,
                                                                  'symbol': 'none',
-                                                                 'lineStyle': {'color': 'mvp:warning'},
+                                                                 'lineStyle': {'color': '#e0a82e'},
                                                                  'data': [{'yAxis': 120, 'name': 'Budget'}]}}]}" />
         </div>
       {% endcotton:verbatim %}
@@ -79,8 +79,7 @@
         <h3 class="mb-2 text-sm font-semibold">Nothing to draw</h3>
         <div class="rounded-box border-base-300 border p-2" style="height: 200px">
           <c-echarts.scatter name="Repository size against clone time"
-                             description="Repositories plotted by size against clone time. Nothing has been measured yet."
-                             values="" />
+                             description="Repositories plotted by size against clone time. Nothing has been measured yet." />
         </div>
       </div>
       <div>
@@ -88,7 +87,7 @@
         <div class="rounded-box border-base-300 border p-2" style="height: 200px">
           <c-echarts.scatter name="Repository size against clone time"
                              description="One repository measured so far: 18 megabytes, cloned in 41 seconds."
-                             values="[[18, 41]]" />
+                             :values="[[18, 41]]" />
         </div>
       </div>
       <div>
@@ -104,7 +103,7 @@
         <div class="rounded-box border-base-300 border p-2" style="height: 200px">
           <c-echarts.scatter name="Downloads against stars"
                              description="Packages plotted by monthly downloads against repository stars, spanning tens to tens of thousands."
-                             values="[[12, 40], [48, 210], [190, 880], [760, 3100], [2400, 9800], [9100, 41000]]"
+                             :values="[[12, 40], [48, 210], [190, 880], [760, 3100], [2400, 9800], [9100, 41000]]"
                              :options="{'xAxis': {'type': 'log'}, 'yAxis': {'type': 'log'}}" />
         </div>
       </div>

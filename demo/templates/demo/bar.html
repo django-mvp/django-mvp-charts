@@ -7,8 +7,8 @@
         <div class="rounded-box border-base-300 border p-2" style="height: 320px">
           <c-echarts.bar name="Bookings by quarter"
                          description="Bookings taken in each quarter: 148, 172, 165 and 203, peaking in the fourth quarter."
-                         labels="Q1,Q2,Q3,Q4"
-                         values="148,172,165,203" />
+                         :labels="['Q1', 'Q2', 'Q3', 'Q4']"
+                         :values="[148, 172, 165, 203]" />
         </div>
       {% endcotton:verbatim %}
     {% endshow_code %}
@@ -80,7 +80,7 @@
                                     'series': [{'itemStyle': {'borderRadius': 4},
                                                 'markLine': {'silent': True,
                                                              'symbol': 'none',
-                                                             'lineStyle': {'color': 'mvp:base-content/40'},
+                                                             'lineStyle': {'color': '#9ca3af'},
                                                              'data': [{'yAxis': 0}]}}]}" />
         </div>
       {% endcotton:verbatim %}
@@ -93,8 +93,7 @@
         <div class="rounded-box border-base-300 border p-2" style="height: 200px">
           <c-echarts.bar name="Bookings by quarter"
                          description="Bookings taken in each quarter. None have been recorded yet."
-                         :labels="quarters"
-                         values="" />
+                         :labels="quarters" />
         </div>
       </div>
       <div>
@@ -102,8 +101,8 @@
         <div class="rounded-box border-base-300 border p-2" style="height: 200px">
           <c-echarts.bar name="Bookings by quarter"
                          description="Bookings taken so far this year. Only the first quarter is complete, at 148."
-                         labels="Q1"
-                         values="148" />
+                         :labels="['Q1']"
+                         :values="[148]" />
         </div>
       </div>
       <div>
@@ -121,7 +120,7 @@
           <c-echarts.bar name="Commits by month"
                          description="Commits pushed in each of the last twelve months, between 24 and 91 a month."
                          :labels="months"
-                         values="41,38,52,49,63,58,71,66,84,79,91,74" />
+                         :values="[41, 38, 52, 49, 63, 58, 71, 66, 84, 79, 91, 74]" />
         </div>
       </div>
     </div>

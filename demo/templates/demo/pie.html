@@ -7,8 +7,8 @@
         <div class="rounded-box border-base-300 border p-2" style="height: 340px">
           <c-echarts.pie name="Sessions by channel"
                          description="Where sessions came from: 42 percent direct, 31 percent search, 17 percent referral and 10 percent social."
-                         labels="Direct,Search,Referral,Social"
-                         values="42,31,17,10" />
+                         :labels="['Direct', 'Search', 'Referral', 'Social']"
+                         :values="[42, 31, 17, 10]" />
         </div>
       {% endcotton:verbatim %}
     {% endshow_code %}
@@ -77,8 +77,7 @@
         <div class="rounded-box border-base-300 border p-2" style="height: 240px">
           <c-echarts.pie name="Sessions by channel"
                          description="Where sessions came from. Nothing has been recorded yet."
-                         :labels="channels"
-                         values="" />
+                         :labels="channels" />
         </div>
       </div>
       <div>
@@ -86,8 +85,8 @@
         <div class="rounded-box border-base-300 border p-2" style="height: 240px">
           <c-echarts.pie name="Sessions by channel"
                          description="Where sessions came from. Every session so far arrived direct."
-                         labels="Direct"
-                         values="100" />
+                         :labels="['Direct']"
+                         :values="[100]" />
         </div>
       </div>
       <div>
@@ -104,8 +103,8 @@
         <div class="rounded-box border-base-300 border p-2" style="height: 240px">
           <c-echarts.pie name="Requests by status"
                          description="Requests by response status: almost all succeeded, with a handful of redirects, client errors and server errors."
-                         labels="200 OK,304 Not Modified,404 Not Found,500 Server Error"
-                         values="98400,1100,380,24" />
+                         :labels="['200 OK', '304 Not Modified', '404 Not Found', '500 Server Error']"
+                         :values="[98400, 1100, 380, 24]" />
         </div>
       </div>
     </div>

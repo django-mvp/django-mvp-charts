@@ -12,34 +12,26 @@ the same thing on each:
     "number" is a pair.
 ``series``
     Several named runs, each ``{"name": …, "data": [...]}``, with an optional
-    ``"color"`` naming a theme role.
+    ``"color"``.
 
 ``values`` is shorthand for a ``series`` of one, so a chart never has two
 different internal shapes. Everything below works on the ``series`` list.
 
-Colour is not decided here. Every colour this module writes is a sentinel
-string — ``mvp:slot-1``, ``mvp:base-content/70`` — resolved against the theme
-the browser is actually running, because the theme is chosen in the browser and
-can change without a page load. The same sentinels work inside a raw ``options``
-object, so the escape hatch stays themed rather than dropping to literal colours.
+**Colour belongs to the charting library, not to this package.** Nothing here
+writes a colour. Series take ECharts' own palette, and a project that wants its
+charts to match its theme says so itself — per series with ``color``, or across
+a chart with ``options.color``. Deriving a palette from the running daisyUI
+theme was built and then removed: it costs a colour-space implementation, a
+mutation observer and a repaint path, and it makes the package responsible for a
+guarantee no charting library offers.
 """
 
 from __future__ import annotations
 
-import json
 from collections.abc import Mapping, Sequence
 from typing import Any
 
 from django.utils.translation import gettext_lazy as _
-
-#: How many categorical slots the palette offers before it stops assigning.
-#:
-#: The browser derives them from the theme's own primary colour. Six is where
-#: the derivation still clears a distinguishability check on every theme the
-#: demo offers; past it, a chart has more series than colour can carry and the
-#: honest remedy is folding the tail together or splitting the chart, neither of
-#: which a component can decide on the author's behalf.
-PALETTE_SLOTS = 6
 
 #: The wording shown in place of a chart that has nothing to draw.
 DEFAULT_EMPTY_MESSAGE = _("No data to chart.")
@@ -49,39 +41,35 @@ OTHER_SLICE_LABEL = _("Other")
 
 
 class Attribute:
-    """Reading one attribute that may arrive as a Python object or as text.
+    """Reading one attribute that carries data rather than text.
 
-    A component attribute reaches a template two ways. ``labels="Jan,Feb"`` is
-    text the author typed; ``:labels="months"`` is the list a view built. Both
-    have to end up as the same Python value, and the rule is one sentence: a
-    string that starts with ``[`` or ``{`` is JSON, any other string is a
-    comma-separated list, and anything that is not a string is already the value.
+    **Data and configuration arrive as Python values, written with a colon.**
+    ``:values="[12, 14, 15]"`` and ``:values="revenue"`` are both a list by the
+    time they reach here; ``values="12,14,15"`` is a string, and it is refused.
 
-    Grouped on a class rather than left as four module-level functions because
-    they share a subject — one attribute's value — and because a project that
-    needs a different reading has something to subclass (Article XI).
+    The refusal is the point. A component that split a string on commas would be
+    inventing a data format: it has to decide what a comma inside a label means,
+    what an empty item is, and which strings look enough like numbers to become
+    them — decisions nobody asked for, made silently, and wrong at the edges.
+    Python already has a list, Cotton already passes one, and a chart is far
+    more often fed from a view than typed out.
+
+    Grouped on a class rather than left as loose functions because they share a
+    subject — one attribute's value — and because a project that needs a
+    different reading has something to subclass (Article XI).
     """
 
     @classmethod
     def value(cls, raw: Any) -> Any:
         """The Python value behind one attribute."""
-        if not isinstance(raw, str):
-            return raw
-        text = raw.strip()
-        if not text:
+        if raw is None or raw == "":
             return None
-        if text[0] in "[{":
-            return json.loads(text)
-        return [cls.scalar(part.strip()) for part in text.split(",")]
-
-    @classmethod
-    def scalar(cls, text: str) -> Any:
-        """A single comma-separated item, as a number where it reads as one."""
-        try:
-            number = float(text)
-        except ValueError:
-            return text
-        return int(number) if number.is_integer() and "." not in text else number
+        if isinstance(raw, str):
+            raise TypeError(
+                "a chart's data has to be a Python value, not text: write "
+                f':attribute="[…]" or :attribute="variable", not ="{raw[:40]}"'
+            )
+        return raw
 
     @classmethod
     def flag(cls, raw: Any) -> bool:
@@ -104,21 +92,20 @@ class Attribute:
 class Series:
     """One run of values drawn as a single visual run.
 
-    Carries the charting libraries' own meaning of the word (``CONTEXT.md``),
-    plus the one thing this package adds: ``color`` may name a theme role, so a
-    series that *means* something — errors, revenue — can say so instead of
-    taking whatever slot its position landed on.
+    Carries the charting libraries' own meaning of the word (``CONTEXT.md``).
+    ``color`` is forwarded to ECharts untouched: any colour it understands, and
+    the package neither derives it nor checks it. A series whose colour means
+    something — errors in red — says so here, and a project matching its charts
+    to its site says so here or in ``options.color``.
     """
 
-    def __init__(
-        self, data: Sequence[Any], name: str = "", color: str = ""
-    ) -> None:
+    def __init__(self, data: Sequence[Any], name: str = "", color: str = "") -> None:
         self.data = list(data or [])
         self.name = name
         self.color = color
 
     @classmethod
-    def read(cls, raw: Any) -> list["Series"]:
+    def read(cls, raw: Any) -> list[Series]:
         """The ``series`` attribute as a list of series."""
         value = Attribute.value(raw)
         if not value:
@@ -140,26 +127,24 @@ class Series:
                 out.append(cls(data=entry))
         return out
 
-    def slot_color(self, index: int) -> str:
-        """The sentinel this series' marks are painted with.
+    def item_style(self) -> dict[str, Any]:
+        """What this series' marks are painted with, when it says.
 
-        A named role wins over the slot, which is the whole point of naming one.
-        Past the palette's last slot the sentinel still resolves — to the final
-        slot — because a chart that silently drew two series in one colour would
-        be worse than one that repeats a colour the author can see repeating.
+        An empty dict when it does not, so the key is absent from the options
+        object entirely and ECharts reaches for its own palette. Writing
+        ``{"color": None}`` instead would be this package making a colour
+        decision and calling it none.
         """
-        if self.color:
-            return f"mvp:{self.color}"
-        return f"mvp:slot-{min(index + 1, PALETTE_SLOTS)}"
+        return {"color": self.color} if self.color else {}
 
 
 class Chart:
     """The options object one chart component hands to ECharts.
 
     Subclasses differ only in their axes and in what one datum is. Everything
-    else — the grid, the legend, the tooltip, the ink colours, the empty case,
-    the raw-options merge — is shared, because a vocabulary that means the same
-    thing on four charts has to be built in one place to stay that way.
+    else — the grid, the legend, the tooltip, the empty case, the raw-options
+    merge — is shared, because a vocabulary that means the same thing on four
+    charts has to be built in one place to stay that way.
     """
 
     #: The ECharts series type this chart draws.
@@ -201,7 +186,7 @@ class Chart:
         return [Series(data=data, name=self.name)] if data else []
 
     @classmethod
-    def build(cls, config: Any = None, **attrs: Any) -> "Chart":
+    def build(cls, config: Any = None, **attrs: Any) -> Chart:
         """One chart from a config object and the attributes written on the tag.
 
         The precedence rule, which is the whole answer to "what happens when the
@@ -264,7 +249,6 @@ class Chart:
         """The full ECharts options object, with the raw ones merged last."""
         built: dict[str, Any] = {
             "animation": True,
-            "textStyle": {"color": "mvp:base-content/70"},
             "grid": self.grid(),
             "tooltip": self.tooltip(),
             "series": self.series_options(),
@@ -325,9 +309,6 @@ class Chart:
         return {
             "trigger": self.tooltip_trigger,
             "axisPointer": {"type": self.axis_pointer},
-            "backgroundColor": "mvp:base-100",
-            "borderColor": "mvp:base-300",
-            "textStyle": {"color": "mvp:base-content"},
         }
 
     def legend(self) -> dict[str, Any] | None:
@@ -346,7 +327,6 @@ class Chart:
             "icon": "circle",
             "itemWidth": 10,
             "itemHeight": 10,
-            "textStyle": {"color": "mvp:base-content"},
         }
 
     def axes(self) -> dict[str, Any]:
@@ -355,17 +335,19 @@ class Chart:
 
     def series_options(self) -> list[dict[str, Any]]:
         return [
-            self.one_series(series, index)
-            for index, series in enumerate(self.series)
+            self.one_series(series, index) for index, series in enumerate(self.series)
         ]
 
     def one_series(self, series: Series, index: int) -> dict[str, Any]:
-        return {
+        built: dict[str, Any] = {
             "type": self.series_type,
             "name": series.name or self.name,
             "data": series.data,
-            "itemStyle": {"color": series.slot_color(index)},
         }
+        style = series.item_style()
+        if style:
+            built["itemStyle"] = style
+        return built
 
     # -- shared axis pieces ---------------------------------------------------
 
@@ -376,34 +358,27 @@ class Chart:
             "data": self.labels,
             "boundaryGap": self.series_type == "bar",
             "axisTick": {"show": False},
-            "axisLine": {"lineStyle": {"color": "mvp:base-content/20"}},
-            "axisLabel": {"color": "mvp:base-content/70"},
         }
 
     def value_axis(self) -> dict[str, Any]:
         """The axis that carries numbers.
 
-        Gridlines are solid hairlines one step off the surface. Dashed ones read
-        as a threshold or a projection when they are only a grid, and the axis
-        line itself is dropped entirely because the gridlines already say where
-        the values are.
+        Gridlines stay solid: a dashed one reads as a threshold or a projection
+        when it is only a grid. The axis line itself is dropped, because the
+        gridlines already say where the values are. Neither is a colour
+        decision — what shade they come out is ECharts'.
         """
         return {
             "type": "value",
             "axisTick": {"show": False},
             "axisLine": {"show": False},
-            "axisLabel": {"color": "mvp:base-content/70"},
-            "splitLine": {
-                "lineStyle": {"color": "mvp:base-content/12", "type": "solid"}
-            },
+            "splitLine": {"lineStyle": {"type": "solid"}},
         }
 
     # -- merging --------------------------------------------------------------
 
     @classmethod
-    def _merge(
-        cls, base: Mapping[str, Any], over: Mapping[str, Any]
-    ) -> dict[str, Any]:
+    def _merge(cls, base: Mapping[str, Any], over: Mapping[str, Any]) -> dict[str, Any]:
         """Deep-merge ``over`` onto ``base``, mappings recursively.
 
         A list replaces a list rather than merging item by item. Merging two
@@ -434,25 +409,20 @@ class Line(Chart):
         return {"xAxis": category, "yAxis": self.value_axis()}
 
     def one_series(self, series: Series, index: int) -> dict[str, Any]:
-        color = series.slot_color(index)
-        return {
+        built: dict[str, Any] = {
             "type": "line",
             "name": series.name or self.name,
             "data": series.data,
             "showSymbol": len(series.data) <= self.MARKER_LIMIT,
             "symbolSize": 8,
             "lineStyle": {"width": 2, "cap": "round", "join": "round"},
-            "itemStyle": {
-                "color": color,
-                # The ring is what keeps a marker readable where it crosses
-                # another series' line, and it is drawn in the surface colour
-                # so it reads as a gap rather than as an outline.
-                "borderColor": "mvp:base-100",
-                "borderWidth": 2,
-            },
             # A gap in the data is a gap in the line, not a drop to zero.
             "connectNulls": False,
         }
+        style = series.item_style()
+        if style:
+            built["itemStyle"] = style
+        return built
 
 
 class Bar(Chart):
@@ -496,15 +466,14 @@ class Bar(Chart):
             "barMaxWidth": 24,
             "barGap": "8%",
             "itemStyle": {
-                "color": series.slot_color(index),
                 # Rounded at the data end, square at the baseline, so the bar
                 # still starts from a single flat line.
                 "borderRadius": radius,
+                **series.item_style(),
             },
             "label": {
                 "show": labelled,
                 "position": "right" if self.horizontal else "top",
-                "color": "mvp:base-content/70",
             },
         }
 
@@ -522,8 +491,14 @@ class Pie(Chart):
     series_type = "pie"
     tooltip_trigger = "item"
 
-    def configure(self, slices: Any = PALETTE_SLOTS, **extra: Any) -> None:
-        self.slices = max(2, int(slices or PALETTE_SLOTS))
+    #: Slices past this many are folded into one, unless `slices` says otherwise.
+    #:
+    #: Six is where a pie stops being readable: past it the smallest slices are
+    #: slivers, and telling them apart depends entirely on the labels.
+    DEFAULT_SLICES = 6
+
+    def configure(self, slices: Any = "", **extra: Any) -> None:
+        self.slices = max(2, int(slices or self.DEFAULT_SLICES))
 
     def legend(self) -> dict[str, Any] | None:
         """A pie's identity lives on its slices, which are directly labelled."""
@@ -560,10 +535,6 @@ class Pie(Chart):
         ]
 
     def series_options(self) -> list[dict[str, Any]]:
-        data = [
-            {**entry, "itemStyle": {"color": f"mvp:slot-{min(i + 1, PALETTE_SLOTS)}"}}
-            for i, entry in enumerate(self.slices_data())
-        ]
         return [
             {
                 "type": "pie",
@@ -574,17 +545,8 @@ class Pie(Chart):
                 "center": ["50%", "52%"],
                 "avoidLabelOverlap": True,
                 "minAngle": 2,
-                "data": data,
-                "itemStyle": {
-                    # A 2px separation in the surface colour, not a stroke.
-                    "borderColor": "mvp:base-100",
-                    "borderWidth": 2,
-                },
-                "label": {
-                    "color": "mvp:base-content/70",
-                    "formatter": "{b}  {d}%",
-                },
-                "labelLine": {"lineStyle": {"color": "mvp:base-content/30"}},
+                "data": self.slices_data(),
+                "label": {"formatter": "{b}  {d}%"},
             }
         ]
 
@@ -617,12 +579,10 @@ class Scatter(Chart):
             "name": series.name or self.name,
             "data": series.data,
             "symbolSize": 10,
-            "itemStyle": {
-                "color": series.slot_color(index),
-                "opacity": 0.85,
-                "borderColor": "mvp:base-100",
-                "borderWidth": 2,
-            },
+            # Overlapping points stay individually visible rather than merging
+            # into one solid mass, which is the whole failure mode of a scatter
+            # chart with any density to it.
+            "itemStyle": {"opacity": 0.85, **series.item_style()},
         }
 
 

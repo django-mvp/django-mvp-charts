@@ -7,8 +7,8 @@
         <div class="rounded-box border-base-300 border p-2" style="height: 320px">
           <c-echarts.line name="Monthly revenue"
                           description="Revenue in thousands of euros for each month of the year, rising steadily from 12 in January to 29 in December."
-                          labels="Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec"
-                          values="12,14,15,17,18,20,21,23,24,26,27,29" />
+                          :labels="['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']"
+                          :values="[12, 14, 15, 17, 18, 20, 21, 23, 24, 26, 27, 29]" />
         </div>
       {% endcotton:verbatim %}
     {% endshow_code %}
@@ -37,7 +37,7 @@
       {% endcotton:verbatim %}
     {% endshow_code %}
   </c-section>
-  <c-section title="A colour that means something" icon="chart">
+  <c-section title="Colours the chart chose" icon="chart">
     {% show_code %}
       {% cotton:verbatim %}
         <div class="rounded-box border-base-300 border p-2" style="height: 320px">
@@ -65,7 +65,7 @@
           <c-echarts.line :config="latency_chart"
                           name="Median response time, first half only"
                           :labels="months"
-                          values="240,232,218,205,190,176" />
+                          :values="[240, 232, 218, 205, 190, 176]" />
         </div>
       {% endcotton:verbatim %}
     {% endshow_code %}
@@ -78,11 +78,11 @@
                           description="Temperature in degrees celsius read every day for a hundred and twenty days, cycling between about eight and twenty."
                           :labels="sensor_days"
                           :values="sensor"
-                          :options="{'yAxis': {'axisLabel': {'formatter': '{value}°C'}},
-                                     'series': [{'areaStyle': {'color': 'mvp:slot-1', 'opacity': 0.1},
+                          :options="{'color': ['#0069a8'],
+                                     'yAxis': {'axisLabel': {'formatter': '{value}°C'}},
+                                     'series': [{'areaStyle': {'opacity': 0.12},
                                                  'markLine': {'silent': True,
                                                               'symbol': 'none',
-                                                              'lineStyle': {'color': 'mvp:warning'},
                                                               'data': [{'type': 'average', 'name': 'Average'}]}}]}" />
         </div>
       {% endcotton:verbatim %}
@@ -95,8 +95,7 @@
         <div class="rounded-box border-base-300 border p-2" style="height: 200px">
           <c-echarts.line name="Signups this week"
                           description="New accounts per day this week. There are none yet."
-                          :labels="weekdays"
-                          values="" />
+                          :labels="weekdays" />
         </div>
       </div>
       <div>
@@ -104,8 +103,8 @@
         <div class="rounded-box border-base-300 border p-2" style="height: 200px">
           <c-echarts.line name="Signups this week"
                           description="New accounts per day this week. Only Monday has been recorded so far, at forty-one."
-                          labels="Mon"
-                          values="41" />
+                          :labels="['Mon']"
+                          :values="[41]" />
         </div>
       </div>
       <div>
@@ -113,16 +112,16 @@
         <div class="rounded-box border-base-300 border p-2" style="height: 200px">
           <c-echarts.line name="Sensor readings"
                           description="Ten readings from a sensor that went offline twice, leaving gaps at the third, fourth and seventh readings."
-                          labels="1,2,3,4,5,6,7,8,9,10"
+                          :labels="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
                           :values="intermittent" />
         </div>
       </div>
       <div>
-        <h3 class="mb-2 text-sm font-semibold">Six series, at the palette's limit</h3>
+        <h3 class="mb-2 text-sm font-semibold">Six series</h3>
         <div class="rounded-box border-base-300 border p-2" style="height: 200px">
           <c-echarts.line name="Requests by region"
                           description="Requests per quarter from six regions. All six rise; Europe is highest throughout and South America lowest."
-                          labels="Q1,Q2,Q3,Q4"
+                          :labels="['Q1', 'Q2', 'Q3', 'Q4']"
                           :series="[{'name': 'Europe', 'data': [82, 91, 97, 110]},
                                     {'name': 'North America', 'data': [70, 74, 83, 90]},
                                     {'name': 'Asia', 'data': [55, 63, 72, 84]},

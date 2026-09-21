@@ -2,7 +2,7 @@
 {# @strict #}
 {# @prop name:text | required | description:"Accessible name — what a screen reader announces this chart as" #}
 {# @prop description:text | required | description:"Text alternative — what the chart shows, for anyone who cannot see it" #}
-{# @prop values:text | description:"One series of points, each an [x, y] pair. Written out it is JSON: [[1, 4], [2, 9]]" #}
+{# @prop :values:text | description:"One series of points, each an [x, y] pair: :values=\"[[1, 4], [2, 9]]\"" #}
 {# @prop :series:text | description:"Several named series of points: [{'name': …, 'data': [[x, y], …], 'color': …}]" #}
 {# @prop :config:text | description:"An object carrying any of these same attributes, built in Python. An attribute written on the tag wins over the same key here" #}
 {# @prop :options:text | description:"Raw ECharts options, deep-merged over everything the component built. Axis names and point size live here" #}

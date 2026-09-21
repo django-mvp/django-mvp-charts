@@ -108,15 +108,16 @@ class LineChartView(ChartTypeView):
         ]
 
         # A colour that means something rather than one that only tells two
-        # series apart. Named roles come from the theme, so they keep meaning
-        # what they mean when the theme changes.
+        # series apart. The package does not choose it: `color` is handed to
+        # ECharts as written, so a project matching its charts to its site
+        # decides these two values, here or in options.color.
         context["health"] = [
             {
                 "name": "Requests served",
                 "data": [980, 992, 995, 988, 999, 1000, 997],
-                "color": "success",
+                "color": "#00a96e",
             },
-            {"name": "Errors", "data": [20, 8, 5, 12, 1, 0, 3], "color": "error"},
+            {"name": "Errors", "data": [20, 8, 5, 12, 1, 0, 3], "color": "#ff5861"},
         ]
         context["weekdays"] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
