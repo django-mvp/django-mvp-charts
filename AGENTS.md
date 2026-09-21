@@ -41,6 +41,35 @@ The name is load-bearing and fails quietly. A component Cotton cannot resolve re
 output rather than raising, so a renamed directory breaks every tag in the namespace without an
 error anywhere. `tests/test_app.py` asserts the directory exists for that reason.
 
+## Demo project
+
+`demo/` is a Django project that runs on django-mvp's application shell. It is how a component is
+looked at while it is being written, and it is never deployed. Nothing in it is distributed:
+`pyproject.toml` packages `mvp_charts` alone.
+
+`tests/settings.py` inherits `demo/settings.py` rather than restating it, so there is one
+description of the shell. Everything in the demo fails quietly — an unresolvable Cotton component
+renders as empty output, a Tailwind class the packaged stylesheet does not emit does nothing, and a
+menu entry whose URL will not resolve is dropped — which is why `tests/test_demo.py` asserts against
+the rendered page.
+
+**Adding a page for a new chart type** takes a view, a route, a template and one menu entry:
+
+1. A view in `demo/views.py` on `mvp.views.MVPTemplateView`, setting `page_title` and `breadcrumbs`.
+2. A route in `demo/urls.py`.
+3. A template extending `page_view.html`, filling `{% block page.content %}`. Wrap each example in
+   `{% show_code %}{% cotton:verbatim %}…{% endcotton:verbatim %}{% endshow_code %}` to get the
+   component, its source and its rendered HTML together. The `cotton:verbatim` wrapper is required:
+   without it Cotton compiles the markup before the tag can capture it.
+4. A `MenuItem` in `CHART_PAGES` in `demo/menus.py`. The Charts section appears with the first
+   entry — a navigation node with no children renders as an inert button, not as a heading, so the
+   section is deliberately left out of the tree until it holds a page.
+
+`{% show_code %}` renders through a template named `cotton/documentation.html`. django-mvp ships the
+tag but not that template, so this project supplies its own in `demo/templates/`. It is written in
+plain Django template syntax because the tag renders it with `render_to_string()`, outside the
+Cotton pipeline, and it uses only classes the packaged stylesheet emits.
+
 ## Releasing
 
 Releases run through the shared release flow, never by hand and never by pushing a tag.

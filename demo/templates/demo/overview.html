@@ -1,0 +1,61 @@
+{% extends "page_view.html" %}
+{% load mvp %}
+{% block page.content %}
+  <c-section title="What this is" icon="info">
+    <c-text>
+      A chart on a Django page is mostly plumbing. You serialise a queryset to JSON,
+      drop a div with an id, then write a script that finds the div and hands the JSON
+      to a charting library — and do all of it again on the next page with a slightly
+      different id. This package moves the plumbing into a Cotton component so the
+      template keeps only the intent.
+    </c-text>
+    <c-text>
+      Data arrives as an attribute, from a view the project already has. There are no
+      models, no views and no URLs in the package: it renders markup, and that is all.
+    </c-text>
+  </c-section>
+  <c-section title="One namespace per charting library" icon="chart">
+    <c-text>
+      A chart names the library that draws it. <code>&lt;c-echarts.line&gt;</code> is
+      Apache ECharts and speaks ECharts' own vocabulary, and a second library would get
+      a namespace of its own beside it rather than underneath it. There is no neutral
+      component that renders through a swappable back end, because an interface across
+      charting libraries can only offer what they have in common and then needs an
+      escape hatch for anything real.
+    </c-text>
+    <c-text>
+      The library itself is never shipped from here. This project loads it from a public
+      CDN, which suits a demonstration and keeps local development free of a Node
+      toolchain. An application is expected to bundle it instead, importing only the
+      chart types it draws.
+    </c-text>
+  </c-section>
+  <c-section title="Where the charts will appear" icon="overview">
+    <c-alert variant="info" soft>
+      <span>
+        No chart components exist yet. As each one lands it gets a page of its own under
+        a <strong>Charts</strong> section in the sidebar, showing the chart, the tag that
+        produced it, and the HTML it rendered to.
+      </span>
+    </c-alert>
+  </c-section>
+  <c-section title="How a chart page will read" icon="document">
+    <c-text>
+      Every chart page presents its example the same way — the live component first,
+      then the Cotton that produced it beside the HTML it rendered to. Here is that
+      surface, demonstrated on a card until the first chart component is written.
+    </c-text>
+    {% comment %}
+      cotton:verbatim is required, not decoration: without it Cotton compiles
+      the markup before show_code can capture it, and the source pane comes out
+      empty.
+    {% endcomment %}
+    {% show_code %}
+      {% cotton:verbatim %}
+        <c-card title="Monthly revenue" icon="chart">
+          <c-text tight muted>A chart component will stand here.</c-text>
+        </c-card>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+{% endblock page.content %}

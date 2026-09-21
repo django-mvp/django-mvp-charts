@@ -1,0 +1,35 @@
+{% comment %}
+  Display surface for the {% show_code %} template tag, which renders through
+  this path by name. The tag hands it three things:
+
+    rendered – the live, compiled component (already marked safe)
+    code     – the Cotton source that produced it, escaped
+    html     – the HTML the component rendered to, prettified and escaped
+
+  django-mvp ships the tag but not this template, so a project that calls the
+  tag has to supply one of its own. See the demo project section of AGENTS.md.
+
+  It is rendered with render_to_string() rather than as part of the page around
+  it, so it has no access to the Cotton components: plain Django template
+  syntax only, no c- tags. Every class used here is one the packaged stylesheet
+  emits — a class it does not emit fails silently.
+{% endcomment %}
+<div class="card border border-base-300 bg-base-100 overflow-hidden">
+  {# The component itself, drawn the way a page would draw it. #}
+  <div class="p-6">{{ rendered }}</div>
+  {# Its source, beside the markup it produced. #}
+  <div class="grid lg:grid-cols-2 gap-0">
+    <div class="bg-base-200 border-t border-base-300">
+      <p class="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-base-content/60">
+        Cotton
+      </p>
+      <pre class="overflow-x-auto px-4 pb-4 m-0 text-sm"><code>{{ code }}</code></pre>
+    </div>
+    <div class="bg-base-200 border-t border-base-300">
+      <p class="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-base-content/60">
+        Rendered HTML
+      </p>
+      <pre class="overflow-x-auto px-4 pb-4 m-0 text-sm"><code>{{ html }}</code></pre>
+    </div>
+  </div>
+</div>

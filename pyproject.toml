@@ -125,7 +125,12 @@ ignore_missing_model_attributes = "True"
 # subject is the Django app registry and the on-disk layout of the installed
 # package, so conforming to the mirror rule would mean inventing
 # mvp_charts/app.py purely to give the test file something to point at.
-non-mirror-paths = ["tests/test_app.py"]
+#
+# test_demo.py's subject is the demonstration project, which sits beside the
+# package rather than inside it and is not distributed. There is no module
+# under mvp_charts/ for it to mirror, and adding demo/ to the distributed
+# packages purely to create one would ship the demonstration to every install.
+non-mirror-paths = ["tests/test_app.py", "tests/test_demo.py"]
 
 [tool.deptry]
 extend_exclude = ["tests/", "demo/", "docs/"]

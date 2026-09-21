@@ -1,7 +1,10 @@
-from django.views.generic import TemplateView
+from mvp.views import MVPTemplateView
 
 
-class LandingView(TemplateView):
-    """The page the components are built for, as far as it exists yet."""
+class OverviewView(MVPTemplateView):
+    """What this package is, and where the chart pages will appear."""
 
-    template_name = "demo/landing.html"
+    template_name = "demo/overview.html"
+    page_title = "Overview"
+    page_subtitle = "Charts as Cotton components, one namespace per charting library"
+    breadcrumbs = [{"text": "Overview"}]
