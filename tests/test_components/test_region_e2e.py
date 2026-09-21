@@ -100,7 +100,7 @@ RECORD_RESIZES = """
 
 
 class TestHoldsItsShape:
-    """T019–T022: the region tracks its wrapper through everything a page does."""
+    """T019-T022: the region tracks its wrapper through everything a page does."""
 
     @pytest.fixture
     def page_with_regions(self, chromium_or_skip, live_server, page):
