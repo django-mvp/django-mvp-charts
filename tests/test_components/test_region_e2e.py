@@ -10,7 +10,6 @@ Every test here measures the page and asserts numbers.
 
 import pytest
 
-
 #: Each region's own box, and the inner box of the element wrapping it.
 #:
 #: ``offsetWidth`` is the region's border box, and the region carries no border
