@@ -121,3 +121,24 @@ would have passed without looking at most of it. It cuts to the matching close n
 **Next**: T006 — README section on placing a region, wrapper included, and the CHANGELOG entry.
 
 **Watch**: nothing new.
+
+## 2026-09-21T13:45Z · Orchestrator · T006
+
+**Did**: README gained a *Placing a chart region* section — the example with its wrapper, why the
+wrapper carries the height and the region has none, both required attributes and what each is for,
+and the `id` attribute. Status line updated from "no components are written yet". CHANGELOG entry
+for the region, the per-request numbering, the first locale catalog and the demo page.
+
+**Went beyond the task**: the task called for no code test, on the grounds that rendering the
+example in the demo page is what exercises it. That only holds while the two stay identical, and
+nothing was keeping them identical. Added `TestDocumentedExample`, which extracts the README's
+example and asserts it is the markup the demo template carries.
+
+**Verified**: reinstated the defect before trusting the test — changing one attribute in the README
+example fails it, restoring it passes. `poetry run pytest tests/test_demo.py` — 19 passed.
+
+**Next**: T007 — measure in a real browser that the region's box is its wrapper's box.
+
+**Watch**: the browser tests from T007 on need `install-playwright: true` on the `call-tests` job,
+which is a workflow file and so the repository owner's to add. Until then they pass locally and
+skip on CI.

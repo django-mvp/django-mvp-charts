@@ -12,7 +12,7 @@ This package moves the wiring into a component, so the intent is what stays in y
 
 ## Status
 
-Version 0.0.1. The repository is scaffolded and the test harness is green. No components are written yet, and nothing here is stable.
+Version 0.0.1. The chart region is in place and nothing draws into it yet — the chart types come next. Nothing here is stable.
 
 ## Requirements
 
@@ -41,6 +41,28 @@ Components are then available under the namespace of the library they render wit
 ```html
 <c-echarts.bar ... />
 ```
+
+## Placing a chart region
+
+A chart region is the space a chart is drawn into. Put it inside an element that already has a height:
+
+```html
+<div class="rounded-box border-base-300 border" style="height: 320px">
+  <c-echarts.region name="Monthly revenue"
+                    description="Revenue by month over the last year, rising from January to a December peak." />
+</div>
+```
+
+**The wrapper is where the height lives.** A region fills the element around it and has no height of its own — no default, no minimum, no aspect ratio. That is deliberate: a height invented by this package would be wrong on most pages and would stop a chart sharing a grid row with anything else. It does mean a region placed in an element with no resolved height gets none itself, which is the most common way a first attempt goes wrong, so the region says so on the page instead of rendering as an empty box.
+
+Both attributes are required:
+
+- `name` is what a screen reader announces the chart as.
+- `description` is what the chart shows, in words. A chart drawn into a canvas is invisible to anyone who cannot see it, and to anyone who cannot tell its colours apart.
+
+Leave either out, or pass an empty string, and the region is replaced by a message saying which one is missing. Neither is defaulted to nothing.
+
+You can pass `id` to set the element id yourself. Without it each region on a page is numbered as it renders, so several regions on one page stay separately identifiable and each one's description is tied to the right chart.
 
 ## Scope & philosophy
 

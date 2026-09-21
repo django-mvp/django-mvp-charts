@@ -9,8 +9,10 @@ browser.
 """
 
 import re
+from pathlib import Path
 
 import pytest
+from django.conf import settings
 from django.template import TemplateDoesNotExist
 from django.template.loader import get_template
 from django.urls import reverse
@@ -168,3 +170,28 @@ class TestChartRegionPage:
         assert "Charts</span>" in chart_region_page
         assert 'href="/chart-region/"' in chart_region_page
         assert "Chart region</span>" in chart_region_page
+
+
+class TestDocumentedExample:
+    """The README's example is the markup the demo actually renders."""
+
+    def test_the_readme_example_is_the_one_the_demo_shows(self):
+        """A documented example is only worth anything if it is exercised.
+
+        The placement example in the README and the one on the chart region
+        page are the same markup, so the demo page rendering is what proves
+        the documented example works. Comparing them here is what stops the
+        two drifting apart silently, which is the usual way a README example
+        stops being true.
+        """
+        readme = (Path(settings.BASE_DIR) / "README.md").read_text()
+        example = re.search(
+            r"```html\n(<div[^\n]*style=\"height: 320px\">.*?</div>)\n```",
+            readme,
+            re.S,
+        )
+        assert example, "the README no longer carries the placement example"
+        page = (
+            Path(settings.BASE_DIR) / "demo/templates/demo/chart_region.html"
+        ).read_text()
+        assert " ".join(example.group(1).split()) in " ".join(page.split())

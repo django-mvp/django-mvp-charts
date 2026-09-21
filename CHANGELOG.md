@@ -7,10 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Initial scaffold: build pipeline, test harness and demo project. No components
-yet, and nothing released.
+The first component: a chart region. Nothing draws into it yet, and nothing
+has been released.
 
 ### Added
+
+- `<c-echarts.region>`, the space a chart is drawn into. It fills the element
+  around it and has no height of its own, so the project's own wrapper decides
+  how big it is. `name` and `description` are required and carry the
+  accessible name and the text alternative; leaving either out replaces the
+  region with a message naming what is missing, rather than rendering with an
+  empty value.
+- Per-request numbering for regions without an author-supplied `id`, so
+  several regions on one page stay separately identifiable and each one's
+  description is tied to the right chart.
+- `mvp_charts/locale/`, with a base English catalog. These are the package's
+  first user-facing strings.
+- A demo page showing a region in a sized wrapper, four more at four different
+  heights, and the markup that produced them.
 
 - `demo/templates/cotton/documentation.html`, the display surface django-mvp's
   `{% show_code %}` tag renders through. The tag ships with django-mvp; the
