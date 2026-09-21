@@ -1,0 +1,28 @@
+# English translation catalog for django-mvp-charts.
+# Copyright (C) 2026 Samuel Jennings
+# This file is distributed under the same license as the django-mvp-charts package.
+msgid ""
+msgstr ""
+"Project-Id-Version: django-mvp-charts\n"
+"Report-Msgid-Bugs-To: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: mvp_charts/apps.py:8
+msgid "Charts"
+msgstr "Charts"
+
+#: mvp_charts/templates/cotton/echarts/region.html:27
+msgid "This chart region has no name or description."
+msgstr "This chart region has no name or description."
+
+#: mvp_charts/templates/cotton/echarts/region.html:29
+msgid "This chart region has no name."
+msgstr "This chart region has no name."
+
+#: mvp_charts/templates/cotton/echarts/region.html:31
+msgid "This chart region has no description."
+msgstr "This chart region has no description."

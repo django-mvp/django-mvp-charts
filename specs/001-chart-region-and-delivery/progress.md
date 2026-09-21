@@ -63,3 +63,23 @@ tests/test_components/test_region.py` — all hooks passed.
 **Next**: T004 — ship the base English catalog and prove the wrapped strings translate.
 
 **Watch**: nothing new.
+
+## 2026-09-21T13:30Z · Implementer US1 · T004
+
+**Did**: ran `makemessages -l en` and `compilemessages` to ship `mvp_charts/locale/en/LC_MESSAGES/`,
+the base English catalog for the three guard messages (already wrapped in `{% trans %}` since T003)
+and the app's `verbose_name`. Added `TestTranslatedMessages` in `test_region.py`, backed by a
+test-only fixture catalog at `tests/locale/de/LC_MESSAGES/` — not shipped — translating one message,
+activated via `override_settings(LOCALE_PATHS=...)` and `translation.override("de")`.
+
+**Verified**: probed the mechanism before trusting the test (craft-tdd's rule for a criterion that
+might already be satisfied) — rendering the same region under `translation.override("de")` with no
+`LOCALE_PATHS` override shows the English source string, not the German one, confirming the test
+exercises the catalog rather than passing regardless. `poetry run pytest
+tests/test_components/test_region.py` — 16 passed. `poetry run pre-commit run --files
+tests/test_components/test_region.py tests/locale/de/LC_MESSAGES/django.po
+mvp_charts/locale/en/LC_MESSAGES/django.po` — all hooks passed.
+
+**Next**: T005 — the demo shows a placed region and the Charts section appears.
+
+**Watch**: nothing new.

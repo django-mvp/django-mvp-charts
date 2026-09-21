@@ -8,10 +8,12 @@ a real browser can measure.
 """
 
 import re
+from pathlib import Path
 
 from django import template as dj_template
 from django.template import RequestContext
-from django.test import RequestFactory
+from django.test import RequestFactory, override_settings
+from django.utils import translation
 from django_cotton.compiler_regex import CottonCompiler
 
 compiler = CottonCompiler()
@@ -153,3 +155,27 @@ class TestMissingAttributes:
         assert alert is not None
         assert "name" in alert.group(1).lower()
         assert "description" in alert.group(1).lower()
+
+
+FIXTURE_LOCALE = Path(__file__).resolve().parent.parent / "locale"
+
+
+class TestTranslatedMessages:
+    """Every message the region can render is wrapped for translation.
+
+    The package ships only a base English catalog (T004's `Implement`), so
+    this test brings its own fixture catalog under `tests/locale/` rather
+    than requiring a real second language to ship. It proves the wrapping
+    and the catalog mechanics; the fixture is not distributed.
+    """
+
+    @override_settings(LOCALE_PATHS=[FIXTURE_LOCALE])
+    def test_a_translated_message_is_shown_under_its_language(self):
+        with translation.override("de"):
+            html = render('<c-echarts.region description="Revenue by month." />')
+        assert "Diese Diagrammfläche hat keinen Namen." in html
+        assert "This chart region has no name." not in html
+
+    def test_the_english_source_string_shows_with_no_translation_active(self):
+        html = render('<c-echarts.region description="Revenue by month." />')
+        assert "This chart region has no name." in html

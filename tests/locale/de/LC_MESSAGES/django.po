@@ -1,0 +1,10 @@
+# Test-only fixture catalog for TestTranslatedMessages in
+# tests/test_components/test_region.py. Not part of the package's shipped
+# catalog (mvp_charts/locale/) and not distributed.
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: de\n"
+
+msgid "This chart region has no name."
+msgstr "Diese Diagrammfläche hat keinen Namen."
