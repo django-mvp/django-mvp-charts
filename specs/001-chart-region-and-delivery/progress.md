@@ -83,3 +83,41 @@ mvp_charts/locale/en/LC_MESSAGES/django.po` — all hooks passed.
 **Next**: T005 — the demo shows a placed region and the Charts section appears.
 
 **Watch**: nothing new.
+
+## 2026-09-21T13:35Z · Orchestrator · T005
+
+**Handover**: the run that started this feature was stopped mid-T005 at the owner's instruction and
+picked up here from `c4222eb`. T001–T004 were committed and green; T005's tests were written and
+red, which is where it resumed.
+
+**Repaired first**: the in-flight edit had inserted `TestChartRegionPage` into the middle of
+`TestDocumentationSurface`, leaving two classes of that name — the second shadows the first, so four
+already-passing tests had silently stopped being collected. The new class moved to the end of the
+file, the original class made whole, and its missing `reverse` import added.
+
+**Did**: `demo/views.py` gained `ChartRegionView`, `demo/urls.py` its route, `demo/menus.py` its
+first `CHART_PAGES` entry — which is what brings the Charts section into the sidebar — and
+`demo/templates/demo/chart_region.html` shows one region in a 320px wrapper through
+`{% show_code %}`, four more at four different heights, and a note on why the wrapper is not
+optional. Removed `mvp_charts/templates/cotton/echarts/.gitkeep`: the directory holds a real
+component now, and `test_app.py` asserts its existence either way.
+
+**Two pre-existing tests were restated rather than weakened.** `test_that_is_the_only_entry` and
+half of `test_no_section_is_drawn_with_nothing_under_it` asserted the sidebar's contents *while no
+chart page existed* — their own docstrings said so. The enduring intent is that the sidebar holds
+exactly the pages that exist and that no node is ever drawn with `href="None"`. The `href="None"`
+guard is untouched and still the point of the second test; the first now asserts the navigation's
+hrefs are exactly `/` and `/chart-region/`, which is the same claim at the new state and a stronger
+assertion than counting `<li`.
+
+**One defect this feature created, fixed here**: the `sidebar_navigation` fixture cut from the
+navigation's label to the *first* `</ul>`. A section with pages under it nests a list, so that cut
+now stopped at the first section and dropped the rest — an assertion about what the sidebar holds
+would have passed without looking at most of it. It cuts to the matching close now.
+
+**Verified**: `poetry run pytest` — 38 passed. Dev server restarted from this worktree;
+`/chart-region/` serves 200 and carries five regions with five distinct ids.
+
+**Next**: T006 — README section on placing a region, wrapper included, and the CHANGELOG entry.
+
+**Watch**: nothing new.

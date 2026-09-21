@@ -1,0 +1,68 @@
+{% extends "page_view.html" %}
+{% load mvp %}
+{% block page.content %}
+  <c-section title="Placing a region" icon="info">
+    <c-text>
+      A chart region is placed like any other component, inside an element the project
+      has already given a height. It fills that element exactly and has no height of
+      its own, so the wrapper below carries one and the region takes it.
+    </c-text>
+    <c-text>
+      The name and the description are both required. The name is what a screen reader
+      announces the chart as, and the description is what it says the chart shows —
+      neither is optional, because a chart drawn into a canvas is invisible without
+      them.
+    </c-text>
+    {% comment %}
+      cotton:verbatim is required, not decoration: without it Cotton compiles
+      the markup before show_code can capture it, and the source pane comes out
+      empty.
+    {% endcomment %}
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div class="rounded-box border-base-300 border" style="height: 320px">
+          <c-echarts.region name="Monthly revenue"
+                            description="Revenue by month over the last year, rising from January to a December peak." />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+    <c-alert variant="info" soft>
+      <span>
+        Nothing is drawn yet. The region is the space a chart type will draw into, and
+        the chart types arrive in later releases.
+      </span>
+    </c-alert>
+  </c-section>
+  <c-section title="Several on one page" icon="overview">
+    <c-text>
+      Each region is its own, whatever size it is given. They take four different
+      heights here, and none of them knows the others exist.
+    </c-text>
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="rounded-box border-base-300 border" style="height: 200px">
+        <c-echarts.region name="Signups"
+                          description="New accounts per week for the last quarter." />
+      </div>
+      <div class="rounded-box border-base-300 border" style="height: 280px">
+        <c-echarts.region name="Revenue by region"
+                          description="Revenue split across four sales regions." />
+      </div>
+      <div class="rounded-box border-base-300 border" style="height: 140px">
+        <c-echarts.region name="Open tickets"
+                          description="Support tickets left open at the end of each day this month." />
+      </div>
+      <div class="rounded-box border-base-300 border" style="height: 240px">
+        <c-echarts.region name="Storage used"
+                          description="Storage consumed against the plan's limit, month by month." />
+      </div>
+    </div>
+  </c-section>
+  <c-section title="The wrapper is not optional" icon="document">
+    <c-text>
+      A region put in an element with no resolved height gets none itself, and a chart
+      with no height is a blank rectangle nobody can diagnose. That is why the region
+      says so instead, on the page, where the chart would have been. The page on what
+      happens when a region cannot draw shows that state deliberately.
+    </c-text>
+  </c-section>
+{% endblock page.content %}

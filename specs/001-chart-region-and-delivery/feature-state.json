@@ -2,7 +2,7 @@
   "feature": "001-chart-region-and-delivery",
   "branch": "001-chart-region-and-delivery",
   "repo": "django-mvp/django-mvp-charts",
-  "state": "DESIGN_REVIEW",
+  "state": "IMPLEMENT",
   "state_history": [
     {
       "state": "QUEUED",
@@ -18,6 +18,11 @@
       "state": "DESIGN_REVIEW",
       "at": "2026-09-21T12:50:16Z",
       "note": "one reviewer, three lenses, no diff exists"
+    },
+    {
+      "state": "IMPLEMENT",
+      "at": "2026-09-21T12:59:15Z",
+      "note": "US1 dispatched to an implementer in the feature worktree"
     }
   ],
   "gates": {
@@ -35,6 +40,15 @@
     "merge": {
       "approved_by": null,
       "at": null
+    },
+    "design_review": {
+      "approved_by": "design-panel",
+      "at": "2026-09-21T12:56:00Z",
+      "self_resolved": [
+        "DR-001 high: failures demo page overrides extra_js so it does not inherit the delivery line \u2014 applied to plan.md and tasks.md T018",
+        "DR-002 medium: tests/test_components/ added to non-mirror-paths as part of T001 rather than assumed \u2014 applied to tasks.md T001",
+        "DR-003 medium: failure-message text asserted server-side as well as in the browser \u2014 applied to tasks.md T013"
+      ]
     }
   },
   "stories": [

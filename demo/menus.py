@@ -20,7 +20,13 @@ from mvp.menus import AppMenu, MenuCollapse
 #: avoids it. Leaving the section out until it holds a page is the only shape
 #: that draws correctly at every point, and it costs nothing: the first chart
 #: page brings its section with it.
-CHART_PAGES: list[MenuItem] = []
+CHART_PAGES: list[MenuItem] = [
+    MenuItem(
+        name="chart_region",
+        view_name="chart_region",
+        extra_context={"label": "Chart region", "icon": "chart"},
+    ),
+]
 
 AppMenu.extend(
     [
