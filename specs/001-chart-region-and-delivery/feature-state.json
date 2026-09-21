@@ -177,7 +177,7 @@
       "priority": "P4",
       "issue": 10,
       "worktree": "/home/sam/projects/django-mvp/charts-chart-region",
-      "status": "todo",
+      "status": "done",
       "replans": 0,
       "tasks": [
         {
