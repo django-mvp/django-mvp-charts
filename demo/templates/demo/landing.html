@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="corporate">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>django-mvp-charts — demo</title>
+    <link rel="stylesheet" href="{% static 'css/django-mvp.css' %}">
+  </head>
+  <body class="bg-base-100 text-base-content">
+    <main class="mx-auto max-w-3xl px-6 py-16">
+      <h1 class="text-4xl font-bold">django-mvp-charts</h1>
+      <p class="mt-4 text-lg opacity-75">
+        Charts as Cotton components. This page is where they get looked at while they are
+        being built.
+      </p>
+
+      <div class="card bg-base-200 mt-10 p-6">
+        <h2 class="text-xl font-semibold">Nothing to see yet</h2>
+        <p class="mt-2 opacity-75">
+          The package is scaffolded and the test harness is green, but no components have been
+          written. The first ones will appear under the <code>echarts</code> namespace as
+          <code>&lt;c-echarts.line /&gt;</code> and friends, each rendered here as it lands.
+        </p>
+      </div>
+
+      <div class="card bg-base-200 mt-6 p-6">
+        <h2 class="text-xl font-semibold">How the JavaScript arrives</h2>
+        <p class="mt-2 opacity-75">
+          This page will load Apache ECharts from a CDN, which is the right trade for a
+          demonstration and for local development. Projects using the package in production are
+          expected to bundle it themselves, importing only the chart types and renderers they
+          actually use. Nothing is vendored into this repository.
+        </p>
+      </div>
+    </main>
+  </body>
+</html>
