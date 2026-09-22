@@ -1,22 +1,25 @@
 """Shared fixtures for the test suite."""
 
+import os
+
 import pytest
 from django.urls import reverse
 
 
 @pytest.fixture(scope="session")
-def chromium_or_skip():
-    """Skip rather than fail where no browser is installed.
+def chromium():
+    """A working chromium, or a decision about what its absence means.
 
-    Three of this feature's guarantees exist only in a browser: whether the
+    Three of this package's guarantees exist only in a browser: whether the
     charting library arrived, whether the wrapper resolved to a usable height,
     and what size that wrapper is now. None can be asserted from rendered
     markup, so they are measured in a real one.
 
-    Installing that browser on CI is a line in a workflow file, which is
-    outside what this project's automation may change. Until it is added these
-    tests skip there and run locally, and a skip says so out loud where a
-    missing test would not.
+    On a contributor's machine a missing browser is a setup step nobody has
+    run yet, and skipping says so without blocking unrelated work. On CI it is
+    a hole in the suite: a checks page cannot tell a skipped test from a
+    passing one, so these would report green while asserting nothing. There,
+    the absence fails.
     """
     from playwright.sync_api import Error, sync_playwright
 
@@ -24,7 +27,16 @@ def chromium_or_skip():
         with sync_playwright() as playwright:
             playwright.chromium.launch().close()
     except (Error, ImportError) as exc:  # pragma: no cover - environment probe
-        pytest.skip(f"no chromium available to measure the page with: {exc}")
+        unavailable = f"no chromium available to measure the page with: {exc}"
+        if os.environ.get("CI"):
+            pytest.fail(
+                f"{unavailable}\n\nThe tests workflow installs chromium "
+                "through the shared workflow's `install-playwright` input. "
+                "Reaching this means that input was dropped or its install "
+                "step did not run.",
+                pytrace=False,
+            )
+        pytest.skip(unavailable)
 
 
 @pytest.fixture

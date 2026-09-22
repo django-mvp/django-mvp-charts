@@ -25,7 +25,7 @@ REGION_STATE = """
 
 
 @pytest.fixture
-def failure_page(chromium_or_skip, live_server, page):
+def failure_page(chromium, live_server, page):
     """Open a probe page for one failure case."""
 
     def open_case(case):
@@ -209,7 +209,7 @@ class TestNothingKeepsRunningAfterwards:
     """
 
     @pytest.fixture
-    def counted_timers(self, chromium_or_skip, live_server, page):
+    def counted_timers(self, chromium, live_server, page):
         """Count intervals that are started and never cleared."""
         page.add_init_script(
             """

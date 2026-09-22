@@ -32,7 +32,7 @@ REGION_STATE = """
 
 
 @pytest.fixture
-def delivery_page(chromium_or_skip, live_server, page):
+def delivery_page(chromium, live_server, page):
     """Open a probe page for one delivery route and wait for the region to settle."""
 
     def open_route(route):
@@ -78,7 +78,7 @@ class TestALateBundleIsNotAFault:
     """T014: a library that arrives after the page does is ordinary, not an error."""
 
     def test_a_region_resolves_when_the_library_turns_up_later(
-        self, chromium_or_skip, live_server, page
+        self, chromium, live_server, page
     ):
         """A deferred or asynchronously loaded bundle is a normal project.
 
@@ -100,17 +100,13 @@ class TestALateBundleIsNotAFault:
 class TestAPageWithNoRegionPaysNothing:
     """T012: installing the package costs a page that places no region nothing."""
 
-    def test_nothing_of_this_package_is_requested(
-        self, chromium_or_skip, live_server, page
-    ):
+    def test_nothing_of_this_package_is_requested(self, chromium, live_server, page):
         requested = []
         page.on("request", lambda request: requested.append(request.url))
         page.goto(f"{live_server.url}/probe/no-region/")
         assert not [url for url in requested if "mvp_charts" in url]
 
-    def test_no_third_party_origin_is_contacted(
-        self, chromium_or_skip, live_server, page
-    ):
+    def test_no_third_party_origin_is_contacted(self, chromium, live_server, page):
         requested = []
         page.on("request", lambda request: requested.append(request.url))
         page.goto(f"{live_server.url}/probe/no-region/")

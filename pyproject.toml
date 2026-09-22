@@ -145,7 +145,17 @@ ignore_missing_model_attributes = "True"
 #
 # tests/test_components/'s subject is Cotton component templates, which have
 # no Python module of their own to mirror.
-non-mirror-paths = ["tests/test_app.py", "tests/test_demo.py", "tests/test_components/"]
+#
+# tests/test_browser_guard.py's subject is the suite's own fixture deciding what
+# a missing browser means. That is test infrastructure, not shipped code, and
+# giving it a module under mvp_charts/ would put a testing concern in the
+# distribution.
+non-mirror-paths = [
+  "tests/test_app.py",
+  "tests/test_demo.py",
+  "tests/test_components/",
+  "tests/test_browser_guard.py",
+]
 
 [tool.deptry]
 extend_exclude = ["tests/", "demo/", "docs/"]

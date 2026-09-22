@@ -285,15 +285,19 @@ arrives as one external module. The half rejecting a per-region framework compon
 No pre-existing assertion was deleted, and none was loosened to accommodate new code. Two were
 restated at the state the feature creates, and one was sharpened.
 
-## The one `skip` on the branch
+## What a missing browser means
 
-`chromium_or_skip` skips the browser tests where no browser is installed. It is an environment
-probe, not a disabled test: every one of them runs and passes locally.
+`chromium` probes for a working browser before the tests that need one. It is an environment probe,
+not a disabled test.
 
-Installing a browser on CI is a line in a workflow file, and this project's automation is
-deliberately not allowed to change those. Until the repository owner adds it, these tests report as
-skipped there. A skip is the honest state — it says out loud, on every run, that something was not
-checked, where quietly not writing the test would say nothing at all.
+Where the answer differs is what its absence means. On a contributor's machine it is a setup step
+nobody has run yet, so the tests skip and unrelated work is not blocked. On CI it is a hole in the
+suite, because a checks page renders a skipped test and a passing one identically — so there the
+absence fails, and says which workflow input is missing.
+
+The workflow installs chromium through the shared workflow's `install-playwright` input. While it
+did not, these tests skipped on CI and ran locally, which was honest but invisible: a green page of
+checks reported thirty-four assertions that nobody had made.
 
 ## A layer written and then deleted
 

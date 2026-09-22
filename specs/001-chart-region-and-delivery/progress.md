@@ -156,8 +156,9 @@ other assertion is an `all()` over a list an empty page would satisfy; that the 
 genuinely five different heights, so the claim holds across sizes; and that no region measured zero,
 since matching a wrapper that is itself nothing is not a pass.
 
-`chromium_or_skip` in `tests/conftest.py` skips instead of failing where no browser is installed, so
-CI reports these as skips until the workflow installs one.
+`chromium` in `tests/conftest.py` probes for a browser before these tests run. CI had none while
+this work was done, so they reported there as skips. The workflow installs one now, and on CI a
+missing browser fails rather than skipping.
 
 **One thing this needed that the plan did not foresee**: the browser fixtures run a test inside a
 greenlet with an event loop under it, and Django refuses synchronous database work from an async

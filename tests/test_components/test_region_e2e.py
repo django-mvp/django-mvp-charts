@@ -35,7 +35,7 @@ MEASURE_REGIONS = """
 
 
 @pytest.fixture
-def chart_region_measurements(chromium_or_skip, live_server, page):
+def chart_region_measurements(chromium, live_server, page):
     """The regions on the demo's chart region page that can draw, measured.
 
     The page also carries a region whose wrapper deliberately resolves to no
@@ -120,7 +120,7 @@ class TestHoldsItsShape:
     """T019-T022: the region tracks its wrapper through everything a page does."""
 
     @pytest.fixture
-    def page_with_regions(self, chromium_or_skip, live_server, page):
+    def page_with_regions(self, chromium, live_server, page):
         page.goto(f"{live_server.url}/chart-region/")
         page.wait_for_selector("[data-mvp-chart-region]", timeout=5000)
         page.evaluate(RECORD_RESIZES)
@@ -224,7 +224,7 @@ class TestTheReportingRegionIsExcludedOnPurpose:
     """
 
     def test_the_page_carries_one_region_reporting_no_height(
-        self, chromium_or_skip, live_server, page
+        self, chromium, live_server, page
     ):
         page.goto(f"{live_server.url}/chart-region/")
         page.wait_for_function(
@@ -235,7 +235,7 @@ class TestTheReportingRegionIsExcludedOnPurpose:
         )
 
     def test_it_takes_enough_room_for_its_message_to_be_read(
-        self, chromium_or_skip, live_server, page
+        self, chromium, live_server, page
     ):
         page.goto(f"{live_server.url}/chart-region/")
         page.wait_for_function(

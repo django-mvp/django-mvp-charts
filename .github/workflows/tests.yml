@@ -26,4 +26,9 @@ jobs:
       # the mvp-shared bundle, so the default `--with test` would fail. Empty
       # args install main + dev + docs, which covers pytest.
       poetry-install-args: ''
+      # Several of this package's guarantees — a region's box matching its
+      # wrapper, a library that arrives late, a wrapper with no resolved
+      # height — can only be measured in a real browser. Without chromium
+      # those tests skip, and a skipped test reads as a passing one here.
+      install-playwright: true
     secrets: inherit
