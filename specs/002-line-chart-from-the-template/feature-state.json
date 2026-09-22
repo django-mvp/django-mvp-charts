@@ -178,23 +178,64 @@
       "priority": "P2",
       "issue": 26,
       "worktree": null,
-      "status": "todo",
+      "status": "done",
       "replans": 0,
       "tasks": [
         {
           "id": "T009",
-          "status": "todo",
-          "attempts": 0
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests": [
+              "tests/test_components/test_region.py::TestOptionalNameAndDescription::test_a_region_with_only_an_id_renders_with_no_missing_message",
+              "tests/test_components/test_region.py::TestOptionalNameAndDescription::test_the_surface_carries_no_role_and_no_aria_label_without_a_name",
+              "tests/test_components/test_region.py::TestOptionalNameAndDescription::test_no_figcaption_without_a_description",
+              "tests/test_components/test_region.py::TestOptionalNameAndDescription::test_name_and_description_are_still_carried_exactly_when_given",
+              "tests/test_components/test_region.py::TestOptionalNameAndDescription::test_an_empty_name_is_not_carried_as_an_empty_attribute",
+              "tests/test_components/test_region.py::TestOptionalNameAndDescription::test_an_empty_description_is_not_carried_as_an_empty_figcaption",
+              "tests/test_components/test_region.py::TestOptionalNameAndDescription::test_a_missing_id_is_still_reported_when_name_and_description_are_given",
+              "tests/test_components/test_line.py::TestOptionalNameAndDescription::test_a_chart_with_only_an_id_and_values_draws_with_no_missing_message",
+              "tests/test_components/test_line.py::TestOptionalNameAndDescription::test_the_surface_carries_no_role_and_no_aria_label_without_a_name",
+              "tests/test_components/test_line.py::TestOptionalNameAndDescription::test_no_figcaption_without_a_description",
+              "tests/test_components/test_region.py::TestMissingAttributes::test_missing_name_no_longer_blocks_the_region_fr_010 (replaces test_missing_name_names_it_and_renders_no_region, authorised by FR-010)",
+              "tests/test_components/test_region.py::TestMissingAttributes::test_missing_description_no_longer_blocks_the_region_fr_010 (replaces test_missing_description_names_it_and_renders_no_region, authorised by FR-010)",
+              "tests/test_components/test_region.py::TestMissingAttributes::test_empty_string_name_is_treated_as_not_given_fr_010 (replaces test_empty_string_name_is_treated_as_missing, authorised by FR-010)",
+              "tests/test_components/test_region.py::TestMissingAttributes::test_empty_string_description_is_treated_as_not_given_fr_010 (replaces test_empty_string_description_is_treated_as_missing, authorised by FR-010)",
+              "tests/test_components/test_region.py::TestMissingAttributes::test_all_three_missing_names_only_the_id_fr_010 (replaces test_all_three_missing_names_all_three, authorised by FR-010)",
+              "tests/test_components/test_region.py::TestTranslatedMessages::test_a_translated_message_is_shown_under_its_language (rewritten to exercise the surviving missing-id message, authorised by FR-010)",
+              "tests/test_components/test_region.py::TestTranslatedMessages::test_the_english_source_string_shows_with_no_translation_active (rewritten to exercise the surviving missing-id message, authorised by FR-010)"
+            ],
+            "commands": [
+              "poetry run pytest tests/test_components/test_region.py tests/test_components/test_line.py -q  (RED, before T010: 10 failed, 27 passed, each failure for the expected reason)",
+              "poetry run pytest tests/test_components/test_region.py tests/test_components/test_line.py tests/test_components/test_shipped_templates.py -q  (GREEN, after T010: 45 passed)",
+              "poetry run ruff check tests/test_components/test_region.py tests/test_components/test_line.py",
+              "poetry run ruff format --check tests/test_components/test_region.py tests/test_components/test_line.py"
+            ]
+          }
         },
         {
           "id": "T010",
-          "status": "todo",
-          "attempts": 0
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "commands": [
+              "poetry run pytest tests/test_components/test_region.py tests/test_components/test_line.py tests/test_components/test_shipped_templates.py -q",
+              "poetry run ruff check mvp_charts/templates/cotton/echarts/region.html",
+              "poetry run python manage.py check"
+            ]
+          }
         },
         {
           "id": "T011",
-          "status": "todo",
-          "attempts": 0
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "commands": [
+              "poetry run python manage.py check",
+              "poetry run pytest tests/test_demo.py -q  (2 failed, 28 passed - the two D8/T010 collateral failures, unrelated to T011; identical failure set confirmed before and after T011's edits)",
+              "poetry run ruff check demo/ README.md CHANGELOG.md"
+            ]
+          }
         }
       ]
     },
