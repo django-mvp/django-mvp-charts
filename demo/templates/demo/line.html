@@ -39,6 +39,28 @@
       {% endcotton:verbatim %}
     {% endshow_code %}
   </c-section>
+  <c-section title="Reaching ECharts' own options" icon="chart">
+    <c-text>
+      An option this component does not name is written on the tag as
+      <code>:options</code>, and it reaches ECharts unchanged, deep-merged
+      over what the component built (FR-012). Appearance belongs to the
+      page: here the author sets the line's colour directly, rather than
+      one this package supplied or derived from the theme it happens to be
+      running (FR-013, FR-015).
+    </c-text>
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div class="rounded-box border-base-300 border" style="height: 240px">
+          <c-echarts.line id="conversion-rate"
+                          name="Conversion rate"
+                          description="Weekly conversion rate for the last quarter."
+                          :values="[2.1, 2.4, 2.2, 2.8, 3.1, 3.4, 3.0]"
+                          :labels="['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4', 'Wk 5', 'Wk 6', 'Wk 7']"
+                          :options="{'series': [{'lineStyle': {'color': '#7c3aed'}}]}" />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
   <c-section title="Beside a bare chart region" icon="overview">
     <c-text>
       A line chart is a region, so the two stay independent even sharing a

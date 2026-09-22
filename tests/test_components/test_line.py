@@ -93,6 +93,92 @@ class TestOptionalNameAndDescription:
         assert "<figcaption" not in html
 
 
+class TestOptionsAttribute:
+    """FR-012 … FR-014: an `options` attribute deep-merges over the built object.
+
+    The merge itself is exercised directly in
+    ``tests/test_echarts/test_options.py``; this class covers it reaching
+    ECharts through the rendered tag.
+    """
+
+    def test_options_wins_on_every_key_it_names(self):
+        html = render(
+            '<c-echarts.line id="revenue" :values="values" :labels="labels"'
+            ' :options="options" />',
+            values=[12, 14, 15],
+            labels=["Jan", "Feb", "Mar"],
+            options={"yAxis": {"type": "log"}},
+        )
+        assert payload(html)["yAxis"] == {"type": "log"}
+
+    def test_a_mapping_in_options_merges_recursively(self):
+        html = render(
+            '<c-echarts.line id="revenue" :values="values" :labels="labels"'
+            ' :options="options" />',
+            values=[12, 14, 15],
+            labels=["Jan", "Feb", "Mar"],
+            options={"xAxis": {"axisLine": {"show": False}}},
+        )
+        assert payload(html)["xAxis"] == {
+            "type": "category",
+            "data": ["Jan", "Feb", "Mar"],
+            "axisLine": {"show": False},
+        }
+
+    def test_a_list_in_options_replaces_a_list_rather_than_merging(self):
+        html = render(
+            '<c-echarts.line id="revenue" :values="values" :options="options" />',
+            values=[12, 14, 15],
+            options={"color": ["purple"]},
+        )
+        assert payload(html)["color"] == ["purple"]
+
+    def test_series_in_options_merges_entry_by_entry_and_keeps_the_data(self):
+        html = render(
+            '<c-echarts.line id="revenue" :values="values" :options="options" />',
+            values=[12, 14, 15],
+            options={"series": [{"lineStyle": {"color": "#7c3aed"}}]},
+        )
+        series = payload(html)["series"][0]
+        assert series["data"] == [12, 14, 15]
+        assert series["lineStyle"] == {"color": "#7c3aed"}
+
+    def test_a_key_this_package_has_never_heard_of_arrives_unchanged(self):
+        html = render(
+            '<c-echarts.line id="revenue" :values="values" :options="options" />',
+            values=[12, 14, 15],
+            options={"toolbox": {"feature": {"saveAsImage": {}}}},
+        )
+        assert payload(html)["toolbox"] == {"feature": {"saveAsImage": {}}}
+
+    def test_no_options_attribute_leaves_the_built_object_untouched(self):
+        html = render(LINE, values=[12, 14, 15], labels=["Jan", "Feb", "Mar"])
+        assert payload(html) == {
+            "xAxis": {"type": "category", "data": ["Jan", "Feb", "Mar"]},
+            "yAxis": {"type": "value"},
+            "series": [{"type": "line", "data": [12, 14, 15]}],
+        }
+
+
+class TestNoAppearanceOfItsOwn:
+    """FR-013, FR-014, SC-004: values alone build exactly what ECharts needs.
+
+    No colour, width, marker, legend, grid, axis line, animation or typeface
+    - every key present traces to the values and labels written, and nothing
+    else.
+    """
+
+    def test_the_built_object_is_byte_for_byte_the_dictionary_and_nothing_more(self):
+        html = render(
+            '<c-echarts.line id="revenue" :values="values" />', values=[12, 14, 15]
+        )
+        assert payload(html) == {
+            "xAxis": {"type": "category"},
+            "yAxis": {"type": "value"},
+            "series": [{"type": "line", "data": [12, 14, 15]}],
+        }
+
+
 class TestMissingId:
     """FR-006: a missing id renders the region's own message, and no script."""
 

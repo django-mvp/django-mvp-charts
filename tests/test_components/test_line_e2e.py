@@ -9,6 +9,17 @@ Follows the shape of ``test_region_e2e.py``.
 
 import pytest
 
+READ_LINE_STYLE_COLOR = """
+(elementId) => {
+  const surface = document
+    .getElementById(elementId)
+    .querySelector('[data-mvp-chart-region-surface]');
+  const chart = echarts.getInstanceByDom(surface);
+  if (!chart) { return null; }
+  return chart.getOption().series[0].lineStyle.color;
+}
+"""
+
 READ_CHART = """
 (elementId) => {
   const surface = document
@@ -107,6 +118,16 @@ class TestAChartAndABareRegionAreIndependent:
     def test_both_regions_reach_the_ready_state(self, line_page):
         assert line_page.evaluate(REGION_STATE, "signups-line") == "ready"
         assert line_page.evaluate(REGION_STATE, "open-tickets-region") == "ready"
+
+
+class TestAnAuthorSuppliedColourReachesTheLiveInstance:
+    """FR-015: an option this component does not name, read back off a real chart."""
+
+    def test_the_colour_written_on_the_tag_is_the_colour_echarts_drew_with(
+        self, line_page
+    ):
+        result = line_page.evaluate(READ_LINE_STYLE_COLOR, "conversion-rate")
+        assert result == "#7c3aed"
 
 
 class TestTheChartKeepsFillingItsWrapper:
