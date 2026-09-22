@@ -64,6 +64,35 @@ class TestNoAuthoredScript:
         assert all('type="application/json"' in tag for tag in tags)
 
 
+class TestOptionalNameAndDescription:
+    """US2, FR-008/FR-010: a line chart with an id and values, nothing else, still draws."""
+
+    def test_a_chart_with_only_an_id_and_values_draws_with_no_missing_message(self):
+        html = render(
+            '<c-echarts.line id="revenue" :values="values" />', values=[12, 14, 15]
+        )
+        assert 'role="alert"' not in html
+        assert "has no name" not in html
+        assert "has no description" not in html
+        assert payload(html)["series"][0]["data"] == [12, 14, 15]
+
+    def test_the_surface_carries_no_role_and_no_aria_label_without_a_name(self):
+        html = render(
+            '<c-echarts.line id="revenue" :values="values" />', values=[12, 14, 15]
+        )
+        surface = re.search(
+            r"<div[^>]*data-mvp-chart-region-surface[^>]*>", html
+        ).group(0)
+        assert "role=" not in surface
+        assert "aria-label" not in surface
+
+    def test_no_figcaption_without_a_description(self):
+        html = render(
+            '<c-echarts.line id="revenue" :values="values" />', values=[12, 14, 15]
+        )
+        assert "<figcaption" not in html
+
+
 class TestMissingId:
     """FR-006: a missing id renders the region's own message, and no script."""
 
