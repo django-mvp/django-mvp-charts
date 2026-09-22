@@ -126,8 +126,9 @@ MVP_CONFIG = {
         },
     },
     "theme": {
-        # A chart reads its colours from the theme the host project is running,
-        # so the demo offers several to switch between.
+        # Several to switch between, so the pages around a chart can be looked
+        # at light and dark. The chart itself does not follow the choice: its
+        # colours come from ECharts, or from options the page passes it.
         "choices": ["light", "dark", "corporate", "dracula"],
     },
 }
