@@ -210,6 +210,20 @@ An attribute earns its name by being needed often enough that spelling it out in
 visible cost. The test at review is whether removing the attribute would make a common chart
 meaningfully worse to write.
 
+**Nor does it add behaviour the backend does not have.** An attribute names something the library
+already does. A component never invents a capability on top of it, and never changes the data it
+was given on the way through: the values drawn are the values passed, in the order they were
+passed. Reordering, capping, grouping, rounding and filling in are all decisions about data, and
+they belong to the project, which has the whole of Python to make them in and knows why it is
+making them.
+
+The reason is asymmetry, not purity. A transformation the package leaves out costs an author a few
+lines in the view they already wrote. A transformation the package performs by default cannot be
+undone from a template at all, because by the time the component has the data the original is
+gone. So where a convenience would be nice to have and its absence is cheap, its absence wins.
+Guidance about what makes a readable chart is worth writing down, and documentation is where it
+goes.
+
 ### Article XV — Rendered output is a contract, and a chart is not only a picture
 
 Components render valid, semantic HTML. Every packaged component has a test proving it renders,

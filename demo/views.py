@@ -2,6 +2,7 @@ import math
 import random
 from datetime import date
 from decimal import Decimal
+from operator import itemgetter
 
 from django.views.generic import TemplateView
 from mvp.views import MVPTemplateView
@@ -205,8 +206,8 @@ class PieChartView(ChartTypeView):
         context["channels"] = ["Direct", "Search", "Referral", "Social"]
         context["channel_share"] = [42, 31, 17, 10]
 
-        # Twelve categories into a shape that stops being readable at six. The
-        # component folds rather than drawing a ring of slivers.
+        # Twelve categories, which is more than a pie reads well. What to do
+        # about that is decided below, not by the component.
         context["languages"] = [
             "Python",
             "JavaScript",
@@ -234,6 +235,21 @@ class PieChartView(ChartTypeView):
             3_900,
             2_700,
             900,
+        ]
+
+        # The five largest named, everything else summed into one slice. This
+        # is what the pie page shows as the view's job: it is ordinary Python
+        # over values this view already has, and a chart drawn from the result
+        # is the chart the numbers here describe.
+        ranked = sorted(
+            zip(context["languages"], context["language_bytes"], strict=True),
+            key=itemgetter(1),
+            reverse=True,
+        )
+        head, tail = ranked[:5], ranked[5:]
+        context["ranked_languages"] = [name for name, _ in head] + ["Other"]
+        context["ranked_language_bytes"] = [count for _, count in head] + [
+            sum(count for _, count in tail)
         ]
 
         context["spend_chart"] = {

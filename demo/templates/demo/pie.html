@@ -25,27 +25,45 @@
       {% endcotton:verbatim %}
     {% endshow_code %}
   </c-section>
-  <c-section title="Twelve categories into six slices" icon="overview">
+  <c-section title="Twelve slices, drawn as given" icon="overview">
+    <p class="mb-4 max-w-prose text-sm">
+      Twelve categories, in the order the view produced them. A pie stops reading well
+      long before twelve, and this one says so — but the component draws the values it
+      is handed, in the order it is handed them, and never quietly draws fewer.
+    </p>
     {% show_code %}
       {% cotton:verbatim %}
         <div class="rounded-box border-base-300 border p-2" style="height: 340px">
           <c-echarts.pie name="Bytes by language"
-                         description="Source bytes by language across twelve languages. Python is the largest at around 412,000 bytes, then JavaScript, HTML, CSS and SQL; the remaining seven are folded together."
+                         description="Source bytes across twelve languages, largest first: Python at around 412,000 bytes, then JavaScript, HTML, CSS and SQL, down to Nix at 900."
                          :labels="languages"
                          :values="language_bytes" />
         </div>
       {% endcotton:verbatim %}
     {% endshow_code %}
   </c-section>
-  <c-section title="Folding sooner" icon="overview">
+  <c-section title="Ordering slices, and summing a tail, are the view's job" icon="document">
+    <p class="mb-4 max-w-prose text-sm">
+      Deciding that seven of those twelve are better off as one slice called
+      <em>Other</em> is a decision about the data, and this package does not make
+      decisions about the data. It is a few lines of Python in the view that already
+      produced the values:
+    </p>
+    <div class="mockup-code mb-4 w-full max-w-prose text-xs">
+      <pre><code>ranked = sorted(zip(languages, language_bytes), key=itemgetter(1), reverse=True)
+head, tail = ranked[:5], ranked[5:]
+context["ranked_languages"] = [name for name, _ in head] + ["Other"]
+context["ranked_language_bytes"] = [count for _, count in head] + [
+    sum(count for _, count in tail)
+]</code></pre>
+    </div>
     {% show_code %}
       {% cotton:verbatim %}
         <div class="rounded-box border-base-300 border p-2" style="height: 340px">
           <c-echarts.pie name="Bytes by language"
-                         description="Source bytes by language, with everything after the three largest folded together."
-                         :labels="languages"
-                         :values="language_bytes"
-                         slices="4" />
+                         description="Source bytes by language: the five largest named, from Python at around 412,000 bytes down to SQL at 41,000, and the remaining seven summed into one slice of around 49,800."
+                         :labels="ranked_languages"
+                         :values="ranked_language_bytes" />
         </div>
       {% endcotton:verbatim %}
     {% endshow_code %}
@@ -93,7 +111,7 @@
         <h3 class="mb-2 text-sm font-semibold">Long slice names</h3>
         <div class="rounded-box border-base-300 border p-2" style="height: 240px">
           <c-echarts.pie name="Tickets by state"
-                         description="Open tickets by state: 47 closed without a change, 34 awaiting a customer response, 22 in progress with engineering and 15 scheduled for the next release."
+                         description="Open tickets by state: 34 awaiting a customer response, 22 in progress with engineering, 15 scheduled for the next release and 47 closed without a change."
                          :labels="long_names"
                          :values="long_name_counts" />
         </div>

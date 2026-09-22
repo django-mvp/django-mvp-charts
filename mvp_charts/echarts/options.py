@@ -36,9 +36,6 @@ from django.utils.translation import gettext_lazy as _
 #: The wording shown in place of a chart that has nothing to draw.
 DEFAULT_EMPTY_MESSAGE = _("No data to chart.")
 
-#: What an unnamed tail of pie slices is called once it has been folded together.
-OTHER_SLICE_LABEL = _("Other")
-
 
 class Attribute:
     """Reading one attribute that carries data rather than text.
@@ -481,24 +478,16 @@ class Bar(Chart):
 class Pie(Chart):
     """Part-to-whole, at a glance, for a handful of parts.
 
-    Pie is the one chart type here whose defaults have to argue with the data.
-    It stops being readable somewhere around six slices and stops being
-    comparable well before that, so the component folds the tail together rather
-    than drawing a ring of slivers nobody can tell apart. ``slices`` moves where
-    that happens; it does not remove it.
+    **The slices are the values given, in the order given.** A pie does stop
+    being readable somewhere around six slices, and a long tail of slivers is
+    usually better summed into one — but that is a judgement about the data, and
+    reading the data is the project's job (README, *Scope & philosophy*). Both
+    are a line of Python in the view that already produced the values. Neither
+    can be undone from a template once a component has done it.
     """
 
     series_type = "pie"
     tooltip_trigger = "item"
-
-    #: Slices past this many are folded into one, unless `slices` says otherwise.
-    #:
-    #: Six is where a pie stops being readable: past it the smallest slices are
-    #: slivers, and telling them apart depends entirely on the labels.
-    DEFAULT_SLICES = 6
-
-    def configure(self, slices: Any = "", **extra: Any) -> None:
-        self.slices = max(2, int(slices or self.DEFAULT_SLICES))
 
     def legend(self) -> dict[str, Any] | None:
         """A pie's identity lives on its slices, which are directly labelled."""
@@ -511,27 +500,16 @@ class Pie(Chart):
     def axes(self) -> dict[str, Any]:
         return {}
 
-    def slices_data(self) -> list[dict[str, Any]]:
-        """Named values, biggest first, with the tail folded into one slice."""
+    def slices(self) -> list[dict[str, Any]]:
+        """Each value paired with its label, in the order they arrived."""
         values = self.series[0].data if self.series else []
-        named = [
+        return [
             {
                 "name": self.labels[i] if i < len(self.labels) else str(i + 1),
                 "value": value,
             }
             for i, value in enumerate(values)
             if value is not None
-        ]
-        named.sort(key=lambda entry: entry["value"], reverse=True)
-        if len(named) <= self.slices:
-            return named
-        head, tail = named[: self.slices - 1], named[self.slices - 1 :]
-        return [
-            *head,
-            {
-                "name": str(OTHER_SLICE_LABEL),
-                "value": sum(entry["value"] for entry in tail),
-            },
         ]
 
     def series_options(self) -> list[dict[str, Any]]:
@@ -544,8 +522,7 @@ class Pie(Chart):
                 "radius": ["0%", "62%"],
                 "center": ["50%", "52%"],
                 "avoidLabelOverlap": True,
-                "minAngle": 2,
-                "data": self.slices_data(),
+                "data": self.slices(),
                 "label": {"formatter": "{b}  {d}%"},
             }
         ]

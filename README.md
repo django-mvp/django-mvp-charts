@@ -135,6 +135,7 @@ The library is not a dependency of this package, so neither of those is enforced
 - **Not a JavaScript distribution.** No charting library is vendored into this package or served from it. Development and the demo project load ECharts from a CDN. Production projects are expected to bundle it themselves, importing only the chart types and renderers they use — a full ECharts build is several hundred kilobytes, and most pages need a fraction of it.
 - **Not an application.** No models, no views, no URLs, no migrations. Data arrives as an attribute on the component, from a view the project already has.
 - **Not a query or aggregation layer.** Turning a queryset into series is the project's job. This package takes the result.
+- **Not a source of behaviour ECharts does not have.** A component draws the values it is given, in the order it is given them. It does not reorder them, cap how many are drawn, group a tail into an "Other", or fill in what is missing. Those are decisions about data: a view has the whole of Python to make them in, and a template has no way to undo one made here.
 - **Not a dashboard framework.** Components render one chart each. Composing them into a page is layout, which django-mvp already handles.
 - **Not a wrapper around every ECharts option.** The common cases get named attributes. Everything else passes through to the underlying options object rather than being mirrored in Python.
 
