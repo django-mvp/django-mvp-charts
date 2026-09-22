@@ -220,3 +220,61 @@ committing, not part of the diff. `ruff check demo/ README.md CHANGELOG.md` — 
 Next: full verify, then the completion report.
 Watch: the two pre-existing `tests/test_demo.py` failures from T009/T010 remain unresolved, out of
 scope for T009/T010/T011 as recorded above — carried into the completion report's concerns.
+
+## 2026-09-22T23:20:00Z · Implementer US3 · T012a
+
+Did: `tests/test_echarts/test_options.py` — a new `TestMerge` class exercising `Merge` directly:
+a mapping merges deeply and the override wins on a shared key; a non-`series` list replaces a list
+wholesale rather than merging element by element; `series` merges entry by entry against position,
+keeping an unnamed position untouched and carrying an entry beyond the base's length as given; and
+a key this package has never heard of (`toolbox`) arrives unchanged, alongside every key the base
+already named.
+Verified: `poetry run pytest tests/test_echarts/test_options.py -q` — collection error,
+`ImportError: cannot import name 'Merge'` (RED for the right reason: `Merge` does not exist yet).
+Next: T012 — the same contract exercised through the rendered tag.
+
+## 2026-09-22T23:25:00Z · Implementer US3 · T012
+
+Did: `tests/test_components/test_line.py` — a new `TestOptionsAttribute` class: `options` wins on
+every key it names, a mapping in it merges recursively, a non-`series` list replaces a list, `series`
+merges entry by entry and keeps the entry's own `data`, an unknown key arrives unchanged, and no
+`options` attribute leaves the built object untouched. A new `TestNoAppearanceOfItsOwn` class states
+FR-013/FR-014/SC-004 explicitly: values alone build the dictionary and nothing more. `demo/templates/
+demo/line.html` — a new "Reaching ECharts' own options" section giving `conversion-rate` a
+`:options="{'series': [{'lineStyle': {'color': '#7c3aed'}}]}"`, the fixture the browser assertion
+below needs. `tests/test_components/test_line_e2e.py` — a new `READ_LINE_STYLE_COLOR` script and
+`TestAnAuthorSuppliedColourReachesTheLiveInstance`, reading `series[0].lineStyle.color` off the live
+ECharts instance and asserting it is the colour written on the tag (FR-015).
+Verified: `poetry run pytest tests/test_components/test_line.py -q` — 5 failed (the five new
+`TestOptionsAttribute` tests; RED for the right reason — the tag silently drops an `options` attribute
+it does not yet declare), 11 passed (everything else, untouched). `poetry run pytest
+tests/test_components/test_line_e2e.py -q` collected but not run yet — no fixture exists to draw the
+colour from until T013 wires `:options` through; ran only after T013, see below.
+Next: T013 — the merge itself, and the plumbing that carries `:options` to it.
+
+## 2026-09-22T23:35:00Z · Implementer US3 · T013
+
+Did: `mvp_charts/echarts/options.py` — `Merge`: deep for mappings, the override winning on every
+key it names; a list replaces a list; `series` matched by position and merged like a mapping so an
+option added to an entry keeps that entry's `data`; no key filtered anywhere the merge looks, at
+any depth (FR-012). `mvp_charts/templatetags/mvp_charts.py` — `echarts_chart` gains an `options`
+parameter; when given (via `Attribute`, US1's empty-means-not-given rule), the built object is
+replaced by `Merge(built, overrides.value).result()`. `mvp_charts/templates/cotton/echarts/line.html`
+— a new `options=""` c-var, passed to the tag, and the annotation block restated to name it and to
+state FR-013/FR-015 (no appearance decision of this package's, none derived from the theme).
+`README.md` — a new "Styling a chart" section between "Drawing a line" and "Keeping its shape":
+appearance belongs to the page, `:options` reaches anything ECharts offers, an author-set colour
+example, and the merge rules in plain language (FR-016). `CHANGELOG.md` — a new `[Unreleased]` bullet
+for `:options`.
+Verified: `poetry run pytest tests/test_echarts/test_options.py tests/test_components/test_line.py
+-q` — 33 passed (T012a's `TestMerge` and T012's `TestOptionsAttribute`/`TestNoAppearanceOfItsOwn`, both
+now green). `poetry run pytest tests/test_components/test_line_e2e.py -q` — 9 passed, including the
+new colour-readback test. `poetry run pytest tests/test_demo.py -q` — 30 passed (D9 already closed
+the two failures US2 left watching; none left to carry forward). `poetry run mypy
+mvp_charts/echarts/options.py mvp_charts/templatetags/mvp_charts.py` — one `no-any-return` finding on
+`Merge.result()` (the recursive `_merge` helpers are typed `Any` in, `Any` out on purpose, since an
+override can be any JSON-shaped value at any depth), fixed by giving the assembled `merged` variable
+an explicit `dict` annotation before returning it; clean after. `ruff check`/`ruff format --check` on
+every changed Python file — clean.
+Next: full verify, then the completion report.
+Watch: nothing.
