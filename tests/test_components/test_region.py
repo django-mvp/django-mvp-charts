@@ -115,6 +115,28 @@ class TestChartRegionIdentity:
             assert f'aria-describedby="{figure_id}-description"' in surface
 
 
+class TestSlotContent:
+    """Issue #33: a region takes slot content and renders it inside the figure.
+
+    The mechanism a chart type composes on top of, not anything specific to
+    one charting library: the region renders whatever its caller puts between
+    its open and close tags, after the drawing surface, and knows nothing
+    about what that content is.
+    """
+
+    def test_slot_content_is_rendered_inside_the_figure_after_the_surface(self):
+        html = render(
+            '<c-echarts.region id="revenue">'
+            '<mark id="caller-content">payload</mark>'
+            "</c-echarts.region>"
+        )
+        figure = re.search(r"<figure[^>]*>(.*)</figure>", html, re.S).group(1)
+        assert '<mark id="caller-content">payload</mark>' in figure
+        surface_at = figure.index("data-mvp-chart-region-surface")
+        content_at = figure.index('id="caller-content"')
+        assert content_at > surface_at
+
+
 class TestMissingAttributes:
     """A missing id replaces the region rather than degrading it.
 
