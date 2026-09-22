@@ -288,3 +288,24 @@ example rendered a region into a wrapper with no height, and it passes once that
 
 **ADR:** none — documentation collateral of a requirement already specified, nothing downstream
 inherits it.
+
+## D10 — T013's file list names the merge; carrying it to the tag and the component is read as included
+
+**Decided**: T013 in `tasks.md` names `mvp_charts/echarts/options.py`, the README and the CHANGELOG.
+It does not separately list `mvp_charts/templatetags/mvp_charts.py` or
+`mvp_charts/templates/cotton/echarts/line.html`, both of which T013's own commit also touches: the
+tag gained an `options` parameter and calls `Merge` when it is given; the component gained an
+`options=""` c-var and passes it to the tag.
+
+**Why**: T012's given/when/then is explicit that "an `options` attribute written on the tag" reaches
+ECharts, and T012's tests (`TestOptionsAttribute` in `test_line.py`, the new browser assertion in
+`test_line_e2e.py`) exercise exactly that path — through the rendered tag, not through `Merge` called
+directly. A merge that exists in `options.py` but is never invoked from the tag would leave every one
+of those tests red, which is that a merge object built and never wired in is not what T012 or the
+acceptance scenarios describe. T012a already covers `Merge` in isolation; T013 is where it is asked
+to do the work FR-012 names. Both files stayed inside the two-line change the wiring needed — a new
+parameter and a conditional call in the tag, a new c-var and one more `=` in the template — no
+appearance decision, no unrelated edit to either file.
+
+**ADR:** none — plumbing implied by the story's own acceptance criteria, not an architecture
+decision.
