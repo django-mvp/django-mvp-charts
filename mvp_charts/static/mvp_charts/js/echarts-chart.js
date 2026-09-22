@@ -18,12 +18,11 @@
     return;
   }
 
-  var OPTIONS_SELECTOR = "[data-mvp-echarts-options-for]";
+  var OPTIONS_SELECTOR = '[data-mvp-chart-region] script[type="application/json"]';
   var INIT_FLAG = "mvpEchartsChartInit";
 
   function findRegion(script) {
-    var id = script.getAttribute("data-mvp-echarts-options-for");
-    return id ? document.getElementById(id) : null;
+    return script.closest("[data-mvp-chart-region]");
   }
 
   function drawingSurface(region) {

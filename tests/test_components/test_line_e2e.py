@@ -106,6 +106,41 @@ class TestALineIsDrawn:
         ]
 
 
+class TestThePayloadSurvivesInsideTheFigure:
+    """Issue #33's two things "worth confirming while implementing".
+
+    ``<script>`` is valid flow content inside ``<figure>``, and ECharts draws
+    into the surface element rather than replacing the figure's children, so
+    the nested payload script is still there once the chart has drawn.
+    """
+
+    def test_the_payload_script_is_still_in_the_dom_after_drawing(self, line_page):
+        still_present = line_page.evaluate(
+            "() => document.querySelector("
+            "'#monthly-revenue script[type=\"application/json\"]') !== null"
+        )
+        assert still_present
+
+    def test_the_drawn_chart_is_inside_the_figure_beside_the_script(self, line_page):
+        both_inside = line_page.evaluate(
+            "() => { const figure = document.getElementById('monthly-revenue');"
+            " return figure.querySelector('script[type=\"application/json\"]') !== null"
+            " && figure.querySelector('[data-mvp-chart-region-surface] canvas') !== null; }"
+        )
+        assert both_inside
+
+
+class TestSafeToEvaluateTwice:
+    """The module's own claim: re-running init() does not error or redraw twice."""
+
+    def test_re_running_init_does_not_raise_and_the_chart_still_reads_back(
+        self, line_page
+    ):
+        line_page.evaluate("() => window.mvpEchartsChart.init()")
+        result = line_page.evaluate(READ_CHART, "monthly-revenue")
+        assert result["series"][0] == 820
+
+
 class TestAChartAndABareRegionAreIndependent:
     """US1 scenario 4: a chart and a bare region on one page, neither touching the other."""
 

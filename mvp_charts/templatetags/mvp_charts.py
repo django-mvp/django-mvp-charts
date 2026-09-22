@@ -27,7 +27,6 @@ class EChartsChart:
 
     def __init__(self, element_id, options):
         self.id = element_id
-        self.options_id = f"{element_id}-options"
         # Safe for the same reason django.utils.html.json_script's own output
         # is: the three sequences that could end a <script> element early or
         # smuggle a line/paragraph separator have already been escaped above.

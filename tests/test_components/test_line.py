@@ -93,6 +93,28 @@ class TestOptionalNameAndDescription:
         assert "<figcaption" not in html
 
 
+class TestPayloadIsNestedInsideTheFigure:
+    """Issue #33: the payload sits inside the figure it belongs to.
+
+    The drawing module walks up to its region with ``closest()`` rather than
+    matching an id across the document, so the payload no longer needs a
+    second id or an attribute tying it back to its region.
+    """
+
+    def test_the_options_script_is_inside_the_figure(self):
+        html = render(LINE, values=[12, 14, 15], labels=["Jan", "Feb", "Mar"])
+        figure = re.search(r"<figure[^>]*>(.*)</figure>", html, re.S).group(1)
+        assert re.search(r'<script[^>]*type="application/json"', figure)
+
+    def test_no_options_for_attribute_appears_anywhere(self):
+        html = render(LINE, values=[12, 14, 15], labels=["Jan", "Feb", "Mar"])
+        assert "data-mvp-echarts-options-for" not in html
+
+    def test_no_second_generated_id_appears_anywhere(self):
+        html = render(LINE, values=[12, 14, 15], labels=["Jan", "Feb", "Mar"])
+        assert 'id="revenue-options"' not in html
+
+
 class TestOptionsAttribute:
     """FR-012 … FR-014: an `options` attribute deep-merges over the built object.
 
