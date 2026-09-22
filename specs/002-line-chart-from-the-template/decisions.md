@@ -161,3 +161,24 @@ reading of the requirement that a chart drawn through this package asks ECharts 
 as one drawn directly.
 
 **ADR:** none — a testing choice local to this feature.
+
+## D4 — the design review's two findings, and what they changed
+
+**Decided**: both accepted, both applied as plan edits before any code was written.
+
+**The package reports nothing when data is written as text.** The plan carried a refusal over from
+the sketch branch, where writing `values="12,14,15"` raised with a message naming the fix. The
+specification's clarifications had already removed exactly that guard, and the edge case for values
+that are not numbers says this feature passes what it was given and the outcome is ECharts'. A
+string now travels into the options object as it arrived and the chart does not draw. What survives
+from the sketch is only the rule that the package never reads data out of text.
+
+**Every new Python module gets the test module that mirrors its path.** This feature is the first
+to put Python under `mvp_charts/`, so `tests/test_echarts/test_options.py` and
+`tests/test_templatetags/test_mvp_charts.py` are new. `pyproject.toml`'s non-mirror declaration
+covers `tests/test_components/`, whose subject is the Cotton templates, and it stays exactly as it
+is — Article X calls declaring a path whose subject is a Python module a review failure, and
+leaning on that declaration to skip unit tests for a real module would have been one.
+
+**ADR:** none — the first is an application of a ruling already in the specification, and the second
+applies Article X as written.

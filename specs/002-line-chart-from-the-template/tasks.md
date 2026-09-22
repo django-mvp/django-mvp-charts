@@ -10,6 +10,12 @@ code that satisfies them.
 
 Delivers FR-001 … FR-007, SC-001, SC-002, SC-006.
 
+- **T001a** — `tests/test_echarts/__init__.py` and `tests/test_echarts/test_options.py`, mirroring
+  the module T002 creates (Article X). `TestAttribute`: a value written empty or absent reads as not
+  given; `0` and `0.0` are values somebody wrote; anything else is returned as it arrived, including
+  a string, which the package neither parses nor reports. `TestLine`: the options object built for
+  values with labels, for values without labels, and for no values at all, each compared whole.
+  Python only — no Cotton compilation in this file.
 - **T001** — `tests/test_components/test_line.py`: the rendered-output contract for a line chart
   given an id, values and labels. Assert the options object carried in the page is exactly
   `{"xAxis": {"type": "category", "data": [...]}, "yAxis": {"type": "value"}, "series": [{"type":
@@ -18,11 +24,18 @@ Delivers FR-001 … FR-007, SC-001, SC-002, SC-006.
   `xAxis.data` and keep the values in order; and that a value list containing `None`, a float and a
   zero survives unchanged. Compile the Cotton source directly, as `test_region.py` does.
 - **T002** — `mvp_charts/echarts/__init__.py` and `mvp_charts/echarts/options.py`: `Attribute`,
-  reading one attribute's Python value and refusing a string with a message naming the fix
-  (FR-002a); `Line`, building the options object above and nothing else. No grid, tooltip, legend,
+  reading one attribute's Python value, where empty is not given and everything else is returned
+  untouched. It splits nothing, parses nothing and reports nothing (FR-002a): a string written
+  where a list belongs travels into the options object as it arrived and the chart does not draw,
+  which is the ruling in the specification's clarifications. `Line`, building the options object
+  above and nothing else. No grid, tooltip, legend,
   animation, colour, line width, symbol, axis tick or split line (FR-013). `Line` takes labels and
   values, drops `xAxis.data` when there are no labels, and never reorders, drops, combines, rounds,
   caps or fills in a value (FR-004).
+- **T003a** — `tests/test_templatetags/__init__.py` and `tests/test_templatetags/test_mvp_charts.py`,
+  mirroring the module T003 creates (Article X). `TestEChartsChart`: the tag returns the id it was
+  given, the options-script id derived from it, and a payload whose JSON parses back to the object
+  `Line` built; a tag called without an id returns no payload.
 - **T003** — `mvp_charts/templatetags/mvp_charts.py`: `{% echarts_chart %}`, which builds the chart
   from the attributes and returns an object carrying the id, the options-script id and the
   `json_script` payload. One tag, registered on the package's own library.
@@ -75,6 +88,9 @@ Delivers FR-008 … FR-011, SC-003.
 
 Delivers FR-012 … FR-016, SC-004, SC-005.
 
+- **T012a** — `tests/test_echarts/test_options.py`: `TestMerge`, exercising the merge directly in
+  Python — deep for mappings, replacing for lists, entry by entry for `series` against position,
+  and no key filtering anywhere.
 - **T012** — `tests/test_components/test_line.py`: an `options` attribute deep-merges over the
   built object and wins on every key it names; a mapping merges recursively; a list replaces a
   list; `series` merges entry by entry against position, so an option added to the series keeps the

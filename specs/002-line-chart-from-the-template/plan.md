@@ -57,9 +57,14 @@ against class names (Article XV). Coverage floors: project 90%, patch 85%.
 | `description` | no | text alternative (FR-008, FR-009) |
 | `:options` | no | raw ECharts options, merged over everything built (FR-012) |
 
-`values`, `labels` and `options` are read as Python values and a string is refused with a message
-naming the fix. The package never reads data out of text (FR-002a): no splitting on a separator,
-no guessing at numbers, no rule about what an empty item means.
+`values`, `labels` and `options` carry Python values. The package never reads data out of text
+(FR-002a): no splitting on a separator, no guessing at numbers, no rule about what an empty item
+means. It does not report the mistake either. A string written where a list belongs is carried
+into the options object exactly as any other unexpected value is, and the chart does not draw —
+which is how the author finds out. That is the ruling recorded in the specification's
+clarifications and in `decisions.md`: the two failures the previous feature reports are conditions
+a correct template can still meet, and a misspelt attribute is not one of them. The guidance on
+writing an attribute with a colon lives in the README.
 
 An attribute written empty is treated as not given (FR-009), which is also why the component
 declares every attribute with an empty default in `<c-vars>` and keeps its real defaults in Python.
@@ -138,13 +143,13 @@ behaviour, and the new assertions state what replaced it.
 |---|---|
 | I — Test-First | Every task writes its assertions before the code it is about; the story's acceptance scenarios are the test names. |
 | II — Simplicity | One module per job: an options builder, one template tag, one component, one browser module. No registry, no base class hierarchy for a single chart type. |
-| III — Anti-Abstraction | `Line` is a class because a second chart type is the next roadmap item, but it is one class, not a framework. No backend interface (Article XIII forbids one). |
+| III — Anti-Abstraction | One class, no base class, no registry, no backend interface (Article XIII forbids one). `Line` is a class under Article XI rather than Article III: reading this chart's attributes, building its options and merging the author's over them share one subject. |
 | IV — Integration-First | The demo project's line page is a task in US1, not a finishing touch, and the browser tests run against it. |
 | V — Security | The options object reaches the page through `json_script`, which is Django's own answer to closing a script element early. Nothing is rendered unescaped into markup. |
 | VI — Documentation | README grows the line-chart section in US1, the paragraph on what omitting a name costs in US2, and the styling section in US3. Each ships in the story that introduces its public name. |
 | VII — Dependency discipline | No new dependency of any kind. |
 | VIII — Internationalization | Every new string the package renders goes through `trans`; there is exactly one, and it is the existing missing-id message reused. |
-| X — Test structure | New tests follow the existing split: rendered output in `test_components/test_line.py`, browser measurement in `test_components/test_line_e2e.py`. |
+| X — Test structure | Every new Python module gets the test module that mirrors its path: `tests/test_echarts/test_options.py` and `tests/test_templatetags/test_mvp_charts.py`. `tests/test_components/` stays a declared non-mirror path, because its subject is still the Cotton templates; the rendered-output and browser tests sit on top of the mirrored unit tests rather than instead of them. |
 | XI — Cohesion | Reading one attribute's Python value is a classmethod on `Attribute`; building one chart's options is `Line`. Nothing is a loose function operating on someone else's data. |
 | XII — Nothing vendored | ECharts is reached through `window.echarts`. The package's own module ships in its static files, as `chart-region.js` already does, and the project writes both script tags. |
 | XIII — One namespace per backend | Everything lands under `mvp_charts/echarts/` and `templates/cotton/echarts/`. |
@@ -194,6 +199,12 @@ demo/
 └── views.py                 # changed
 
 tests/
+├── test_echarts/
+│   ├── __init__.py          # new
+│   └── test_options.py      # new — mirrors mvp_charts/echarts/options.py
+├── test_templatetags/
+│   ├── __init__.py          # new
+│   └── test_mvp_charts.py   # new — mirrors mvp_charts/templatetags/mvp_charts.py
 ├── test_components/
 │   ├── test_line.py         # new — rendered output
 │   ├── test_line_e2e.py     # new — measured in a browser
@@ -204,7 +215,10 @@ tests/
 **Structure decision**: the package already separates the backend namespace (`cotton/echarts/`)
 from the shared browser plumbing (`static/mvp_charts/js/`), and this feature keeps that line. The
 Python for a backend goes in a package named after it, so a second backend is a sibling directory
-rather than a parameter.
+rather than a parameter. This feature is the first to add Python modules under `mvp_charts/`, so it
+is also the first that has anything to mirror in `tests/` — the two new test packages exist for
+that reason and `pyproject.toml`'s non-mirror declaration is left alone, since what it exempts is
+still only the template tests.
 
 ## Complexity tracking
 

@@ -2,12 +2,17 @@
   "feature": "002-line-chart-from-the-template",
   "branch": "002-line-chart-from-the-template",
   "repo": "django-mvp/django-mvp-charts",
-  "state": "PLAN",
+  "state": "DESIGN_REVIEW",
   "state_history": [
     {
       "state": "PLAN",
-      "at": "2026-09-22T16:05:00Z",
+      "at": "2026-09-22T15:40:00Z",
       "note": "Implementation session opened from the queue; spec already on main."
+    },
+    {
+      "state": "DESIGN_REVIEW",
+      "at": "2026-09-22T15:57:09Z",
+      "note": "Plan complete; design reviewer dispatched"
     }
   ],
   "gates": {
@@ -36,14 +41,46 @@
       "status": "todo",
       "replans": 0,
       "tasks": [
-        { "id": "T001", "status": "todo", "attempts": 0 },
-        { "id": "T002", "status": "todo", "attempts": 0 },
-        { "id": "T003", "status": "todo", "attempts": 0 },
-        { "id": "T004", "status": "todo", "attempts": 0 },
-        { "id": "T005", "status": "todo", "attempts": 0 },
-        { "id": "T006", "status": "todo", "attempts": 0 },
-        { "id": "T007", "status": "todo", "attempts": 0 },
-        { "id": "T008", "status": "todo", "attempts": 0 }
+        {
+          "id": "T001",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T002",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T003",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T004",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T005",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T006",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T007",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T008",
+          "status": "todo",
+          "attempts": 0
+        }
       ]
     },
     {
@@ -54,9 +91,21 @@
       "status": "todo",
       "replans": 0,
       "tasks": [
-        { "id": "T009", "status": "todo", "attempts": 0 },
-        { "id": "T010", "status": "todo", "attempts": 0 },
-        { "id": "T011", "status": "todo", "attempts": 0 }
+        {
+          "id": "T009",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T010",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T011",
+          "status": "todo",
+          "attempts": 0
+        }
       ]
     },
     {
@@ -67,19 +116,39 @@
       "status": "todo",
       "replans": 0,
       "tasks": [
-        { "id": "T012", "status": "todo", "attempts": 0 },
-        { "id": "T013", "status": "todo", "attempts": 0 }
+        {
+          "id": "T012",
+          "status": "todo",
+          "attempts": 0
+        },
+        {
+          "id": "T013",
+          "status": "todo",
+          "attempts": 0
+        }
       ]
     }
   ],
   "budgets": {
-    "converge_cycles": { "used": 0, "max": 2 },
-    "review_cycles": { "used": 0, "max": 1 },
-    "design_review_cycles": { "used": 0, "max": 1 },
-    "tokens": { "used": 0, "max": 120 }
+    "converge_cycles": {
+      "used": 0,
+      "max": 2
+    },
+    "review_cycles": {
+      "used": 0,
+      "max": 1
+    },
+    "design_review_cycles": {
+      "used": 1,
+      "max": 1
+    },
+    "tokens": {
+      "used": 0,
+      "max": 120
+    }
   },
   "pr": {
-    "number": null,
+    "number": 31,
     "draft": true
   }
 }
