@@ -56,13 +56,30 @@
       "replans": 0,
       "tasks": [
         {
+          "id": "T001a",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests": [
+              "tests/test_echarts/test_options.py"
+            ],
+            "commands": [
+              "poetry run pytest tests/test_echarts/test_options.py -x",
+              "poetry run pytest tests/test_echarts/test_options.py -v"
+            ]
+          }
+        },
+        {
           "id": "T001",
           "status": "done",
           "attempts": 1,
           "evidence": {
-            "tests_added": ["tests/test_components/test_line.py"],
-            "commands": ["poetry run pytest tests/test_components/test_line.py -v"],
-            "exit_code": 0
+            "tests": [
+              "tests/test_components/test_line.py"
+            ],
+            "commands": [
+              "poetry run pytest tests/test_components/test_line.py -v"
+            ]
           }
         },
         {
@@ -70,9 +87,23 @@
           "status": "done",
           "attempts": 1,
           "evidence": {
-            "tests_added": ["tests/test_echarts/test_options.py"],
-            "commands": ["poetry run pytest tests/test_echarts/test_options.py -v"],
-            "exit_code": 0
+            "commands": [
+              "poetry run pytest tests/test_echarts/test_options.py -v",
+              "poetry run mypy mvp_charts/"
+            ]
+          }
+        },
+        {
+          "id": "T003a",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests": [
+              "tests/test_templatetags/test_mvp_charts.py"
+            ],
+            "commands": [
+              "poetry run pytest tests/test_templatetags/test_mvp_charts.py -v"
+            ]
           }
         },
         {
@@ -80,9 +111,10 @@
           "status": "done",
           "attempts": 1,
           "evidence": {
-            "tests_added": ["tests/test_templatetags/test_mvp_charts.py"],
-            "commands": ["poetry run pytest tests/test_templatetags/test_mvp_charts.py -v"],
-            "exit_code": 0
+            "commands": [
+              "poetry run pytest tests/test_templatetags/test_mvp_charts.py -v",
+              "poetry run mypy mvp_charts/templatetags/"
+            ]
           }
         },
         {
@@ -90,11 +122,10 @@
           "status": "done",
           "attempts": 1,
           "evidence": {
-            "tests_added": [],
             "commands": [
-              "poetry run pytest tests/test_components/test_line.py tests/test_components/test_shipped_templates.py tests/test_components/test_region.py tests/test_app.py -q"
-            ],
-            "exit_code": 0
+              "poetry run pytest tests/test_components/test_line.py tests/test_components/test_shipped_templates.py tests/test_components/test_region.py tests/test_app.py -q",
+              "poetry run djlint mvp_charts/templates/cotton/echarts/line.html --check"
+            ]
           }
         },
         {
@@ -102,9 +133,9 @@
           "status": "done",
           "attempts": 1,
           "evidence": {
-            "tests_added": [],
-            "commands": ["node --check mvp_charts/static/mvp_charts/js/echarts-chart.js"],
-            "exit_code": 0
+            "commands": [
+              "node --check mvp_charts/static/mvp_charts/js/echarts-chart.js"
+            ]
           }
         },
         {
@@ -112,9 +143,9 @@
           "status": "done",
           "attempts": 1,
           "evidence": {
-            "tests_added": [],
-            "commands": ["poetry run pytest tests/test_demo.py -v"],
-            "exit_code": 0
+            "commands": [
+              "poetry run pytest tests/test_demo.py -v"
+            ]
           }
         },
         {
@@ -122,9 +153,12 @@
           "status": "done",
           "attempts": 1,
           "evidence": {
-            "tests_added": ["tests/test_components/test_line_e2e.py"],
-            "commands": ["poetry run pytest tests/test_components/test_line_e2e.py -v"],
-            "exit_code": 0
+            "tests": [
+              "tests/test_components/test_line_e2e.py"
+            ],
+            "commands": [
+              "poetry run pytest tests/test_components/test_line_e2e.py -v"
+            ]
           }
         },
         {
@@ -132,9 +166,9 @@
           "status": "done",
           "attempts": 1,
           "evidence": {
-            "tests_added": [],
-            "commands": ["poetry run pytest tests/test_demo.py -q"],
-            "exit_code": 0
+            "commands": [
+              "poetry run pytest tests/test_demo.py -q"
+            ]
           }
         }
       ]
@@ -172,6 +206,11 @@
       "status": "todo",
       "replans": 0,
       "tasks": [
+        {
+          "id": "T012a",
+          "status": "todo",
+          "attempts": 0
+        },
         {
           "id": "T012",
           "status": "todo",
