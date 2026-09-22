@@ -69,7 +69,7 @@ The ECharts line above is the development route, covered in full under [Getting 
 A chart region is the space a chart is drawn into. Put it inside an element that already has a height:
 
 ```html
-<div class="rounded-box border-base-300 border" style="height: 320px">
+<div style="height: 320px">
   <c-echarts.region id="monthly-revenue"
                     name="Monthly revenue"
                     description="Revenue by month over the last year, rising from January to a December peak." />
@@ -91,7 +91,7 @@ Only `id` is required:
 `<c-echarts.line>` is a chart region that already knows how to draw. It takes everything a region does — `id` is required and `name`/`description` are optional in exactly the same way — plus the values to draw and, optionally, what each point is called. The smallest working chart is one tag, an id and values, and nothing else:
 
 ```html
-<div class="rounded-box border-base-300 border" style="height: 320px">
+<div style="height: 320px">
   <c-echarts.line id="quarterly-orders" :values="[54, 61, 58, 70]" />
 </div>
 ```
@@ -99,7 +99,7 @@ Only `id` is required:
 The fully-described version below is the one to reach for whenever the chart is more than decoration:
 
 ```html
-<div class="rounded-box border-base-300 border" style="height: 320px">
+<div style="height: 320px">
   <c-echarts.line id="monthly-revenue"
                   name="Monthly revenue"
                   description="Revenue by month over the last year, rising from January to a December peak."
@@ -121,7 +121,7 @@ A chart's appearance belongs to the page, not to this package. `<c-echarts.line>
 `:options` is how you reach anything ECharts offers, including an option this package has never heard of. It carries a Python value, deep-merged over what the component built, and it wins on every key it names:
 
 ```html
-<div class="rounded-box border-base-300 border" style="height: 320px">
+<div style="height: 320px">
   <c-echarts.line id="conversion-rate"
                   name="Conversion rate"
                   :values="[2.1, 2.4, 2.2, 2.8, 3.1, 3.4, 3.0]"

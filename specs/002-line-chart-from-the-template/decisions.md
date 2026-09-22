@@ -325,3 +325,19 @@ to import. The underscore names go because marking something private with an und
 not a convention these repositories use, and this is new code.
 
 **ADR:** none — a documentation and naming correction, nothing downstream inherits it.
+
+## D12 — the demo's chart wrappers carry a height and nothing else
+
+**Decided**: the wrapper around every chart and region in the demo loses its rounded border, in the
+demo templates and in the README examples that mirror them. The element stays: it is what carries
+the height. The browser tests that assert absolute heights lose the border they were subtracting.
+The region page's own prose follows, because it still described a name and a description as
+required and still said no chart type existed.
+
+**Why**: Sam's call at the walkthrough — the border is decoration the examples do not need, and a
+reader copying one gets markup that is the point and nothing else. The element itself cannot go: a
+region fills the element around it and has no height of its own, so a chart whose wrapper was
+removed rather than unstyled would render into nothing. Keeping the wrapper and dropping the
+styling is what the request means in the markup.
+
+**ADR:** none — a demo and documentation styling choice, nothing downstream inherits it.

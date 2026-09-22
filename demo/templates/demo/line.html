@@ -14,7 +14,7 @@
     {% endcomment %}
     {% show_code %}
       {% cotton:verbatim %}
-        <div class="rounded-box border-base-300 border" style="height: 320px">
+        <div style="height: 320px">
           <c-echarts.line id="monthly-revenue"
                           name="Monthly revenue"
                           description="Revenue by month over the last year, rising from January to a December peak."
@@ -33,7 +33,7 @@
     </c-text>
     {% show_code %}
       {% cotton:verbatim %}
-        <div class="rounded-box border-base-300 border" style="height: 320px">
+        <div style="height: 320px">
           <c-echarts.line id="quarterly-orders" :values="[54, 61, 58, 70]" />
         </div>
       {% endcotton:verbatim %}
@@ -50,7 +50,7 @@
     </c-text>
     {% show_code %}
       {% cotton:verbatim %}
-        <div class="rounded-box border-base-300 border" style="height: 240px">
+        <div style="height: 240px">
           <c-echarts.line id="conversion-rate"
                           name="Conversion rate"
                           description="Weekly conversion rate for the last quarter."
@@ -68,14 +68,14 @@
       beside it neither reads that state nor changes it.
     </c-text>
     <div class="grid gap-4 md:grid-cols-2">
-      <div class="rounded-box border-base-300 border" style="height: 240px">
+      <div style="height: 240px">
         <c-echarts.line id="signups-line"
                         name="Signups"
                         description="New accounts per week for the last quarter."
                         :values="[120, 132, 101, 134, 90, 230, 210]"
                         :labels="['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4', 'Wk 5', 'Wk 6', 'Wk 7']" />
       </div>
-      <div class="rounded-box border-base-300 border" style="height: 240px">
+      <div style="height: 240px">
         <c-echarts.region id="open-tickets-region"
                           name="Open tickets"
                           description="Support tickets left open at the end of each day this month." />
