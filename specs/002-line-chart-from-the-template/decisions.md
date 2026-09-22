@@ -83,25 +83,28 @@ Deriving a palette from the running theme costs a colour-space implementation, s
 a theme change and a repaint path, and it makes this package responsible for a guarantee no charting
 library offers.
 
-## Data given as text is refused rather than parsed
+## Data is a Python value, and writing it as text is not reported
 
-**Decided**: an attribute carrying data has to be a Python value. Text is refused, with a message in
-the page naming what to write instead.
+**Decided**: an attribute carrying data takes a Python value. The package never reads data out of
+text, and it says nothing when someone writes text anyway. The documentation covers it.
 
 **Why parsing lost**: splitting a string on commas means deciding what a comma inside a label means,
 what an empty item is, and which strings look enough like numbers to become them. Every one of those
 is a decision nobody asked for, made silently, and wrong at the edges. Python already has a list and
 the template layer already passes one.
 
-**Why the page rather than an exception**: the previous feature reports a missing library and an
-unresolved height in the space the chart would occupy, identically in development and in production.
-An exception reads differently in the two, and it would be a third way of reporting the same class of
-problem in a package that already has one. Consistency is worth more than the extra noise an
-exception makes.
+**Why it is not reported**: this was specified as a fourth story, with a message in the page naming
+what to write instead, and the owner removed it. A developer who writes the attribute wrongly finds
+out when the chart does not work, and this package does not exist to cover every mistake someone
+could make with it. Hand-holding has a cost that is easy to miss: every guard is a behaviour to
+specify, test, translate and keep true, and it competes with the chart types the package is actually
+for.
 
-**Why it needs reporting at all**: a component the template layer cannot make sense of renders as
-nothing. Without this the mistake produces an empty space and no explanation anywhere, which is the
-failure mode the previous feature was built to eliminate.
+**The line it draws, which is worth keeping**: the two failures the previous feature reports are
+conditions a correct template can still meet. A project can load the library in a way that does not
+arrive, and a wrapper's height can resolve to nothing without anyone writing anything wrong. Those
+earn a message. A misspelled attribute does not, and neither will the next twenty ways a template can
+be wrong.
 
 ## A chart with no data says nothing
 

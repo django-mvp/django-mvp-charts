@@ -106,34 +106,6 @@ the component does not name on the tag and assert it arrives unchanged.
 
 ---
 
-### User Story 4 - Data written as text says so (Priority: P4)
-
-An author writes the values as a quoted string, the way an ordinary HTML attribute is written, rather
-than as a Python value. Nothing about the page tells them what went wrong, because a component
-Cotton cannot make sense of renders as nothing at all. This story makes the page say it.
-
-**Why this priority**: It is a mistake every author will make once, and it is invisible without this.
-It needs the chart to draw first, because the message only has a place to appear once a chart has one.
-
-**Independent Test**: Render the tag with the values written as a plain string and assert the page
-carries a message naming what to write instead, rather than an empty space or a chart drawn from
-something invented.
-
-**Acceptance Scenarios**:
-
-1. **Given** values written as plain text rather than as a Python value, **When** the page renders,
-   **Then** the space the chart would occupy carries a message naming what was given and what to
-   write instead.
-2. **Given** the same mistake, **When** it happens in a production project rather than in
-   development, **Then** the page says it the same way, rather than failing silently or reporting
-   only to a developer console.
-3. **Given** text where a Python value was expected, **When** the page renders, **Then** the package
-   does not split it, guess at separators, or decide which parts of it look like numbers.
-4. **Given** one chart on a page making this mistake, **When** the page renders, **Then** every other
-   chart and region on that page still works.
-
----
-
 ### Edge Cases
 
 - **A chart given no values at all.** It draws whatever ECharts draws for an empty series. The
@@ -163,6 +135,10 @@ something invented.
   component tag and no JavaScript anywhere in the template.
 - **FR-002**: A chart's values MUST be given as a Python value written on the tag, and point labels
   MUST be given the same way. Neither MUST require anything to be prepared in a view first.
+- **FR-002a**: The package MUST NOT read data out of text. It splits nothing on a separator, guesses
+  at no numbers, and decides what no empty item means, because every one of those is a data format
+  invented here and wrong at the edges. An author who writes the data as text rather than as a Python
+  value finds out because the chart does not work, and the documentation says what to write.
 - **FR-003**: A chart given values and no point labels MUST still draw, with its points in the order
   they were given.
 - **FR-004**: A chart MUST draw the values it was given, in the order it was given. The package MUST
@@ -175,7 +151,8 @@ something invented.
   generate one.
 - **FR-007**: The demo project MUST show a line chart on a page of its own, which is the first entry
   in its charts section, and the documentation MUST show the tag that produced it including the
-  wrapper that sizes it.
+  wrapper that sizes it. That documentation MUST state that an attribute carrying data takes a Python
+  value rather than text, and show how one is written.
 
 **A chart with nothing around it — US2**
 
@@ -202,18 +179,6 @@ something invented.
 - **FR-016**: The documentation MUST state that a chart's appearance belongs to the page, and MUST
   show how to reach ECharts' own options from the template.
 
-**Data written as text — US4**
-
-- **FR-017**: An attribute carrying data that is given as text rather than as a Python value MUST be
-  refused, with a message in the space the chart would occupy naming what was given and what to write
-  instead.
-- **FR-018**: The package MUST NOT parse text into data: no splitting on a separator, no guessing at
-  which parts are numbers, and no deciding what an empty item means.
-- **FR-019**: The message MUST appear in the page itself, identically in development and in
-  production, rather than only in a developer console.
-- **FR-020**: One chart making this mistake MUST NOT prevent any other chart or region on the same
-  page from working.
-
 ### Traceability
 
 | Story | Requirements | Success criteria |
@@ -221,7 +186,6 @@ something invented.
 | US1 — Draw a line chart from values written in the template | FR-001 … FR-007 | SC-001, SC-002, SC-006 |
 | US2 — A chart with nothing around it | FR-008 … FR-011 | SC-003 |
 | US3 — The chart is ECharts', not the package's | FR-012 … FR-016 | SC-004, SC-005 |
-| US4 — Data written as text says so | FR-017 … FR-020 | SC-007 |
 
 ### Key Entities
 
@@ -252,9 +216,7 @@ something invented.
 - **SC-005**: An author can reach any ECharts option from the template, including ones added to
   ECharts after this package was released, without writing JavaScript.
 - **SC-006**: The demo project draws a line chart, and the documentation shows the complete markup
-  that produced it.
-- **SC-007**: An author who writes the data as text can name the cause from what the page says,
-  without opening developer tools and without reading this package's source.
+  that produced it, including how an attribute carrying data is written.
 
 ## Clarifications
 
@@ -296,11 +258,14 @@ decisions recorded on the tracker. Rationale too long to carry here is in `decis
   thing to want, so their absence is not a mistake to report. Numbering the points on the author's
   behalf would be the package inventing data. Integrated as FR-003.
 
-- **Q**: Data given as text is refused. Is that refusal raised, or reported in the page?
-  **A**: Reported in the page, in the space the chart would occupy, which is how the previous feature
-  reports a missing library and an unresolved height. A raised error reads differently in development
-  and in production and would be the third way this package reports the same class of problem.
-  Integrated as FR-017 and FR-019.
+- **Q**: An attribute carrying data takes a Python value, and writing it as text is an easy slip.
+  Should the page report that slip, the way it reports a missing library?
+  **A**: No. The owner's ruling is that a developer who does something wrong finds out when it does
+  not work, and the package does not exist to cover every mistake someone could make with it. The
+  two failures the previous feature reports are conditions a correct template can still meet, which
+  is what earns them a message. This one is a typo. It belongs in the documentation and nowhere else,
+  and the requirement that survives is only that the package never tries to read data out of text.
+  Integrated as FR-002a and FR-007.
 
 - **Q**: Should a chart with no values say so, the way a chart region with no height does?
   **A**: No. A missing height is a page built wrongly and nothing on it will be right until it is
