@@ -54,6 +54,13 @@
         "DES-002 (high, architecture): added mirrored test modules for the two new Python modules, per Article X.",
         "Note swept: the Article III justification for Line reworded to Article XI cohesion."
       ]
+    },
+    "walkthrough": {
+      "approved_by": "SamuelJennings",
+      "at": "2026-09-22T21:37:54Z",
+      "self_resolved": [
+        "Remove the rounded-box wrapper div from the demo charts — the border is gone from every chart and region wrapper in the demo and from the README examples that mirror them; the element itself stays because it carries the height"
+      ]
     }
   },
   "stories": [
