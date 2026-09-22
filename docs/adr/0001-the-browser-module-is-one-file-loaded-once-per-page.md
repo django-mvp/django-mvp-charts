@@ -1,6 +1,6 @@
 # ADR 0001 — The browser behaviour is one static file, emitted once per page by the component that needs it
 
-**Status:** accepted
+**Status:** superseded by [ADR 0004](0004-the-project-loads-the-browser-module-and-names-its-regions.md)
 
 ## Decision
 

@@ -42,27 +42,47 @@ Components are then available under the namespace of the library they render wit
 <c-echarts.bar ... />
 ```
 
+Then load two scripts from your own base template — ECharts, and this package's module:
+
+```html
+{% load static %}
+{% block extra_js %}
+  {{ block.super }}
+  <script src="https://cdn.jsdelivr.net/npm/echarts@6.1.0/dist/echarts.min.js"
+          integrity="sha384-C2iskrW/uPW46KzOjrvJIQo4YkV8lkD+QS0CrDN18IIPIpT/g2USu8bTP3nvmIAD"
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer"></script>
+  <script defer src="{% static 'mvp_charts/js/chart-region.js' %}"></script>
+{% endblock %}
+```
+
+`chart-region.js` is what a chart region needs in the browser: it checks the library arrived, checks the region has a box to draw into, and publishes the resize contract below. It has no dependencies, is safe to evaluate twice, and is served from this package's static files.
+
+Both lines are yours. This package emits no script tag of any kind and supplies no component that does. Which pages carry them, where in the document they go, whether they are bundled with the rest of your JavaScript, and whether they need a nonce under your content security policy are your project's decisions to make, and a component making them on your behalf would be taking them away. If one page in your project shows a chart, put both lines on that page rather than in the base template.
+
+The ECharts line above is the development route, covered in full under [Getting ECharts to the browser](#getting-echarts-to-the-browser). A project that bundles ECharts itself drops it and keeps the second line.
+
 ## Placing a chart region
 
 A chart region is the space a chart is drawn into. Put it inside an element that already has a height:
 
 ```html
 <div class="rounded-box border-base-300 border" style="height: 320px">
-  <c-echarts.region name="Monthly revenue"
+  <c-echarts.region id="monthly-revenue"
+                    name="Monthly revenue"
                     description="Revenue by month over the last year, rising from January to a December peak." />
 </div>
 ```
 
 **The wrapper is where the height lives.** A region fills the element around it and has no height of its own — no default, no minimum, no aspect ratio. That is deliberate: a height invented by this package would be wrong on most pages and would stop a chart sharing a grid row with anything else. It does mean a region placed in an element with no resolved height gets none itself, which is the most common way a first attempt goes wrong, so the region says so on the page instead of rendering as an empty box.
 
-Both attributes are required:
+All three attributes are required:
 
+- `id` is the element id. The caption and the drawing surface are both built from it, which is what ties the right description to the right chart, and it is how your own JavaScript finds the region to listen to.
 - `name` is what a screen reader announces the chart as.
 - `description` is what the chart shows, in words. A chart drawn into a canvas is invisible to anyone who cannot see it, and to anyone who cannot tell its colours apart.
 
-Leave either out, or pass an empty string, and the region is replaced by a message saying which one is missing. Neither is defaulted to nothing.
-
-You can pass `id` to set the element id yourself. Without it each region on a page is numbered as it renders, so several regions on one page stay separately identifiable and each one's description is tied to the right chart.
+Leave any of them out, or pass an empty string, and the region is replaced by a message saying which are missing. None of them is defaulted to nothing, and none is generated for you — an id this package invented would be stable only until someone added a second chart higher up the page, at which point every id below it would shift.
 
 ## Keeping its shape
 
@@ -71,7 +91,7 @@ A page is not a fixed rectangle. The window is resized, a sidebar collapses, a t
 When its box changes, a region dispatches `mvp-chart-region:resize` on itself, carrying the measured box:
 
 ```js
-document.querySelector('#revenue-chart').addEventListener(
+document.querySelector('#monthly-revenue').addEventListener(
   'mvp-chart-region:resize',
   (event) => { chart.resize(event.detail); }
 );
@@ -102,27 +122,15 @@ One region failing leaves every other region on the page working.
 
 A region reads one thing: `window.echarts`. Anything that puts the library there works, and nothing in this package records or asks which route you chose.
 
-**In development**, put the delivery component in your own base template and you are done — no Node toolchain, no build step:
+**In development**, a script tag in your own base template is the whole of it — no Node toolchain, no build step. The line under [Install](#install) is one you can copy.
 
-```html
-{% block extra_js %}
-  {{ block.super }}
-  <c-echarts.cdn />
-{% endblock %}
-```
+Two details in it are worth keeping. Pin the version rather than floating it, because a URL without a version is a different file on any given day. Then `integrity` and `crossorigin` go together: a browser only checks an integrity hash on a cross-origin request made in CORS mode, so a hash without `crossorigin` is never verified while still looking as though it is.
 
-It renders one script tag, pinned to an exact version and carrying a subresource integrity hash, so the browser refuses the file if it is not the one this package was built against.
+This package does not supply that tag, and there is no component here that renders one. It ships no copy of ECharts, names no origin, and loads nothing on a reader's behalf, so installing it adds no external origin you did not choose.
 
-**In production**, build a bundle and expose the library as `window.echarts`. Delete the line above and change nothing else. ECharts ships per-chart-type and per-component entry points, so a page importing a line chart and a tooltip pays for a fraction of a full build — which is the reason this package ships no copy of the library and never loads one on a reader's behalf. A project that installs it gains no external origin it did not choose, and a page that places no region requests nothing from the package at all.
+**In production**, build a bundle and expose the library as `window.echarts`. Drop the script tag and change nothing else. ECharts ships per-chart-type and per-component entry points, so a page importing a line chart and a tooltip pays for a fraction of a full build, which is why the recommendation is to bundle rather than to keep loading the whole thing.
 
-`mvp_charts.versions` states what the `echarts` namespace is known to render against:
-
-| | |
-|---|---|
-| Supported range | `>=6.0,<7.0` |
-| Version the delivery component pins | `6.1.0` |
-
-The library is not a dependency of this package, so neither of those is enforced at install time. They are what the namespace claims, and a bundle outside the range is untested rather than blocked.
+`mvp_charts.versions.ECHARTS_SUPPORTED_VERSIONS` states what the `echarts` namespace is known to render against: `>=6.0,<7.0`. The library is not a dependency of this package, so that is not enforced at install time. It is what the namespace claims, and a bundle outside the range is untested rather than blocked.
 
 ## Scope & philosophy
 

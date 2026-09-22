@@ -174,29 +174,40 @@ its wrapper's.
 - **FR-003**: A chart region MUST have no size of its own. The wrapper is the only thing that decides
   how large a region is, and the package MUST NOT supply a fallback height that lets a region appear
   at a size nobody chose.
-- **FR-004**: Several chart regions on one page MUST be independent of one another: each separately
-  identifiable, and none reading or writing another's state.
-- **FR-005**: Every chart region MUST carry an accessible name and a text alternative describing what
-  the chart shows, both supplied by the template author.
-- **FR-006**: A region whose name or text alternative is missing or empty MUST report that visibly, in
-  place of the region, rather than rendering with an empty value.
+- **FR-004**: Several chart regions on one page MUST be independent of one another: each identified
+  by an id its template author gave it, and none reading or writing another's state. The package MUST
+  NOT generate an id for a region, because an id it invented would be stable only until the page
+  placed another region above it.
+- **FR-005**: Every chart region MUST carry an id, an accessible name and a text alternative
+  describing what the chart shows, all three supplied by the template author.
+- **FR-006**: A region whose id, name or text alternative is missing or empty MUST report that
+  visibly, in place of the region, rather than rendering with an empty value.
 - **FR-007**: The demo project MUST show a placed region inside the wrapper that sizes it, and the
-  documentation MUST show the markup that produced it, wrapper included, since there is no default
-  size for an example to fall back on.
+  documentation MUST show the markup that produced it, wrapper and every required attribute included,
+  since neither the size nor the id has a default for an example to fall back on.
 
 **Getting the library to the browser — US2**
 
 - **FR-008**: A project in development MUST be able to render a working chart region without
-  installing a JavaScript toolchain and without running a build.
+  installing a JavaScript toolchain and without running a build, by writing a script tag of its own.
 - **FR-009**: A project that builds a bundle exposing the charting library MUST have that bundle used,
   without adding any project setting naming which delivery is in play.
 - **FR-010**: The package MUST NOT vendor, serve or bundle a charting library, and a chart region MUST
   NOT load one from a third-party origin on a reader's behalf. A project that installs the package
   gains no external origin it was not already loading.
+- **FR-010a**: A chart region MUST emit no script tag of any kind, including for the package's own
+  module. Which pages carry that module, where in the document it goes and whether it is bundled with
+  the project's other JavaScript are the project's decisions, and the package MUST NOT take any of
+  them.
 - **FR-011**: The package MUST state, per namespace, the range of the charting library's own versions
-  it is known to render against, and MUST NOT pin that library as a dependency.
+  it is known to render against, and MUST NOT pin that library as a dependency. It MUST NOT name a
+  version, a URL or an origin for the library anywhere else, because doing so would make the package
+  a party to a delivery decision it does not take.
 - **FR-012**: The documentation MUST state both ways the library reaches the browser and what a
-  project does for each, since neither is discoverable from the component surface.
+  project does for each, MUST show a script tag that loads the library and a script tag that loads the
+  package's own module, and MUST state what makes the first of those safe to copy. None of it is
+  discoverable from the component surface, and the package supplies no component that would make it
+  so.
 
 **Saying what is wrong — US3**
 
@@ -231,7 +242,7 @@ its wrapper's.
 | Story | Requirements | Success criteria |
 |---|---|---|
 | US1 — Put a chart region on a page | FR-001 … FR-007 | SC-001, SC-002, SC-006 |
-| US2 — The charting library reaches the browser | FR-008 … FR-012 | SC-003, SC-004, SC-008 |
+| US2 — The charting library reaches the browser | FR-008 … FR-012 | SC-003, SC-004 |
 | US3 — A region that cannot draw says why | FR-013 … FR-019 | SC-005 |
 | US4 — The region holds its shape as the page changes | FR-020 … FR-023 | SC-007 |
 
@@ -252,12 +263,14 @@ its wrapper's.
 
 ### Measurable Outcomes
 
-- **SC-001**: A template author puts a working chart region on a page by writing one component tag
-  inside a wrapper they already have, with zero lines of JavaScript in the template.
+- **SC-001**: Given a base template that already loads the two scripts, a template author puts a
+  working chart region on a page by writing one component tag inside a wrapper they already have, with
+  zero lines of JavaScript in the template.
 - **SC-002**: A page carrying five chart regions renders all five, each filling its own wrapper, with
   no region affected by any other.
-- **SC-003**: A developer who has installed the Python package and nothing else renders a page with a
-  working region, having run no build step and installed no JavaScript tooling.
+- **SC-003**: A developer who has installed the Python package and added two script tags to their base
+  template renders a page with a working region, having run no build step and installed no JavaScript
+  tooling.
 - **SC-004**: A project supplying the library from its own bundle needs zero configuration entries to
   make the package use it, and zero changes when moving between the two ways of getting it.
 - **SC-005**: In every state where a region cannot draw, someone looking at the page can name the
@@ -267,8 +280,6 @@ its wrapper's.
   description, and a region missing either fails visibly rather than rendering nameless.
 - **SC-007**: After the window is resized, after the wrapper is resized, and after a hidden region is
   revealed, the region's area matches its wrapper's with no clipped or leftover space.
-- **SC-008**: A project that installs the package and places no region loads nothing it did not
-  already load.
 
 ## Clarifications
 
@@ -311,6 +322,32 @@ founding notes. Rationale too long to carry here is in `decisions.md`.
   project is responsible for providing a sized wrapper. A fallback height would draw a chart at a size
   nobody chose and hide the setup mistake rather than fix it, which is why the zero-height case is
   reported instead. Integrated as FR-003 and FR-014.
+
+### Session 2026-09-22
+
+- **Q**: The region emits its own module's script tag, once per request, and numbers regions that were
+  given no id. Both exist so a project configures nothing. Is that worth the machinery?
+  **A**: No. Neither is this package's decision to take. A developer who can put the charting library
+  in their own base template can put one more script tag beside it, and where that tag goes, which
+  pages carry it, and whether it is bundled with the rest of the project's JavaScript are answers only
+  the project has. A package that emits the tag itself would then owe an opt-out, and an opt-out for a
+  default nobody asked for is a second mechanism paying for the first. The same holds for the id: a
+  template author naming their own region is an ordinary request, and an id generated per request is
+  stable only until a region is added above it. Both are removed, the id joins the required
+  attributes, and a breaking change is what the changelog is for. Integrated into FR-004, FR-005,
+  FR-006, FR-010a and FR-012, and SC-008 is withdrawn.
+
+- **Q**: `<c-echarts.cdn />` is a component the project places itself, not one a region emits. Does
+  the same reasoning reach it?
+  **A**: Yes, and it is removed. The project supplies its own script tag. A component wrapping a URL
+  and a hash is not a thing a developer needs written for them, and the package holding those two
+  values makes it a party to a delivery decision it does not take: a project pinning a different
+  version, serving the library from its own origin, or loading it from a bundle gets no use from the
+  component and cannot change what it renders. The pinned version, the integrity hash and the origin
+  leave the package entirely, and the documentation shows the tag and states what makes it safe to
+  copy. The supported range stays, because nothing else answers what the namespace renders against.
+  The package now emits no script tag from any surface, which is what makes FR-010a exceptionless.
+  Integrated into FR-008, FR-011 and FR-012.
 
 ## Assumptions
 

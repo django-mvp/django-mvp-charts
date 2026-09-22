@@ -20,6 +20,13 @@
     {% endcomment %}
     <link rel="stylesheet" href="{% static 'css/django-mvp.css' %}">
     <title>{{ case }}</title>
+    {% comment %}
+      The package's own module, loaded by the page the way a project loads it
+      from its base template. Every case needs it — it is the module that
+      reports a region which cannot draw — so it sits outside the branches
+      below, which withhold only the charting library.
+    {% endcomment %}
+    <script defer src="{% static 'mvp_charts/js/chart-region.js' %}"></script>
     {% if case != "no-library" and case != "mixed" and case != "neither" %}
       <script>window.echarts = { version: "stand-in" };</script>
     {% endif %}
@@ -39,17 +46,17 @@
         so it is the one page where nothing is left to stop the wait.
       {% endcomment %}
       <div class="unresolved-wrapper" id="wrapper">
-        <c-echarts.region name="Revenue" description="Revenue by month, in EUR." />
+        <c-echarts.region id="revenue" name="Revenue" description="Revenue by month, in EUR." />
       </div>
 
     {% elif case == "hidden-then-revealed" %}
       <div class="hidden-panel" id="panel" style="height: 240px">
-        <c-echarts.region name="Revenue" description="Revenue by month, in EUR." />
+        <c-echarts.region id="revenue" name="Revenue" description="Revenue by month, in EUR." />
       </div>
 
     {% elif case == "collapses-later" %}
       <div id="panel" style="height: 240px">
-        <c-echarts.region name="Revenue" description="Revenue by month, in EUR." />
+        <c-echarts.region id="revenue" name="Revenue" description="Revenue by month, in EUR." />
       </div>
 
     {% elif case == "mixed" %}
@@ -59,18 +66,18 @@
         directly after the module has already started.
       {% endcomment %}
       <div class="unresolved-wrapper" id="wrapper">
-        <c-echarts.region name="Broken" description="A region with no height." />
+        <c-echarts.region id="broken" name="Broken" description="A region with no height." />
       </div>
       <div style="height: 200px">
-        <c-echarts.region name="Signups" description="Signups by week." />
+        <c-echarts.region id="signups" name="Signups" description="Signups by week." />
       </div>
       <div style="height: 160px">
-        <c-echarts.region name="Tickets" description="Open tickets by day." />
+        <c-echarts.region id="tickets" name="Tickets" description="Open tickets by day." />
       </div>
 
     {% else %}
       <div style="height: 240px">
-        <c-echarts.region name="Revenue" description="Revenue by month, in EUR." />
+        <c-echarts.region id="revenue" name="Revenue" description="Revenue by month, in EUR." />
       </div>
     {% endif %}
   </body>

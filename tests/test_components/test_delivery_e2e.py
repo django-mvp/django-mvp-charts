@@ -7,10 +7,9 @@ these tests put the same region on two pages that differ only in how the
 library arrives.
 
 What is deliberately not tested here: whether a public CDN is reachable. The
-rendered-output tests in test_cdn.py assert the delivery component's tag is
-pinned and integrity-checked, which is this package's whole contribution to
-that route. Fetching it during a test run would make the suite fail for
-reasons that say nothing about this package.
+tag that loads the library belongs to the project, not to this package, and
+fetching a third-party file during a test run would make the suite fail for
+reasons that say nothing about anything here.
 """
 
 import pytest
@@ -97,18 +96,20 @@ class TestALateBundleIsNotAFault:
         assert page.evaluate(REGION_STATE) == "ready"
 
 
-class TestAPageWithNoRegionPaysNothing:
-    """T012: installing the package costs a page that places no region nothing."""
+class TestNoThirdPartyOriginIsContacted:
+    """A region fetches nothing, so whatever a page loads, the project asked for it.
 
-    def test_nothing_of_this_package_is_requested(self, chromium, live_server, page):
+    The probe page loads the package's module and a stand-in for the charting
+    library, both from its own origin. A region reaching for a script of its
+    own — the thing Article XII forbids — would show up here as an origin
+    nobody in the template named.
+    """
+
+    def test_a_rendered_region_contacts_no_other_origin(
+        self, chromium, live_server, page
+    ):
         requested = []
         page.on("request", lambda request: requested.append(request.url))
-        page.goto(f"{live_server.url}/probe/no-region/")
-        assert not [url for url in requested if "mvp_charts" in url]
-
-    def test_no_third_party_origin_is_contacted(self, chromium, live_server, page):
-        requested = []
-        page.on("request", lambda request: requested.append(request.url))
-        page.goto(f"{live_server.url}/probe/no-region/")
+        page.goto(f"{live_server.url}/probe/delivery/separate-file/")
         offsite = [url for url in requested if not url.startswith(live_server.url)]
         assert offsite == []

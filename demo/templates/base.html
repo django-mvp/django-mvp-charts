@@ -1,18 +1,32 @@
 {% extends "mvp/base.html" %}
+{% load static %}
 {% comment %}
   The project-level base django-mvp's own page templates extend. Everything
   the demo's pages need comes from mvp/base.html, so this file adds nothing of
-  its own beyond the one line below — it exists because page_view.html extends
+  its own beyond the two lines below — it exists because page_view.html extends
   "base.html" by that name, and because it is the one place a project-wide
   override goes.
 
-  The charting library is loaded here, by this project, rather than by any
-  component: installing the package adds no external origin a project did not
-  choose. A project that builds its own bundle deletes this line and exposes
-  the library as window.echarts instead. Nothing else changes, and no setting
-  records which of the two is in play.
+  Both scripts are loaded here, by this project. Neither comes from the
+  package, which supplies no script tag of any kind.
+
+  ECharts first, from a public copy, which is what a project does while it has
+  no build step. The version is pinned and carries an integrity hash, so the
+  browser refuses the file if it is not the one it was expected to be.
+  `crossorigin` is not decoration: a browser only checks integrity on a
+  cross-origin request made in CORS mode, so without it the hash is never
+  verified while still looking as though it is. A project that builds its own
+  bundle drops this line and exposes the library as window.echarts instead.
+
+  Then the package's own module, which is what a chart region needs in the
+  browser. A demo whose every page shows a chart puts it in the base template.
+  A project with one dashboard among fifty pages would put it on that page.
 {% endcomment %}
 {% block extra_js %}
   {{ block.super }}
-  <c-echarts.cdn />
+  <script src="https://cdn.jsdelivr.net/npm/echarts@6.1.0/dist/echarts.min.js"
+          integrity="sha384-C2iskrW/uPW46KzOjrvJIQo4YkV8lkD+QS0CrDN18IIPIpT/g2USu8bTP3nvmIAD"
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer"></script>
+  <script defer src="{% static 'mvp_charts/js/chart-region.js' %}"></script>
 {% endblock extra_js %}
