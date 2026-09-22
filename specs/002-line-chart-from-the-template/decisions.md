@@ -182,3 +182,21 @@ leaning on that declaration to skip unit tests for a real module would have been
 
 **ADR:** none — the first is an application of a ruling already in the specification, and the second
 applies Article X as written.
+
+## D5 — the payload's escaping is reproduced, not called through `json_script`
+
+**Decided**: `EChartsChart` builds its payload with `json.dumps(..., cls=DjangoJSONEncoder).translate(...)`,
+using the same three escapes `django.utils.html.json_script` applies (`<`, `>`, `&`), rather than
+calling `json_script` itself.
+
+**Why**: D1 fixed the markup as a `<script>` tag carrying `data-mvp-echarts-options-for` alongside
+its `id` and `type`. `json_script` renders the whole tag from a fixed template with no way to add an
+attribute, so producing that exact markup means building the tag in `line.html` and handing it only
+the escaped JSON. The three sequences it escapes are documented Django behaviour, not a private
+implementation detail, so reproducing them is a small, stable duplication rather than a coupling to
+something that could change under this package unannounced.
+
+**Revisit if**: Django adds a public, attribute-carrying variant of `json_script` — at which point
+calling through directly removes the duplication.
+
+**ADR:** none — a wiring choice inside one namespace, in the spirit of D1.
