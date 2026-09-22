@@ -2,7 +2,7 @@
   "feature": "002-line-chart-from-the-template",
   "branch": "002-line-chart-from-the-template",
   "repo": "django-mvp/django-mvp-charts",
-  "state": "DESIGN_REVIEW",
+  "state": "IMPLEMENT",
   "state_history": [
     {
       "state": "PLAN",
@@ -13,6 +13,11 @@
       "state": "DESIGN_REVIEW",
       "at": "2026-09-22T15:57:09Z",
       "note": "Plan complete; design reviewer dispatched"
+    },
+    {
+      "state": "IMPLEMENT",
+      "at": "2026-09-22T16:06:29Z",
+      "note": "US1 dispatched"
     }
   ],
   "gates": {
@@ -24,12 +29,21 @@
       ]
     },
     "plan": {
-      "approved_by": null,
-      "at": null
+      "approved_by": "notified",
+      "at": "2026-09-22T16:20:00Z"
     },
     "merge": {
       "approved_by": null,
       "at": null
+    },
+    "design_review": {
+      "approved_by": "design-review",
+      "at": "2026-09-22T16:20:00Z",
+      "self_resolved": [
+        "DES-001 (medium, spec-compliance): dropped the string refusal carried over from the sketch; the specification had already ruled it out.",
+        "DES-002 (high, architecture): added mirrored test modules for the two new Python modules, per Article X.",
+        "Note swept: the Article III justification for Line reworded to Article XI cohesion."
+      ]
     }
   },
   "stories": [
@@ -43,43 +57,85 @@
       "tasks": [
         {
           "id": "T001",
-          "status": "todo",
-          "attempts": 0
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests_added": ["tests/test_components/test_line.py"],
+            "commands": ["poetry run pytest tests/test_components/test_line.py -v"],
+            "exit_code": 0
+          }
         },
         {
           "id": "T002",
-          "status": "todo",
-          "attempts": 0
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests_added": ["tests/test_echarts/test_options.py"],
+            "commands": ["poetry run pytest tests/test_echarts/test_options.py -v"],
+            "exit_code": 0
+          }
         },
         {
           "id": "T003",
-          "status": "todo",
-          "attempts": 0
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests_added": ["tests/test_templatetags/test_mvp_charts.py"],
+            "commands": ["poetry run pytest tests/test_templatetags/test_mvp_charts.py -v"],
+            "exit_code": 0
+          }
         },
         {
           "id": "T004",
-          "status": "todo",
-          "attempts": 0
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests_added": [],
+            "commands": [
+              "poetry run pytest tests/test_components/test_line.py tests/test_components/test_shipped_templates.py tests/test_components/test_region.py tests/test_app.py -q"
+            ],
+            "exit_code": 0
+          }
         },
         {
           "id": "T005",
-          "status": "todo",
-          "attempts": 0
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests_added": [],
+            "commands": ["node --check mvp_charts/static/mvp_charts/js/echarts-chart.js"],
+            "exit_code": 0
+          }
         },
         {
           "id": "T006",
-          "status": "todo",
-          "attempts": 0
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests_added": [],
+            "commands": ["poetry run pytest tests/test_demo.py -v"],
+            "exit_code": 0
+          }
         },
         {
           "id": "T007",
-          "status": "todo",
-          "attempts": 0
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests_added": ["tests/test_components/test_line_e2e.py"],
+            "commands": ["poetry run pytest tests/test_components/test_line_e2e.py -v"],
+            "exit_code": 0
+          }
         },
         {
           "id": "T008",
-          "status": "todo",
-          "attempts": 0
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests_added": [],
+            "commands": ["poetry run pytest tests/test_demo.py -q"],
+            "exit_code": 0
+          }
         }
       ]
     },
