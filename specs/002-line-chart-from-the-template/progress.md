@@ -50,3 +50,46 @@ Verified: `poetry run pytest tests/test_echarts/test_options.py -v` — 9 passed
 `ruff format --check` on `mvp_charts/echarts/` and `tests/test_echarts/` — clean.
 Next: T003a — tests for the template tag.
 Watch: `tests/test_components/test_line.py` (T001) still red, as expected until T004.
+
+## 2026-09-22T18:29:00Z · Implementer US1 · T003a
+
+Did: wrote `tests/test_templatetags/test_mvp_charts.py`, mirroring the module T003 creates —
+`TestEChartsChart` asserts the tag returns the id it was given, an options-script id derived from
+it, a payload whose JSON parses back to what `Line` built, and that a call with no id returns no
+payload.
+Verified: `poetry run pytest tests/test_templatetags/test_mvp_charts.py -v` — collection failed with
+`ModuleNotFoundError: No module named 'mvp_charts.templatetags'`, the expected RED.
+Next: T003 — implement the tag.
+Watch: `tests/test_components/test_line.py` (T001) still red, as expected until T004.
+
+## 2026-09-22T18:31:00Z · Implementer US1 · T003
+
+Did: `mvp_charts/templatetags/mvp_charts.py` — `{% echarts_chart %}`, registered on the package's
+own library. Builds `Line(values, labels).options()`, wraps it in `EChartsChart` carrying the id,
+an options-script id (`<id>-options`) and a `mark_safe`d JSON payload escaped the same way
+`django.utils.html.json_script` escapes its own output (the three sequences that could end a
+`<script>` early or smuggle a line/paragraph separator) — reproduced rather than called directly
+because the payload needs its own tag carrying `data-mvp-echarts-options-for`, which `json_script`
+has no way to add (D1). Returns `None` when no id was given.
+Verified: `poetry run pytest tests/test_templatetags/test_mvp_charts.py -v` — 4 passed. `ruff check`,
+`ruff format --check` and `mypy mvp_charts/templatetags/` — clean (one `S308` on the `mark_safe`
+call, annotated and suppressed: the string it wraps is escaped for a script context immediately
+above it, same as `json_script`'s own use).
+Next: T004 — the component template.
+Watch: `tests/test_components/test_line.py` (T001) still red, as expected until T004.
+
+## 2026-09-22T18:34:00Z · Implementer US1 · T004
+
+Did: `mvp_charts/templates/cotton/echarts/line.html` — declares `id`, `values`, `labels`, `name`,
+`description` with empty defaults in `<c-vars>`, calls `{% echarts_chart %}`, renders
+`<c-echarts.region>` with the id/name/description, and — only when the tag returned a chart — the
+options script beside it carrying `data-mvp-echarts-options-for="{{ id }}"`. A missing id falls
+through to the region's own missing-id message and the `{% if chart %}` guard drops the script
+entirely (FR-006). Annotated to the gallery standard region.html uses, one `{# ... #}` per line.
+`djlint --reformat` moved the payload onto its own line inside the script tag; `JSON.parse` and
+`json.loads` both ignore the resulting leading/trailing whitespace.
+Verified: `poetry run pytest tests/test_components/test_line.py tests/test_components/test_shipped_templates.py tests/test_components/test_region.py tests/test_app.py -q`
+— 37 passed. This is where T001 (component-level) turns green. `ruff check`/`ruff format --check`
+n/a (template file); `djlint --check` clean.
+Next: T005 — the browser module.
+Watch: nothing.
