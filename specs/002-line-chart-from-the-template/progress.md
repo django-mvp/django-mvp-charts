@@ -93,3 +93,46 @@ Verified: `poetry run pytest tests/test_components/test_line.py tests/test_compo
 n/a (template file); `djlint --check` clean.
 Next: T005 — the browser module.
 Watch: nothing.
+
+## 2026-09-22T18:38:00Z · Implementer US1 · T005
+
+Did: `mvp_charts/static/mvp_charts/js/echarts-chart.js` — finds every
+`[data-mvp-echarts-options-for]`, waits for its region's `mvp-chart-region:state` to reach `ready`
+(with a fallback read of the region's current state for the case where it was already ready before
+this script attached its listener), `echarts.init`s the drawing surface, `setOption`s the parsed
+payload, and calls `chart.resize()` on `mvp-chart-region:resize`. No library poll, no height check
+and no resize observer of its own (D2) — the region owns all three. Guarded against double
+evaluation by a dataset flag per script and a `window.mvpEchartsChart` module guard; each chart
+initialised inside its own try/catch so one failing leaves the others working, matching
+chart-region.js.
+Verified: no JS test runner in this repo — browser behaviour is exercised in T007. `node --check`
+confirms the file parses. No lint config exists for standalone `.js` files (checked: no
+eslint/prettier/package.json in the repo), matching chart-region.js's own lint-free status.
+Next: T006 — the demo project.
+Watch: this module is functionally unexercised until T006 wires a page that loads it and T007
+measures it in a browser.
+
+## 2026-09-22T18:44:00Z · Implementer US1 · T006
+
+Did: `demo/views.py` (`LineChartView`), `demo/urls.py` (`line/`), `demo/menus.py` (the line chart as
+the first — and so far only — entry in `CHART_TYPE_PAGES`, which brings the Charts group into the
+sidebar), `demo/templates/demo/line.html` (two examples, following `chart_region.html`'s
+`c-section`/`show_code`/`cotton:verbatim` convention: a single line chart, then a line chart beside
+a bare `<c-echarts.region>` to show the two do not interact — US1 scenario 4, which T007 measures in
+a browser), and `demo/templates/base.html` (loads `echarts-chart.js` beside `chart-region.js`).
+`tests/test_demo.py`: extended the sidebar's expected href list with `/line/`; the "chart region is
+top-level" assertion previously asserted no Charts group existed at all, which is no longer true
+once a chart type does — rewrote it to assert the region precedes the group rather than sitting
+inside it, and added one test that the line page is filed under Charts.
+Verified: `poetry run pytest tests/test_demo.py -v` — 30 passed. Widened to
+`poetry run pytest tests/ --ignore=tests/test_components/test_region_e2e.py --ignore=tests/test_components/test_delivery_e2e.py --ignore=tests/test_components/test_failures_e2e.py -q`
+(the whole suite short of the pre-existing e2e files T007 has not written yet) — 82 passed. Manually
+smoke-tested `/line/` via Django's test `Client`: 200, both examples' markup and options scripts
+present. `ruff check`/`ruff format --check` on the changed Python files — clean.
+Concern: `djlint --check` reports both `mvp_charts/templates/cotton/echarts/region.html` (pre-existing,
+FS-001) and `demo/templates/demo/chart_region.html`/`overview.html` (pre-existing) as non-conformant
+to its own reformat opinion, so it does not appear to be an enforced gate in this repo despite the
+`[tool.djlint]` config in `pyproject.toml`. `demo/templates/demo/line.html` follows the existing
+files' actual indentation convention rather than djlint's preference, for consistency with them.
+Next: T007 — the browser test.
+Watch: nothing.
