@@ -7,9 +7,8 @@ enough to cover what the tag builds, without a Cotton compile step.
 
 import json
 
-from mvp_charts.templatetags.mvp_charts import echarts_chart
-
 from mvp_charts.echarts.options import Line
+from mvp_charts.templatetags.mvp_charts import echarts_chart
 
 
 class TestEChartsChart:

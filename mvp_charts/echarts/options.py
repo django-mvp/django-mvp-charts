@@ -15,7 +15,7 @@ class Attribute:
 
     @property
     def given(self) -> bool:
-        return self._raw != ""
+        return bool(self._raw != "")
 
     @property
     def value(self):
