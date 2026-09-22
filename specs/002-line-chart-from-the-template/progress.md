@@ -168,3 +168,35 @@ against the untouched region example). Confirmed by hand that the new "Drawing a
 normalized text is a substring of the rendered `demo/templates/demo/line.html`.
 Next: full verify, then the completion report.
 Watch: nothing.
+
+## 2026-09-22T20:55:00Z · Implementer US2 · T009/T010
+
+Did: `mvp_charts/templates/cotton/echarts/region.html` — removed the missing-name and
+missing-description branches from the alert guard, leaving only a missing id reported; the drawing
+surface's `role`/`aria-label` and the `figcaption` are now conditional on `name`/`description` being
+given; the annotation block restated to describe the new rule (FR-008, FR-009, FR-010).
+`tests/test_components/test_region.py` and `test_line.py`: new `TestOptionalNameAndDescription`
+classes covering US2's four acceptance scenarios.
+Concern found and handled: `<c-vars id="" name="" description="" />` gives every unset attribute the
+same empty default as one passed as `""` (documented in `decisions.md`'s note on FR-009), so the
+template cannot distinguish "missing" from "empty" — meaning the exception the brief named as "the
+two assertions" necessarily extended further than two test methods. Replaced, all stating FR-010 in
+their own words and touching nothing about id: `test_missing_name_names_it_and_renders_no_region`,
+`test_missing_description_names_it_and_renders_no_region`, `test_empty_string_name_is_treated_as_missing`,
+`test_empty_string_description_is_treated_as_missing`, `test_all_three_missing_names_all_three`, and
+`TestTranslatedMessages`'s two tests together with their fixture catalog `tests/locale/de/` (repointed
+from the removed "has no name" string to the surviving "has no id" one, `.po` and recompiled `.mo`).
+Verified: `poetry run pytest tests/test_components/test_region.py tests/test_components/test_line.py
+tests/test_components/test_shipped_templates.py -q` — 45 passed. `ruff check`/`ruff format --check` on
+the changed Python — clean.
+Watch (concern, not fixed — outside T009/T010/T011's file scope): this same change breaks two
+pre-existing tests in `tests/test_demo.py` — `TestChartRegionPage::test_it_shows_seven_independent_regions`
+and `TestTheStatesAreShownOnThatPage::test_it_shows_the_missing_attribute_state` — because
+`demo/templates/demo/chart_region.html` (FS-001's region-only demo page, not the line page T011
+touches) carries a "When it cannot draw" example built to demonstrate the now-superseded
+missing-description alert, and its "seven independent regions" count includes that example rendering
+as an eighth normal one once the alert stops appearing. Fixing this needs an edit to
+`demo/templates/demo/chart_region.html`'s content and to `tests/test_demo.py`, neither of which is
+`test_region.py`, `region.html`, the line demo page, README or CHANGELOG. Reported to Forge rather
+than fixed here.
+Next: T011 — the demo's line page, README, CHANGELOG.
