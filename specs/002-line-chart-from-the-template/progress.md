@@ -136,3 +136,35 @@ to its own reformat opinion, so it does not appear to be an enforced gate in thi
 files' actual indentation convention rather than djlint's preference, for consistency with them.
 Next: T007 — the browser test.
 Watch: nothing.
+
+## 2026-09-22T18:52:00Z · Implementer US1 · T007
+
+Did: `tests/test_components/test_line_e2e.py`, following `test_region_e2e.py`'s shape — reads a live
+ECharts instance back via `echarts.getInstanceByDom` and asserts the series data and category values
+match what the demo page wrote, in order; asserts a line chart and the demo's bare region on the same
+page both reach `ready` and only the chart has an instance (US1 scenario 4 — neither reads nor
+changes the other's state); and asserts the chart's region still exactly fills its wrapper after a
+window resize (FR-005, US1 scenario 5).
+Verified: `poetry run pytest tests/test_components/test_line_e2e.py -v` — 8 passed on the first run,
+against a real Chromium and the real ECharts CDN build (no stand-in). `ruff check`/`ruff format
+--check` — clean.
+Next: T008 — README and CHANGELOG.
+Watch: nothing.
+
+## 2026-09-22T18:58:00Z · Implementer US1 · T008
+
+Did: README — replaced the pitch example at the top, which named attributes (`:data`, `x`, `y`,
+`title`) the component never actually took; updated Status to say a chart type exists; added a
+"Drawing a line" section between "Placing a chart region" and "Keeping its shape" showing the
+complete markup including the sizing wrapper (character-for-character what the demo page renders,
+checked by hand the way `TestDocumentedExample` checks the region example), and stating plainly that
+`:values`/`:labels` take a Python value written with a colon, never text (FR-002a, FR-007); the
+install section now shows three script lines — ECharts, `chart-region.js`, `echarts-chart.js` — with
+the surrounding prose updated from "two"/"both" to "three"/"all three". CHANGELOG: an `[Unreleased]`
+entry for the line chart, its browser module, the demo page and the README changes; the section's own
+opening line no longer claims nothing draws.
+Verified: `poetry run pytest tests/test_demo.py -q` — 30 passed (`TestDocumentedExample` still passes
+against the untouched region example). Confirmed by hand that the new "Drawing a line" example's
+normalized text is a substring of the rendered `demo/templates/demo/line.html`.
+Next: full verify, then the completion report.
+Watch: nothing.
