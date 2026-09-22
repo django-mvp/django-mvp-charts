@@ -163,11 +163,11 @@ class TestChartRegionPage:
         shown_source = re.sub(r"&quot;|&#39;", '"', chart_region_page)
         assert "height: 320px" in shown_source
 
-    def test_it_shows_seven_independent_regions(self, chart_region_page):
-        """Five that work, plus the two failing states this document can hold.
+    def test_it_shows_six_independent_regions(self, chart_region_page):
+        """Five that work, plus the no-height state, which still draws a region.
 
-        The third failing state needs a document with no charting library, so
-        it is framed rather than placed here.
+        The other two failing states draw none: a region with no id reports it
+        instead, and the missing-library state needs a document of its own.
         """
         ids = re.findall(r'<figure id="([^"]+)"', chart_region_page)
         assert len(ids) == 6
@@ -252,9 +252,15 @@ class TestTheStatesAreShownOnThatPage:
     ):
         assert 'style="height: 100%"' in chart_region_page
 
-    def test_it_shows_the_missing_attribute_state(self, chart_region_page):
+    def test_it_shows_the_missing_id_state(self, chart_region_page):
+        """The id is the one attribute still required, so it is the one shown.
+
+        A missing name or description stopped being a failing state when a
+        chart became renderable without either, so the example that used to
+        stand here demonstrated something the package no longer does.
+        """
         assert 'role="alert"' in chart_region_page
-        assert "has no description" in chart_region_page
+        assert "has no id" in chart_region_page
 
     def test_it_frames_the_missing_library_state(self, chart_region_page):
         """The library check reads a global, so that state needs its own document.

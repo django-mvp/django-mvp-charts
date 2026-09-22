@@ -267,3 +267,24 @@ showing an unnamed, undescribed chart drawing correctly (mirroring T011's line-p
 resolved height on its wrapper, and updating both tests to match.
 
 **ADR:** none — a same-repository follow-up, not an architecture decision.
+
+## D9 — the demo's superseded failing state is replaced by the one that survived, not removed
+
+**Decided**: D8's three broken tests are closed at their source. `demo/templates/demo/chart_region.html`
+loses the "No description" example and gains a "No id" one — a region given a name and a description
+and no id, in the same slot, with the same prose shape. `tests/test_demo.py` follows: the state test
+now asserts the missing-id alert, and the region-count test keeps its count and gets a docstring that
+says what the six regions now are.
+
+**Why**: FR-010 removed one of the three states that section demonstrates and left the other two
+untouched, so the section's claim — every state a region can be in is shown, not described — became
+false in exactly one slot. Dropping the slot would have left the surviving required attribute
+undemonstrated on the page that exists to demonstrate it; the id is still the author's to give and a
+region missing one is still reported, and that is now the only attribute of which either is true.
+Putting an unnamed, undescribed chart there instead, as D8 anticipated, would have shown a working
+chart inside a section about charts that cannot draw, and T011 already shows that chart on the line
+page where it belongs. The e2e failure needed no separate fix: it timed out because the superseded
+example rendered a region into a wrapper with no height, and it passes once that example is gone.
+
+**ADR:** none — documentation collateral of a requirement already specified, nothing downstream
+inherits it.
