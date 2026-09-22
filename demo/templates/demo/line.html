@@ -24,6 +24,21 @@
       {% endcotton:verbatim %}
     {% endshow_code %}
   </c-section>
+  <c-section title="The smallest working chart" icon="chart">
+    <c-text>
+      An id and values are all a line chart needs (FR-008, FR-010). A name
+      and a text alternative are still worth giving — the package's README
+      says what leaving them out costs the people reading the page — they
+      just stop being required.
+    </c-text>
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div class="rounded-box border-base-300 border" style="height: 320px">
+          <c-echarts.line id="quarterly-orders" :values="[54, 61, 58, 70]" />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
   <c-section title="Beside a bare chart region" icon="overview">
     <c-text>
       A line chart is a region, so the two stay independent even sharing a

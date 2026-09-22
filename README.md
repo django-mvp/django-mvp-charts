@@ -78,17 +78,25 @@ A chart region is the space a chart is drawn into. Put it inside an element that
 
 **The wrapper is where the height lives.** A region fills the element around it and has no height of its own — no default, no minimum, no aspect ratio. That is deliberate: a height invented by this package would be wrong on most pages and would stop a chart sharing a grid row with anything else. It does mean a region placed in an element with no resolved height gets none itself, which is the most common way a first attempt goes wrong, so the region says so on the page instead of rendering as an empty box.
 
-All three attributes are required:
+Only `id` is required:
 
-- `id` is the element id. The caption and the drawing surface are both built from it, which is what ties the right description to the right chart, and it is how your own JavaScript finds the region to listen to.
-- `name` is what a screen reader announces the chart as.
-- `description` is what the chart shows, in words. A chart drawn into a canvas is invisible to anyone who cannot see it, and to anyone who cannot tell its colours apart.
+- `id` is the element id. The caption and the drawing surface are both built from it, which is what ties the right description to the right chart, and it is how your own JavaScript finds the region to listen to. Leave it out, or pass an empty string, and the region is replaced by a message saying so. It is never defaulted to nothing and never generated for you — an id this package invented would be stable only until someone added a second chart higher up the page, at which point every id below it would shift.
+- `name` is what a screen reader announces the chart as. Optional: leave it out, or pass an empty string, and the region still renders, with no `aria-label` on the drawing surface.
+- `description` is what the chart shows, in words. Optional in the same way, and carried as a `figcaption` only when given.
 
-Leave any of them out, or pass an empty string, and the region is replaced by a message saying which are missing. None of them is defaulted to nothing, and none is generated for you — an id this package invented would be stable only until someone added a second chart higher up the page, at which point every id below it would shift.
+**A chart drawn into a canvas is invisible to anyone who cannot see it, and to anyone who cannot tell its colours apart.** Leaving out `name` and `description` is a real choice, not a shortcut: without them there is nothing else on the page for a screen reader to announce, or for someone who cannot make out the shape of the line to read instead. Give both whenever the chart is more than decoration.
 
 ## Drawing a line
 
-`<c-echarts.line>` is a chart region that already knows how to draw. It takes everything a region does — `id`, `name` and `description` are required in exactly the same way — plus the values to draw and, optionally, what each point is called:
+`<c-echarts.line>` is a chart region that already knows how to draw. It takes everything a region does — `id` is required and `name`/`description` are optional in exactly the same way — plus the values to draw and, optionally, what each point is called. The smallest working chart is one tag, an id and values, and nothing else:
+
+```html
+<div class="rounded-box border-base-300 border" style="height: 320px">
+  <c-echarts.line id="quarterly-orders" :values="[54, 61, 58, 70]" />
+</div>
+```
+
+The fully-described version below is the one to reach for whenever the chart is more than decoration:
 
 ```html
 <div class="rounded-box border-base-300 border" style="height: 320px">

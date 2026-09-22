@@ -14,10 +14,11 @@ Nothing has been released.
 
 - `<c-echarts.region>`, the space a chart is drawn into. It fills the element
   around it and has no height of its own, so the project's own wrapper decides
-  how big it is. `id`, `name` and `description` are all required: the id ties
-  the caption to the right chart, and the other two carry the accessible name
-  and the text alternative. Leaving any of them out replaces the region with a
-  message naming what is missing, rather than rendering with an empty value.
+  how big it is. `id` ties the caption to the right chart and is required;
+  leaving it out, or passing it empty, replaces the region with a message
+  saying so. `name` and `description` carry the accessible name and the text
+  alternative, and are optional: given, they are carried exactly as written;
+  left out or given empty, the region still renders without them.
 - `mvp_charts/locale/`, with a base English catalog. These are the package's
   first user-facing strings.
 - A demo page showing a region in a sized wrapper, four more at four different
@@ -72,7 +73,8 @@ Nothing has been released.
   the points still draw, in the order the values were given. Every value is
   drawn exactly as given, with nothing reordered, dropped, combined, rounded
   or filled in. Carries the same `id`, `name` and `description` a chart region
-  requires, and keeps filling its wrapper exactly as a region does.
+  does, `id` required and the other two optional, and keeps filling its
+  wrapper exactly as a region does.
 - `mvp_charts/js/echarts-chart.js`, the module a line chart needs in the
   browser: it waits for its region to report ready, draws into it, and
   redraws on the resize contract the region already publishes — no library
@@ -84,6 +86,10 @@ Nothing has been released.
 - The README shows the complete markup for a line chart, including the
   wrapper that sizes it, and states plainly that an attribute carrying data
   takes a Python value written with a colon.
+- The demo's line page shows the smallest working chart — one tag, an id
+  and values — beside the fully-described one, and the README states what
+  omitting the name and the text alternative costs the people reading the
+  page.
 
 ### Changed
 
