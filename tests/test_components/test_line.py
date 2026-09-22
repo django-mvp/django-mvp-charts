@@ -93,6 +93,18 @@ class TestOptionalNameAndDescription:
         assert "<figcaption" not in html
 
 
+class TestHeightPassesThrough:
+    """Issue #32: a height given on the tag reaches the figure a line chart is."""
+
+    def test_a_height_given_on_the_line_tag_reaches_the_figure(self):
+        html = render(
+            '<c-echarts.line id="revenue" height="240px" :values="values" />',
+            values=[12, 14, 15],
+        )
+        figure = re.search(r"<figure[^>]*>", html).group(0)
+        assert 'style="height: 240px"' in figure
+
+
 class TestPayloadIsNestedInsideTheFigure:
     """Issue #33: the payload sits inside the figure it belongs to.
 

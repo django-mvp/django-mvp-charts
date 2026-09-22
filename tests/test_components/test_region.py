@@ -115,6 +115,32 @@ class TestChartRegionIdentity:
             assert f'aria-describedby="{figure_id}-description"' in surface
 
 
+class TestHeight:
+    """Issue #32: a region can be given its height directly.
+
+    A second sizing mode, not a replacement for the first: given a height,
+    the figure carries it and needs no wrapper; given none, the figure fills
+    its parent exactly as before.
+    """
+
+    def test_a_given_height_is_carried_on_the_figure_itself(self):
+        html = render('<c-echarts.region id="revenue" height="320px" />')
+        figure = re.search(r"<figure[^>]*>", html).group(0)
+        assert 'style="height: 320px"' in figure
+
+    def test_no_height_still_fills_its_parent_exactly_as_before(self):
+        html = render(A_REGION)
+        figure = re.search(r"<figure[^>]*>", html).group(0)
+        assert re.search(r'class="relative h-full w-full"', figure)
+        assert "style=" not in figure
+
+    def test_an_empty_string_height_is_treated_as_not_given(self):
+        html = render('<c-echarts.region id="revenue" height="" />')
+        figure = re.search(r"<figure[^>]*>", html).group(0)
+        assert re.search(r'class="relative h-full w-full"', figure)
+        assert "style=" not in figure
+
+
 class TestSlotContent:
     """Issue #33: a region takes slot content and renders it inside the figure.
 

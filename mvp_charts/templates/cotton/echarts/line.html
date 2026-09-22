@@ -18,6 +18,8 @@
 {#                 every key it names (FR-012)                      #}
 {#   name        – accessible name, passed straight to the region  #}
 {#   description – text alternative, passed straight to the region #}
+{#   height      – an explicit height, passed straight to the      #}
+{#                 region (FR-006)                                 #}
 {#                                                                #}
 {# values and labels are never read out of text (FR-002a): write   #}
 {# them as Python values, with a colon, or the chart does not draw.#}
@@ -34,10 +36,10 @@
 {# no options script, because <c-echarts.region> is what decides   #}
 {# that (FR-006) — this component adds nothing of its own for it.  #}
 {# ============================================================ #}
-<c-vars id="" values="" labels="" options="" name="" description="" />
+<c-vars id="" values="" labels="" options="" name="" description="" height="" />
 {% load mvp_charts %}
 {% echarts_chart element_id=id values=values labels=labels options=options as chart %}
-<c-echarts.region id="{{ id }}" name="{{ name }}" description="{{ description }}">
+<c-echarts.region id="{{ id }}" name="{{ name }}" description="{{ description }}" height="{{ height }}">
   {% if chart %}
     <script type="application/json">
         {{ chart.payload }}
