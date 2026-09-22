@@ -200,3 +200,21 @@ something that could change under this package unannounced.
 calling through directly removes the duplication.
 
 **ADR:** none — a wiring choice inside one namespace, in the spirit of D1.
+
+## D6 — scenario 4 (a chart beside a bare region) is shown on the demo's own line page
+
+**Decided**: `demo/templates/demo/line.html` carries a second example, a line chart next to a bare
+`<c-echarts.region>`, rather than a dedicated probe page under `tests/templates/probe/`.
+
+**Why**: T007 needs a page carrying both a line chart and a bare region to demonstrate acceptance
+scenario 4 (neither reads nor changes the other's state) in a browser. The probe pages under
+`tests/` exist for situations no page a reader would visit should have to contort itself into
+(no charting library, one delivery route); a chart beside an empty region is not that — it is an
+ordinary page a project might actually build, so it belongs in the demo rather than behind a
+test-only route, and it costs the reader nothing extra: the section is two examples on one page
+they were already going to visit.
+
+**Revisit if**: a later story needs its own dedicated probe for chart/region independence under
+conditions the demo page cannot represent (e.g. a specific failure state).
+
+**ADR:** none — a demo-content choice local to this task.
