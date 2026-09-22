@@ -200,3 +200,23 @@ as an eighth normal one once the alert stops appearing. Fixing this needs an edi
 `test_region.py`, `region.html`, the line demo page, README or CHANGELOG. Reported to Forge rather
 than fixed here.
 Next: T011 — the demo's line page, README, CHANGELOG.
+
+## 2026-09-22T21:15:00Z · Implementer US2 · T011
+
+Did: `demo/templates/demo/line.html` — a new "The smallest working chart" section
+beside "Drawing a line", showing `<c-echarts.line id="quarterly-orders" :values="[54, 61, 58, 70]" />`,
+the smallest tag the acceptance scenario names. `README.md` — "Placing a chart region" and "Drawing a
+line" restated: only `id` is required, `name`/`description` optional, and a new paragraph stating
+plainly what leaving out the name and the text alternative costs the people reading the page (FR-011).
+`CHANGELOG.md` — the two `[Unreleased]` bullets for the region and the line chart that stated the now-
+superseded "all required" rule are restated to describe current behaviour (nothing has shipped, so this
+follows the workspace convention of reading as current state rather than annotating what it used to
+say); a new bullet for the demo and README additions.
+Verified: `poetry run pytest tests/test_demo.py -q` — 28 passed, 2 failed (the same two pre-existing
+failures noted under T009/T010, unrelated to this task — confirmed by running before and after this
+task's edits with an identical failure set). A scratch smoke test via the `client`/`db` fixtures
+confirmed `/line/` renders 200 with the new example live and in its code pane; removed before
+committing, not part of the diff. `ruff check demo/ README.md CHANGELOG.md` — clean.
+Next: full verify, then the completion report.
+Watch: the two pre-existing `tests/test_demo.py` failures from T009/T010 remain unresolved, out of
+scope for T009/T010/T011 as recorded above — carried into the completion report's concerns.
