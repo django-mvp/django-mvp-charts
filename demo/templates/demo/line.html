@@ -1,0 +1,48 @@
+{% extends "page_view.html" %}
+{% load mvp %}
+{% block page.content %}
+  <c-section title="Drawing a line" icon="chart">
+    <c-text>
+      A line chart is a chart region that knows how to draw. Values and point
+      labels are written on the tag as Python values, with a colon — never as
+      text the package would have to parse.
+    </c-text>
+    {% comment %}
+      cotton:verbatim is required, not decoration: without it Cotton compiles
+      the markup before show_code can capture it, and the source pane comes out
+      empty.
+    {% endcomment %}
+    {% show_code %}
+      {% cotton:verbatim %}
+        <div class="rounded-box border-base-300 border" style="height: 320px">
+          <c-echarts.line id="monthly-revenue"
+                          name="Monthly revenue"
+                          description="Revenue by month over the last year, rising from January to a December peak."
+                          :values="[820, 932, 901, 934, 1290, 1330, 1320, 1250, 1400, 1520, 1600, 1710]"
+                          :labels="['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']" />
+        </div>
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+  <c-section title="Beside a bare chart region" icon="overview">
+    <c-text>
+      A line chart is a region, so the two stay independent even sharing a
+      page: the chart below draws from its own values, and the bare region
+      beside it neither reads that state nor changes it.
+    </c-text>
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="rounded-box border-base-300 border" style="height: 240px">
+        <c-echarts.line id="signups-line"
+                        name="Signups"
+                        description="New accounts per week for the last quarter."
+                        :values="[120, 132, 101, 134, 90, 230, 210]"
+                        :labels="['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4', 'Wk 5', 'Wk 6', 'Wk 7']" />
+      </div>
+      <div class="rounded-box border-base-300 border" style="height: 240px">
+        <c-echarts.region id="open-tickets-region"
+                          name="Open tickets"
+                          description="Support tickets left open at the end of each day this month." />
+      </div>
+    </div>
+  </c-section>
+{% endblock page.content %}

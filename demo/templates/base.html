@@ -7,7 +7,7 @@
   "base.html" by that name, and because it is the one place a project-wide
   override goes.
 
-  Both scripts are loaded here, by this project. Neither comes from the
+  All three scripts are loaded here, by this project. None comes from the
   package, which supplies no script tag of any kind.
 
   ECharts first, from a public copy, which is what a project does while it has
@@ -18,9 +18,11 @@
   verified while still looking as though it is. A project that builds its own
   bundle drops this line and exposes the library as window.echarts instead.
 
-  Then the package's own module, which is what a chart region needs in the
-  browser. A demo whose every page shows a chart puts it in the base template.
-  A project with one dashboard among fifty pages would put it on that page.
+  Then the package's own two modules: chart-region.js, which every region
+  needs in the browser, and echarts-chart.js, which draws a line chart from
+  its region once it is ready. A demo whose every page shows a chart puts
+  both in the base template. A project with one dashboard among fifty pages
+  would put them on that page.
 {% endcomment %}
 {% block extra_js %}
   {{ block.super }}
@@ -29,4 +31,5 @@
           crossorigin="anonymous"
           referrerpolicy="no-referrer"></script>
   <script defer src="{% static 'mvp_charts/js/chart-region.js' %}"></script>
+  <script defer src="{% static 'mvp_charts/js/echarts-chart.js' %}"></script>
 {% endblock extra_js %}

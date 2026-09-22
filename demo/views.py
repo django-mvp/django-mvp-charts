@@ -22,6 +22,15 @@ class ChartRegionView(MVPTemplateView):
     breadcrumbs = [{"text": "Chart region"}]
 
 
+class LineChartView(MVPTemplateView):
+    """A line chart drawn from values written directly on the tag."""
+
+    template_name = "demo/line.html"
+    page_title = "Line"
+    page_subtitle = "A line chart, drawn from values written directly in the template"
+    breadcrumbs = [{"text": "Line"}]
+
+
 class ChartRegionNoLibraryView(TemplateView):
     """One region on a page with no charting library, for the frame above.
 
