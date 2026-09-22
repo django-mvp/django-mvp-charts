@@ -5,7 +5,7 @@ Cotton compilation here — the rendered-output contract is covered in
 ``tests/test_components/test_line.py``.
 """
 
-from mvp_charts.echarts.options import Attribute, Line
+from mvp_charts.echarts.options import Attribute, Line, Merge
 
 
 class TestAttribute:
@@ -75,3 +75,76 @@ class TestLine:
         """FR-004: nothing reordered, dropped, combined, rounded or filled in."""
         options = Line([None, 1.5, 0], ["a", "b", "c"]).options()
         assert options["series"][0]["data"] == [None, 1.5, 0]
+
+
+class TestMerge:
+    """An `options` attribute deep-merged over what this package built (FR-012).
+
+    Mappings merge recursively, a list replaces a list, `series` is the one
+    exception and merges entry by entry against position, and no key is
+    filtered anywhere - including one this package has never heard of.
+    """
+
+    def test_a_mapping_merges_deeply(self):
+        base = {"xAxis": {"type": "category", "data": ["Jan", "Feb"]}}
+        overrides = {"xAxis": {"axisLine": {"show": False}}}
+        merged = Merge(base, overrides).result()
+        assert merged == {
+            "xAxis": {
+                "type": "category",
+                "data": ["Jan", "Feb"],
+                "axisLine": {"show": False},
+            }
+        }
+
+    def test_the_overrides_value_wins_on_a_key_both_sides_name(self):
+        base = {"yAxis": {"type": "value"}}
+        overrides = {"yAxis": {"type": "log"}}
+        merged = Merge(base, overrides).result()
+        assert merged["yAxis"]["type"] == "log"
+
+    def test_a_list_replaces_a_list_rather_than_merging_element_by_element(self):
+        base = {"color": ["red", "blue", "green"]}
+        overrides = {"color": ["purple"]}
+        merged = Merge(base, overrides).result()
+        assert merged["color"] == ["purple"]
+
+    def test_series_merges_entry_by_entry_against_position(self):
+        """An option added to a series entry keeps that entry's own data."""
+        base = {"series": [{"type": "line", "data": [1, 2, 3]}]}
+        overrides = {"series": [{"lineStyle": {"color": "#7c3aed"}}]}
+        merged = Merge(base, overrides).result()
+        assert merged["series"] == [
+            {"type": "line", "data": [1, 2, 3], "lineStyle": {"color": "#7c3aed"}}
+        ]
+
+    def test_series_merge_leaves_an_unnamed_position_untouched(self):
+        base = {
+            "series": [
+                {"type": "line", "data": [1, 2, 3]},
+                {"type": "line", "data": [4, 5, 6]},
+            ]
+        }
+        overrides = {"series": [{"lineStyle": {"color": "red"}}]}
+        merged = Merge(base, overrides).result()
+        assert merged["series"][0]["lineStyle"] == {"color": "red"}
+        assert merged["series"][1] == {"type": "line", "data": [4, 5, 6]}
+
+    def test_series_merge_carries_an_entry_beyond_the_base_length(self):
+        base = {"series": [{"type": "line", "data": [1, 2, 3]}]}
+        overrides = {"series": [{}, {"type": "bar", "data": [7, 8, 9]}]}
+        merged = Merge(base, overrides).result()
+        assert merged["series"][1] == {"type": "bar", "data": [7, 8, 9]}
+
+    def test_a_key_this_package_has_never_heard_of_arrives_unchanged(self):
+        base = {"xAxis": {"type": "category"}}
+        overrides = {"toolbox": {"feature": {"saveAsImage": {}}}}
+        merged = Merge(base, overrides).result()
+        assert merged["toolbox"] == {"feature": {"saveAsImage": {}}}
+
+    def test_nothing_named_by_the_base_is_dropped(self):
+        base = {"xAxis": {"type": "category"}, "yAxis": {"type": "value"}}
+        overrides = {"grid": {"top": 40}}
+        merged = Merge(base, overrides).result()
+        assert merged["xAxis"] == {"type": "category"}
+        assert merged["yAxis"] == {"type": "value"}
