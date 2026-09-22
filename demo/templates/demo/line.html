@@ -33,9 +33,7 @@
     </c-text>
     {% show_code %}
       {% cotton:verbatim %}
-        <div style="height: 320px">
-          <c-echarts.line id="quarterly-orders" :values="[54, 61, 58, 70]" />
-        </div>
+        <c-echarts.line id="quarterly-orders" height="320px" :values="[54, 61, 58, 70]" />
       {% endcotton:verbatim %}
     {% endshow_code %}
   </c-section>
@@ -50,14 +48,13 @@
     </c-text>
     {% show_code %}
       {% cotton:verbatim %}
-        <div style="height: 240px">
-          <c-echarts.line id="conversion-rate"
-                          name="Conversion rate"
-                          description="Weekly conversion rate for the last quarter."
-                          :values="[2.1, 2.4, 2.2, 2.8, 3.1, 3.4, 3.0]"
-                          :labels="['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4', 'Wk 5', 'Wk 6', 'Wk 7']"
-                          :options="{'series': [{'lineStyle': {'color': '#7c3aed'}}]}" />
-        </div>
+        <c-echarts.line id="conversion-rate"
+                        name="Conversion rate"
+                        height="240px"
+                        description="Weekly conversion rate for the last quarter."
+                        :values="[2.1, 2.4, 2.2, 2.8, 3.1, 3.4, 3.0]"
+                        :labels="['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4', 'Wk 5', 'Wk 6', 'Wk 7']"
+                        :options="{'series': [{'lineStyle': {'color': '#7c3aed'}}]}" />
       {% endcotton:verbatim %}
     {% endshow_code %}
   </c-section>
