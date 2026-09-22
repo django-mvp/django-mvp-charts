@@ -2,7 +2,7 @@
   "feature": "002-line-chart-from-the-template",
   "branch": "002-line-chart-from-the-template",
   "repo": "django-mvp/django-mvp-charts",
-  "state": "IMPLEMENT",
+  "state": "CONVERGE",
   "state_history": [
     {
       "state": "PLAN",
@@ -18,6 +18,11 @@
       "state": "IMPLEMENT",
       "at": "2026-09-22T16:06:29Z",
       "note": "US1 dispatched"
+    },
+    {
+      "state": "CONVERGE",
+      "at": "2026-09-22T21:17:39Z",
+      "note": "All three stories done and accepted; docs gate and naming closed"
     }
   ],
   "gates": {
@@ -313,7 +318,7 @@
   ],
   "budgets": {
     "converge_cycles": {
-      "used": 0,
+      "used": 1,
       "max": 2
     },
     "review_cycles": {
