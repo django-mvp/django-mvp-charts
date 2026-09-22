@@ -13,6 +13,9 @@
 {#                 region's (FR-006)                                #}
 {#   :values     – the run of numbers to draw, a Python value       #}
 {#   :labels     – what the points are called, a Python value       #}
+{#   :options    – any ECharts option, a Python value, deep-merged  #}
+{#                 over what this component built and winning on    #}
+{#                 every key it names (FR-012)                      #}
 {#   name        – accessible name, passed straight to the region  #}
 {#   description – text alternative, passed straight to the region #}
 {#                                                                #}
@@ -21,13 +24,19 @@
 {# Without labels, xAxis loses its data key and ECharts draws from  #}
 {# the series' own indices.                                        #}
 {#                                                                #}
+{# This component contributes no appearance of its own (FR-013):   #}
+{# a colour, a line width or anything else that changes how the    #}
+{# chart looks is the page's to set through :options, never a      #}
+{# default this package supplies or derives from the running       #}
+{# theme (FR-015).                                                  #}
+{#                                                                #}
 {# A missing id renders the region's own missing-id message and    #}
 {# no options script, because <c-echarts.region> is what decides   #}
 {# that (FR-006) — this component adds nothing of its own for it.  #}
 {# ============================================================ #}
-<c-vars id="" values="" labels="" name="" description="" />
+<c-vars id="" values="" labels="" options="" name="" description="" />
 {% load mvp_charts %}
-{% echarts_chart element_id=id values=values labels=labels as chart %}
+{% echarts_chart element_id=id values=values labels=labels options=options as chart %}
 <c-echarts.region id="{{ id }}" name="{{ name }}" description="{{ description }}" />
 {% if chart %}
   <script id="{{ chart.options_id }}" type="application/json" data-mvp-echarts-options-for="{{ id }}">

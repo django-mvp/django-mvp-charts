@@ -6,7 +6,7 @@ from django import template
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.safestring import mark_safe
 
-from mvp_charts.echarts.options import Line
+from mvp_charts.echarts.options import Attribute, Line, Merge
 
 register = template.Library()
 
@@ -37,12 +37,18 @@ class EChartsChart:
 
 
 @register.simple_tag
-def echarts_chart(element_id="", values="", labels=""):
+def echarts_chart(element_id="", values="", labels="", options=""):
     """Build a line chart's options and carry them with its id, or nothing.
 
     Returns ``None`` when no id was given, so a component can guard its
-    options script on the tag's result rather than repeating the check.
+    options script on the tag's result rather than repeating the check. An
+    `options` attribute, when given, is deep-merged over the built object
+    (FR-012) rather than replacing it.
     """
     if not element_id:
         return None
-    return EChartsChart(element_id, Line(values, labels).options())
+    built = Line(values, labels).options()
+    overrides = Attribute(options)
+    if overrides.given:
+        built = Merge(built, overrides.value).result()
+    return EChartsChart(element_id, built)

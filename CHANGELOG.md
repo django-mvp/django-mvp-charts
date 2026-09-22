@@ -90,6 +90,14 @@ Nothing has been released.
   and values — beside the fully-described one, and the README states what
   omitting the name and the text alternative costs the people reading the
   page.
+- `:options`, reaching any ECharts option a chart component does not name.
+  Deep-merged over the object the component built: a mapping merges
+  recursively, a list replaces a list, and `series` is matched entry by entry
+  against position so an option added to an entry keeps that entry's own
+  data. No key is filtered anywhere the merge looks, including one this
+  package has never heard of. The README shows appearance belonging to the
+  page and a colour set by the author through `:options`, rather than one
+  this package supplied or derived from the running theme.
 
 ### Changed
 

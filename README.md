@@ -114,6 +114,25 @@ The fully-described version below is the one to reach for whenever the chart is 
 
 Every value you pass is drawn, in the order you passed it. Nothing is reordered, dropped, combined, rounded or filled in — the original list is gone by the time the component holds it, and no template could put any of that back.
 
+## Styling a chart
+
+A chart's appearance belongs to the page, not to this package. `<c-echarts.line>` writes no colour, no line width, no marker, no legend rule, no grid or axis line decision, no animation and no typeface — a chart given values and nothing else looks the way ECharts draws that data on its own.
+
+`:options` is how you reach anything ECharts offers, including an option this package has never heard of. It carries a Python value, deep-merged over what the component built, and it wins on every key it names:
+
+```html
+<div class="rounded-box border-base-300 border" style="height: 320px">
+  <c-echarts.line id="conversion-rate"
+                  name="Conversion rate"
+                  :values="[2.1, 2.4, 2.2, 2.8, 3.1, 3.4, 3.0]"
+                  :options="{'series': [{'lineStyle': {'color': '#7c3aed'}}]}" />
+</div>
+```
+
+That chart draws with the colour given, and no other. This package neither supplies a palette of its own nor derives one from the daisyUI theme your project is running — a colour left unset is ECharts' own default, not this package's.
+
+The merge is deep: a mapping in `:options` merges recursively with the mapping the component built, rather than replacing it wholesale, so `{'xAxis': {'axisLine': {'show': false}}}` only turns the axis line off and leaves everything else about `xAxis` as it was. A list, `series` aside, replaces a list outright — there is no position to merge two arbitrary lists against. `series` is the one exception: its entries are matched by position, so `{'series': [{'lineStyle': {'color': '#7c3aed'}}]}` adds a line colour to the first series without touching the data that series already carries.
+
 ## Keeping its shape
 
 A page is not a fixed rectangle. The window is resized, a sidebar collapses, a tab reveals content that was hidden when the page loaded. A region tracks the element around it through all of that, so it is never left at a size the page has stopped having.

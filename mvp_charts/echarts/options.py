@@ -1,5 +1,7 @@
 """The options object a line chart asks ECharts to draw."""
 
+from typing import Any
+
 
 class Attribute:
     """One attribute's Python value, exactly as the template author wrote it.
@@ -48,3 +50,50 @@ class Line:
                 }
             ],
         }
+
+
+class Merge:
+    """An author's `options` attribute, deep-merged over what this package built.
+
+    A mapping merges recursively and the override wins on every key it
+    names. A list replaces a list, because there is no position to merge two
+    arbitrary lists against. `series` is the one exception: its entries are
+    matched by position and merged like mappings, so an option added to an
+    entry keeps that entry's own data. No key is filtered anywhere the merge
+    looks, including one this package has never heard of (FR-012).
+    """
+
+    def __init__(self, base: dict, overrides: dict):
+        self._base = base
+        self._overrides = overrides
+
+    def result(self) -> dict:
+        merged: dict = self._merge(self._base, self._overrides)
+        return merged
+
+    def _merge(self, base: Any, overrides: Any) -> Any:
+        if not isinstance(base, dict) or not isinstance(overrides, dict):
+            return overrides
+        merged = dict(base)
+        for key, value in overrides.items():
+            if key == "series":
+                merged[key] = self._merge_series(merged.get("series"), value)
+            else:
+                merged[key] = self._merge(merged.get(key), value)
+        return merged
+
+    def _merge_series(self, base_series: Any, override_series: Any) -> Any:
+        if not isinstance(base_series, list) or not isinstance(override_series, list):
+            return override_series
+        length = max(len(base_series), len(override_series))
+        merged = []
+        for position in range(length):
+            if position >= len(override_series):
+                merged.append(base_series[position])
+            elif position >= len(base_series):
+                merged.append(override_series[position])
+            else:
+                merged.append(
+                    self._merge(base_series[position], override_series[position])
+                )
+        return merged
