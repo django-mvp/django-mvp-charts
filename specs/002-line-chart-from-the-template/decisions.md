@@ -218,3 +218,52 @@ they were already going to visit.
 conditions the demo page cannot represent (e.g. a specific failure state).
 
 **ADR:** none — a demo-content choice local to this task.
+
+## D7 — the FR-010 test-replacement exception covered seven test methods and one fixture, not two
+
+**Decided**: US2's brief authorised replacing "the two assertions in `test_region.py` that state the
+superseded behaviour." Implementing T010 correctly required replacing seven pre-existing test
+methods there (`test_missing_name_names_it_and_renders_no_region`,
+`test_missing_description_names_it_and_renders_no_region`,
+`test_empty_string_name_is_treated_as_missing`, `test_empty_string_description_is_treated_as_missing`,
+`test_all_three_missing_names_all_three`, and `TestTranslatedMessages`'s two tests), plus repointing
+the `tests/locale/de` fixture catalog from the removed "has no name" string to the surviving "has no
+id" one.
+
+**Why**: `<c-vars id="" name="" description="" />` gives every attribute the caller does not pass the
+same empty default as one passed `=""` — the component cannot tell "missing" from "empty" apart, which
+this same file's own design note under FR-009 already records. Once the missing-name and
+missing-description branches leave `region.html`, every pre-existing assertion that exercised either
+state — whichever of the two ways it was spelled — asserted the identical superseded behaviour: an
+alert appears and no figure renders. Replacing only two of them would have left five failing tests in
+a file with an explicit, narrow, two-assertion exception; leaving the tree red was not an option either.
+Each replacement touches only the name/description assertions in its test, states the new rule, and
+names FR-010 in its own words, exactly as the exception's replacement was worded to require.
+
+**ADR:** none — a scope clarification of an exception already granted for this task, not a new design
+decision.
+
+## D8 — the demo's region page and two of its tests are left broken by FR-010, not fixed here
+
+**Decided**: T010's `region.html` change breaks three pre-existing tests outside `test_region.py`:
+`tests/test_demo.py::TestChartRegionPage::test_it_shows_seven_independent_regions`,
+`tests/test_demo.py::TestTheStatesAreShownOnThatPage::test_it_shows_the_missing_attribute_state`, and
+`tests/test_components/test_region_e2e.py::TestTheReportingRegionIsExcludedOnPurpose::test_the_page_carries_one_region_reporting_no_height`.
+None is touched.
+
+**Why**: `demo/templates/demo/chart_region.html`'s "No description" example
+(`id="open-tickets-no-description"`) exists to demonstrate FS-001's missing-description alert, and its
+wrapper (`<div class="mt-3">`) was never given a height, because a region that never rendered had no
+height to need. FR-010 makes that region render for the first time, into a wrapper with no height, so
+it now reports its own `no-height` state — collateral, not deliberate: the demo page no longer has
+anything true to say about a missing description, and its wrapper needs a real height regardless.
+Fixing this means rewriting that page's "When it cannot draw" section and the two test files, none of
+which is `test_region.py`, `region.html`, the line demo page, README or CHANGELOG — the brief's US2
+scope names none of them, and "do not work outside T009, T010 and T011" is explicit. Reported to Forge
+as a concern rather than fixed under this story's authorisation.
+
+**Revisit if**: Forge schedules the follow-up — likely replacing the "No description" example with one
+showing an unnamed, undescribed chart drawing correctly (mirroring T011's line-page addition), with a
+resolved height on its wrapper, and updating both tests to match.
+
+**ADR:** none — a same-repository follow-up, not an architecture decision.
