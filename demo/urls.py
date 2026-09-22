@@ -1,6 +1,11 @@
 from django.urls import path
 
-from demo.views import ChartRegionNoLibraryView, ChartRegionView, OverviewView
+from demo.views import (
+    ChartRegionNoLibraryView,
+    ChartRegionView,
+    LineChartView,
+    OverviewView,
+)
 
 urlpatterns = [
     path("", OverviewView.as_view(), name="overview"),
@@ -11,4 +16,5 @@ urlpatterns = [
         ChartRegionNoLibraryView.as_view(),
         name="chart_region_no_library",
     ),
+    path("line/", LineChartView.as_view(), name="line_chart"),
 ]

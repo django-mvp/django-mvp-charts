@@ -91,11 +91,12 @@ class TestRegionFillsItsWrapper:
             assert measured["region"]["width"] > 0, measured["id"]
 
 
-#: The demo's wrappers carry a one-pixel border on every side, so a wrapper
-#: styled to 420px gives the region 418px to fill. The region filling its
-#: wrapper's *inner* box is the contract, and this is what turns that into a
-#: number a test can assert.
-WRAPPER_BORDER = 2
+#: The region fills its wrapper's *inner* box — that is the contract, and it is
+#: what the absolute heights below are derived from. The demo's wrappers carry
+#: no border, so a wrapper styled to 420px gives the region all 420 of them. A
+#: wrapper given one would make the two differ by twice its width, and these
+#: numbers would need the difference subtracting.
+WRAPPER_BORDER = 0
 
 RESIZE_FIRST_WRAPPER = (
     "() => {{ document.querySelector('[data-mvp-chart-region]')"

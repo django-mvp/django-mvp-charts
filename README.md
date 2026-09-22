@@ -7,12 +7,13 @@ Putting a chart on a Django page is mostly plumbing. You serialise a queryset to
 This package moves the wiring into a component, so the intent is what stays in your template:
 
 ```html
-<c-echarts.line :data="monthly_revenue" x="month" y="total" title="Revenue" />
+<c-echarts.line id="revenue" name="Revenue" description="Revenue by month."
+                :values="[820, 932, 901]" :labels="['Jan', 'Feb', 'Mar']" />
 ```
 
 ## Status
 
-Version 0.0.1. The chart region is in place and nothing draws into it yet — the chart types come next. Nothing here is stable.
+Version 0.0.1. The chart region is in place, and so is the first chart type — a line chart. Nothing here is stable.
 
 ## Requirements
 
@@ -42,7 +43,7 @@ Components are then available under the namespace of the library they render wit
 <c-echarts.bar ... />
 ```
 
-Then load two scripts from your own base template — ECharts, and this package's module:
+Then load three scripts from your own base template — ECharts, and this package's two modules:
 
 ```html
 {% load static %}
@@ -53,21 +54,22 @@ Then load two scripts from your own base template — ECharts, and this package'
           crossorigin="anonymous"
           referrerpolicy="no-referrer"></script>
   <script defer src="{% static 'mvp_charts/js/chart-region.js' %}"></script>
+  <script defer src="{% static 'mvp_charts/js/echarts-chart.js' %}"></script>
 {% endblock %}
 ```
 
-`chart-region.js` is what a chart region needs in the browser: it checks the library arrived, checks the region has a box to draw into, and publishes the resize contract below. It has no dependencies, is safe to evaluate twice, and is served from this package's static files.
+`chart-region.js` is what a chart region needs in the browser: it checks the library arrived, checks the region has a box to draw into, and publishes the resize contract below. `echarts-chart.js` is what a line chart needs beside it: it waits for a region to report it is ready, draws into it, and redraws on the resize contract `chart-region.js` publishes. Neither has a dependency of any kind, both are safe to evaluate twice, and both are served from this package's static files.
 
-Both lines are yours. This package emits no script tag of any kind and supplies no component that does. Which pages carry them, where in the document they go, whether they are bundled with the rest of your JavaScript, and whether they need a nonce under your content security policy are your project's decisions to make, and a component making them on your behalf would be taking them away. If one page in your project shows a chart, put both lines on that page rather than in the base template.
+All three lines are yours. This package emits no script tag of any kind and supplies no component that does. Which pages carry them, where in the document they go, whether they are bundled with the rest of your JavaScript, and whether they need a nonce under your content security policy are your project's decisions to make, and a component making them on your behalf would be taking them away. If one page in your project shows a chart, put all three lines on that page rather than in the base template.
 
-The ECharts line above is the development route, covered in full under [Getting ECharts to the browser](#getting-echarts-to-the-browser). A project that bundles ECharts itself drops it and keeps the second line.
+The ECharts line above is the development route, covered in full under [Getting ECharts to the browser](#getting-echarts-to-the-browser). A project that bundles ECharts itself drops it and keeps the other two.
 
 ## Placing a chart region
 
 A chart region is the space a chart is drawn into. Put it inside an element that already has a height:
 
 ```html
-<div class="rounded-box border-base-300 border" style="height: 320px">
+<div style="height: 320px">
   <c-echarts.region id="monthly-revenue"
                     name="Monthly revenue"
                     description="Revenue by month over the last year, rising from January to a December peak." />
@@ -76,13 +78,62 @@ A chart region is the space a chart is drawn into. Put it inside an element that
 
 **The wrapper is where the height lives.** A region fills the element around it and has no height of its own — no default, no minimum, no aspect ratio. That is deliberate: a height invented by this package would be wrong on most pages and would stop a chart sharing a grid row with anything else. It does mean a region placed in an element with no resolved height gets none itself, which is the most common way a first attempt goes wrong, so the region says so on the page instead of rendering as an empty box.
 
-All three attributes are required:
+Only `id` is required:
 
-- `id` is the element id. The caption and the drawing surface are both built from it, which is what ties the right description to the right chart, and it is how your own JavaScript finds the region to listen to.
-- `name` is what a screen reader announces the chart as.
-- `description` is what the chart shows, in words. A chart drawn into a canvas is invisible to anyone who cannot see it, and to anyone who cannot tell its colours apart.
+- `id` is the element id. The caption and the drawing surface are both built from it, which is what ties the right description to the right chart, and it is how your own JavaScript finds the region to listen to. Leave it out, or pass an empty string, and the region is replaced by a message saying so. It is never defaulted to nothing and never generated for you — an id this package invented would be stable only until someone added a second chart higher up the page, at which point every id below it would shift.
+- `name` is what a screen reader announces the chart as. Optional: leave it out, or pass an empty string, and the region still renders, with no `aria-label` on the drawing surface.
+- `description` is what the chart shows, in words. Optional in the same way, and carried as a `figcaption` only when given.
 
-Leave any of them out, or pass an empty string, and the region is replaced by a message saying which are missing. None of them is defaulted to nothing, and none is generated for you — an id this package invented would be stable only until someone added a second chart higher up the page, at which point every id below it would shift.
+**A chart drawn into a canvas is invisible to anyone who cannot see it, and to anyone who cannot tell its colours apart.** Leaving out `name` and `description` is a real choice, not a shortcut: without them there is nothing else on the page for a screen reader to announce, or for someone who cannot make out the shape of the line to read instead. Give both whenever the chart is more than decoration.
+
+## Drawing a line
+
+`<c-echarts.line>` is a chart region that already knows how to draw. It takes everything a region does — `id` is required and `name`/`description` are optional in exactly the same way — plus the values to draw and, optionally, what each point is called. The smallest working chart is one tag, an id and values, and nothing else:
+
+```html
+<div style="height: 320px">
+  <c-echarts.line id="quarterly-orders" :values="[54, 61, 58, 70]" />
+</div>
+```
+
+The fully-described version below is the one to reach for whenever the chart is more than decoration:
+
+```html
+<div style="height: 320px">
+  <c-echarts.line id="monthly-revenue"
+                  name="Monthly revenue"
+                  description="Revenue by month over the last year, rising from January to a December peak."
+                  :values="[820, 932, 901, 934, 1290, 1330, 1320, 1250, 1400, 1520, 1600, 1710]"
+                  :labels="['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']" />
+</div>
+```
+
+**`:values` and `:labels` carry Python values, and the colon is what says so.** Write `:values="[820, 932, 901]"`, never `values="820, 932, 901"` — the second form is text, and this package never reads data out of text. It splits nothing on a separator, guesses at no numbers, and does not report the mistake: a value written as text travels into the chart's options object exactly as it arrived, and the chart does not draw, which is how you find out.
+
+`:labels` is optional. Leave it out and the points still draw, in the order the values were given, numbered by their position rather than named.
+
+Every value you pass is drawn, in the order you passed it. Nothing is reordered, dropped, combined, rounded or filled in — the original list is gone by the time the component holds it, and no template could put any of that back.
+
+## Styling a chart
+
+A chart's appearance belongs to the page, not to this package. `<c-echarts.line>` writes no colour, no line width, no marker, no legend rule, no grid or axis line decision, no animation and no typeface — a chart given values and nothing else looks the way ECharts draws that data on its own.
+
+`:options` is how you reach anything ECharts offers, including an option this package has never heard of. It carries a Python value, deep-merged over what the component built, and it wins on every key it names:
+
+```html
+<div style="height: 320px">
+  <c-echarts.line id="conversion-rate"
+                  name="Conversion rate"
+                  :values="[2.1, 2.4, 2.2, 2.8, 3.1, 3.4, 3.0]"
+                  :options="{'series': [{'lineStyle': {'color': '#7c3aed'}}]}" />
+</div>
+```
+
+That chart draws with the colour given, and no other. This package neither supplies a palette of its own nor derives one from the daisyUI theme your project is running — a colour left unset is ECharts' own default, not this package's.
+
+The merge is deep: a mapping in `:options` merges recursively with the mapping the component built, rather than replacing it wholesale, so `{'xAxis': {'axisLine': {'show': false}}}` only turns the axis line off and leaves everything else about `xAxis` as it was. A list, `series` aside, replaces a list outright — there is no position to merge two arbitrary lists against. `series` is the one exception: its entries are matched by position, so `{'series': [{'lineStyle': {'color': '#7c3aed'}}]}` adds a line colour to the first series without touching the data that series already carries.
+
+`docs/options.md` describes how the options object is built, for anyone reading the source or adding a chart type.
 
 ## Keeping its shape
 

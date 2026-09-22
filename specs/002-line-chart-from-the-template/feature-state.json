@@ -1,0 +1,353 @@
+{
+  "feature": "002-line-chart-from-the-template",
+  "branch": "002-line-chart-from-the-template",
+  "repo": "django-mvp/django-mvp-charts",
+  "state": "PR_READY",
+  "state_history": [
+    {
+      "state": "PLAN",
+      "at": "2026-09-22T15:40:00Z",
+      "note": "Implementation session opened from the queue; spec already on main."
+    },
+    {
+      "state": "DESIGN_REVIEW",
+      "at": "2026-09-22T15:57:09Z",
+      "note": "Plan complete; design reviewer dispatched"
+    },
+    {
+      "state": "IMPLEMENT",
+      "at": "2026-09-22T16:06:29Z",
+      "note": "US1 dispatched"
+    },
+    {
+      "state": "CONVERGE",
+      "at": "2026-09-22T21:17:39Z",
+      "note": "All three stories done and accepted; docs gate and naming closed"
+    },
+    {
+      "state": "PR_READY",
+      "at": "2026-09-22T21:24:16Z",
+      "note": "Review approved, no findings; PR #31 open and ready, awaiting walkthrough"
+    }
+  ],
+  "gates": {
+    "spec": {
+      "approved_by": "SamuelJennings",
+      "at": "2026-09-22T15:07:03Z",
+      "self_resolved": [
+        "Specification pull request #23, merge commit 3a5503e4065c306209a1ca5b5eb3a9b8cc92baa1"
+      ]
+    },
+    "plan": {
+      "approved_by": "notified",
+      "at": "2026-09-22T16:20:00Z"
+    },
+    "merge": {
+      "approved_by": null,
+      "at": null
+    },
+    "design_review": {
+      "approved_by": "design-review",
+      "at": "2026-09-22T16:20:00Z",
+      "self_resolved": [
+        "DES-001 (medium, spec-compliance): dropped the string refusal carried over from the sketch; the specification had already ruled it out.",
+        "DES-002 (high, architecture): added mirrored test modules for the two new Python modules, per Article X.",
+        "Note swept: the Article III justification for Line reworded to Article XI cohesion."
+      ]
+    },
+    "walkthrough": {
+      "approved_by": "SamuelJennings",
+      "at": "2026-09-22T21:37:54Z",
+      "self_resolved": [
+        "Remove the rounded-box wrapper div from the demo charts — the border is gone from every chart and region wrapper in the demo and from the README examples that mirror them; the element itself stays because it carries the height"
+      ]
+    }
+  },
+  "stories": [
+    {
+      "id": "US1",
+      "priority": "P1",
+      "issue": 25,
+      "worktree": null,
+      "status": "done",
+      "replans": 0,
+      "tasks": [
+        {
+          "id": "T001a",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests": [
+              "tests/test_echarts/test_options.py"
+            ],
+            "commands": [
+              "poetry run pytest tests/test_echarts/test_options.py -x",
+              "poetry run pytest tests/test_echarts/test_options.py -v"
+            ]
+          }
+        },
+        {
+          "id": "T001",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests": [
+              "tests/test_components/test_line.py"
+            ],
+            "commands": [
+              "poetry run pytest tests/test_components/test_line.py -v"
+            ]
+          }
+        },
+        {
+          "id": "T002",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "commands": [
+              "poetry run pytest tests/test_echarts/test_options.py -v",
+              "poetry run mypy mvp_charts/"
+            ]
+          }
+        },
+        {
+          "id": "T003a",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests": [
+              "tests/test_templatetags/test_mvp_charts.py"
+            ],
+            "commands": [
+              "poetry run pytest tests/test_templatetags/test_mvp_charts.py -v"
+            ]
+          }
+        },
+        {
+          "id": "T003",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "commands": [
+              "poetry run pytest tests/test_templatetags/test_mvp_charts.py -v",
+              "poetry run mypy mvp_charts/templatetags/"
+            ]
+          }
+        },
+        {
+          "id": "T004",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "commands": [
+              "poetry run pytest tests/test_components/test_line.py tests/test_components/test_shipped_templates.py tests/test_components/test_region.py tests/test_app.py -q",
+              "poetry run djlint mvp_charts/templates/cotton/echarts/line.html --check"
+            ]
+          }
+        },
+        {
+          "id": "T005",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "commands": [
+              "node --check mvp_charts/static/mvp_charts/js/echarts-chart.js"
+            ]
+          }
+        },
+        {
+          "id": "T006",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "commands": [
+              "poetry run pytest tests/test_demo.py -v"
+            ]
+          }
+        },
+        {
+          "id": "T007",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests": [
+              "tests/test_components/test_line_e2e.py"
+            ],
+            "commands": [
+              "poetry run pytest tests/test_components/test_line_e2e.py -v"
+            ]
+          }
+        },
+        {
+          "id": "T008",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "commands": [
+              "poetry run pytest tests/test_demo.py -q"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "US2",
+      "priority": "P2",
+      "issue": 26,
+      "worktree": null,
+      "status": "done",
+      "replans": 0,
+      "tasks": [
+        {
+          "id": "T009",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests": [
+              "tests/test_components/test_region.py::TestOptionalNameAndDescription::test_a_region_with_only_an_id_renders_with_no_missing_message",
+              "tests/test_components/test_region.py::TestOptionalNameAndDescription::test_the_surface_carries_no_role_and_no_aria_label_without_a_name",
+              "tests/test_components/test_region.py::TestOptionalNameAndDescription::test_no_figcaption_without_a_description",
+              "tests/test_components/test_region.py::TestOptionalNameAndDescription::test_name_and_description_are_still_carried_exactly_when_given",
+              "tests/test_components/test_region.py::TestOptionalNameAndDescription::test_an_empty_name_is_not_carried_as_an_empty_attribute",
+              "tests/test_components/test_region.py::TestOptionalNameAndDescription::test_an_empty_description_is_not_carried_as_an_empty_figcaption",
+              "tests/test_components/test_region.py::TestOptionalNameAndDescription::test_a_missing_id_is_still_reported_when_name_and_description_are_given",
+              "tests/test_components/test_line.py::TestOptionalNameAndDescription::test_a_chart_with_only_an_id_and_values_draws_with_no_missing_message",
+              "tests/test_components/test_line.py::TestOptionalNameAndDescription::test_the_surface_carries_no_role_and_no_aria_label_without_a_name",
+              "tests/test_components/test_line.py::TestOptionalNameAndDescription::test_no_figcaption_without_a_description",
+              "tests/test_components/test_region.py::TestMissingAttributes::test_missing_name_no_longer_blocks_the_region_fr_010 (replaces test_missing_name_names_it_and_renders_no_region, authorised by FR-010)",
+              "tests/test_components/test_region.py::TestMissingAttributes::test_missing_description_no_longer_blocks_the_region_fr_010 (replaces test_missing_description_names_it_and_renders_no_region, authorised by FR-010)",
+              "tests/test_components/test_region.py::TestMissingAttributes::test_empty_string_name_is_treated_as_not_given_fr_010 (replaces test_empty_string_name_is_treated_as_missing, authorised by FR-010)",
+              "tests/test_components/test_region.py::TestMissingAttributes::test_empty_string_description_is_treated_as_not_given_fr_010 (replaces test_empty_string_description_is_treated_as_missing, authorised by FR-010)",
+              "tests/test_components/test_region.py::TestMissingAttributes::test_all_three_missing_names_only_the_id_fr_010 (replaces test_all_three_missing_names_all_three, authorised by FR-010)",
+              "tests/test_components/test_region.py::TestTranslatedMessages::test_a_translated_message_is_shown_under_its_language (rewritten to exercise the surviving missing-id message, authorised by FR-010)",
+              "tests/test_components/test_region.py::TestTranslatedMessages::test_the_english_source_string_shows_with_no_translation_active (rewritten to exercise the surviving missing-id message, authorised by FR-010)"
+            ],
+            "commands": [
+              "poetry run pytest tests/test_components/test_region.py tests/test_components/test_line.py -q  (RED, before T010: 10 failed, 27 passed, each failure for the expected reason)",
+              "poetry run pytest tests/test_components/test_region.py tests/test_components/test_line.py tests/test_components/test_shipped_templates.py -q  (GREEN, after T010: 45 passed)",
+              "poetry run ruff check tests/test_components/test_region.py tests/test_components/test_line.py",
+              "poetry run ruff format --check tests/test_components/test_region.py tests/test_components/test_line.py"
+            ]
+          }
+        },
+        {
+          "id": "T010",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "commands": [
+              "poetry run pytest tests/test_components/test_region.py tests/test_components/test_line.py tests/test_components/test_shipped_templates.py -q",
+              "poetry run ruff check mvp_charts/templates/cotton/echarts/region.html",
+              "poetry run python manage.py check"
+            ]
+          }
+        },
+        {
+          "id": "T011",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "commands": [
+              "poetry run python manage.py check",
+              "poetry run pytest tests/test_demo.py -q  (2 failed, 28 passed - the two D8/T010 collateral failures, unrelated to T011; identical failure set confirmed before and after T011's edits)",
+              "poetry run ruff check demo/ README.md CHANGELOG.md"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "US3",
+      "priority": "P3",
+      "issue": 27,
+      "worktree": null,
+      "status": "done",
+      "replans": 0,
+      "tasks": [
+        {
+          "id": "T012a",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests": [
+              "tests/test_echarts/test_options.py::TestMerge::test_a_mapping_merges_deeply",
+              "tests/test_echarts/test_options.py::TestMerge::test_the_overrides_value_wins_on_a_key_both_sides_name",
+              "tests/test_echarts/test_options.py::TestMerge::test_a_list_replaces_a_list_rather_than_merging_element_by_element",
+              "tests/test_echarts/test_options.py::TestMerge::test_series_merges_entry_by_entry_against_position",
+              "tests/test_echarts/test_options.py::TestMerge::test_series_merge_leaves_an_unnamed_position_untouched",
+              "tests/test_echarts/test_options.py::TestMerge::test_series_merge_carries_an_entry_beyond_the_base_length",
+              "tests/test_echarts/test_options.py::TestMerge::test_a_key_this_package_has_never_heard_of_arrives_unchanged",
+              "tests/test_echarts/test_options.py::TestMerge::test_nothing_named_by_the_base_is_dropped"
+            ],
+            "commands": [
+              "poetry run pytest tests/test_echarts/test_options.py -q",
+              "poetry run pytest tests/test_echarts/test_options.py -q"
+            ]
+          }
+        },
+        {
+          "id": "T012",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests": [
+              "tests/test_components/test_line.py::TestOptionsAttribute::test_options_wins_on_every_key_it_names",
+              "tests/test_components/test_line.py::TestOptionsAttribute::test_a_mapping_in_options_merges_recursively",
+              "tests/test_components/test_line.py::TestOptionsAttribute::test_a_list_in_options_replaces_a_list_rather_than_merging",
+              "tests/test_components/test_line.py::TestOptionsAttribute::test_series_in_options_merges_entry_by_entry_and_keeps_the_data",
+              "tests/test_components/test_line.py::TestOptionsAttribute::test_a_key_this_package_has_never_heard_of_arrives_unchanged",
+              "tests/test_components/test_line.py::TestOptionsAttribute::test_no_options_attribute_leaves_the_built_object_untouched",
+              "tests/test_components/test_line.py::TestNoAppearanceOfItsOwn::test_the_built_object_is_byte_for_byte_the_dictionary_and_nothing_more",
+              "tests/test_components/test_line_e2e.py::TestAnAuthorSuppliedColourReachesTheLiveInstance::test_the_colour_written_on_the_tag_is_the_colour_echarts_drew_with"
+            ],
+            "commands": [
+              "poetry run pytest tests/test_components/test_line.py -q",
+              "poetry run pytest tests/test_components/test_line.py -q",
+              "poetry run pytest tests/test_components/test_line_e2e.py -q"
+            ]
+          }
+        },
+        {
+          "id": "T013",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "commands": [
+              "poetry run pytest tests/test_echarts/test_options.py tests/test_components/test_line.py -q",
+              "poetry run pytest tests/test_components/test_line_e2e.py -q",
+              "poetry run pytest tests/test_demo.py -q",
+              "poetry run mypy mvp_charts/echarts/options.py mvp_charts/templatetags/mvp_charts.py",
+              "poetry run ruff check mvp_charts/echarts/options.py mvp_charts/templatetags/mvp_charts.py tests/test_echarts/test_options.py tests/test_components/test_line.py tests/test_components/test_line_e2e.py",
+              "poetry run ruff format --check mvp_charts/echarts/options.py mvp_charts/templatetags/mvp_charts.py tests/test_echarts/test_options.py tests/test_components/test_line.py tests/test_components/test_line_e2e.py",
+              "poetry run pytest -q",
+              "poetry run pre-commit run --all-files",
+              "cd /home/sam/.openclaw/workspaces/forge/engineering-org/kit && ./forge verify --repo /home/sam/projects/django-mvp/charts-fs002-line-chart"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "budgets": {
+    "converge_cycles": {
+      "used": 1,
+      "max": 2
+    },
+    "review_cycles": {
+      "used": 0,
+      "max": 1
+    },
+    "design_review_cycles": {
+      "used": 1,
+      "max": 1
+    },
+    "tokens": {
+      "used": 0,
+      "max": 120
+    }
+  },
+  "pr": {
+    "number": 31,
+    "draft": true
+  }
+}

@@ -12,14 +12,20 @@ from mvp.menus import AppMenu, MenuGroup
 
 #: One entry per chart type, in the order they should read in the sidebar.
 #:
-#: Empty until the first chart type exists, which is why the Charts group
-#: below is conditional. A navigation node is drawn from the leaf template
-#: until it has children, so a node added with none renders as an inert button
-#: carrying the literal text ``href="None"`` rather than as a section heading.
-#: Leaving the group out until it holds a page is the only shape that draws
-#: correctly at every point, and it costs nothing: the first chart type brings
-#: its group with it.
-CHART_TYPE_PAGES: list[MenuItem] = []
+#: The Charts group below is conditional on this holding at least one page,
+#: because a navigation node is drawn from the leaf template until it has
+#: children, so a node added with none renders as an inert button carrying
+#: the literal text ``href="None"`` rather than as a section heading. Leaving
+#: the group out until it holds a page is the only shape that draws correctly
+#: at every point, and it costs nothing: the first chart type brought its
+#: group with it.
+CHART_TYPE_PAGES: list[MenuItem] = [
+    MenuItem(
+        name="line_chart",
+        view_name="line_chart",
+        extra_context={"label": "Line", "icon": "chart"},
+    ),
+]
 
 AppMenu.extend(
     [

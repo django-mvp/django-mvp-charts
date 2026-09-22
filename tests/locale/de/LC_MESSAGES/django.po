@@ -6,8 +6,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Language: de\n"
 
-msgid "This chart region has no name."
-msgstr "Diese Diagrammfläche hat keinen Namen."
+msgid "This chart region has no id."
+msgstr "Diese Diagrammfläche hat keine ID."
 
 msgid ""
 "No charting library to draw with. Load ECharts from your own base template, "

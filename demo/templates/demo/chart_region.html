@@ -9,13 +9,14 @@
       takes it.
     </c-text>
     <c-text>
-      All three attributes are required. The id is what the caption and the
-      drawing surface are tied to, so a screen reader reads the right
-      description for the right chart. The name is what the chart is announced
-      as, and the description is what it says the chart shows. None of them is
-      optional, and none is filled in for you: a chart drawn into a canvas is
-      invisible without the last two, and an id this package invented would
-      change under you the moment the page put a second chart above it.
+      Only the id is required. It is what the caption and the drawing surface
+      are tied to, so a screen reader reads the right description for the right
+      chart, and it is never filled in for you: an id this package invented
+      would change under you the moment the page put a second chart above it.
+      The name is what the chart is announced as and the description is what it
+      says the chart shows. Both are optional, and both are worth giving — a
+      chart drawn into a canvas is invisible to anyone who cannot see it, so
+      leaving them out is a choice rather than a shortcut.
     </c-text>
     {% comment %}
       cotton:verbatim is required, not decoration: without it Cotton compiles
@@ -24,7 +25,7 @@
     {% endcomment %}
     {% show_code %}
       {% cotton:verbatim %}
-        <div class="rounded-box border-base-300 border" style="height: 320px">
+        <div style="height: 320px">
           <c-echarts.region id="monthly-revenue"
                             name="Monthly revenue"
                             description="Revenue by month over the last year, rising from January to a December peak." />
@@ -33,9 +34,9 @@
     {% endshow_code %}
     <c-alert variant="info" soft>
       <span>
-        The region above is working. It is empty because no chart type exists
-        yet — the region is the space one will draw into, and the chart types
-        arrive in later releases.
+        The region above is working. It is empty because a region on its own is
+        the space a chart draws into, not a chart — see the line chart page for
+        one that draws.
       </span>
     </c-alert>
   </c-section>
@@ -45,22 +46,22 @@
       different heights here, and none of them knows the others exist.
     </c-text>
     <div class="grid gap-4 md:grid-cols-2">
-      <div class="rounded-box border-base-300 border" style="height: 200px">
+      <div style="height: 200px">
         <c-echarts.region id="signups"
                           name="Signups"
                           description="New accounts per week for the last quarter." />
       </div>
-      <div class="rounded-box border-base-300 border" style="height: 280px">
+      <div style="height: 280px">
         <c-echarts.region id="revenue-by-region"
                           name="Revenue by region"
                           description="Revenue split across four sales regions." />
       </div>
-      <div class="rounded-box border-base-300 border" style="height: 140px">
+      <div style="height: 140px">
         <c-echarts.region id="open-tickets"
                           name="Open tickets"
                           description="Support tickets left open at the end of each day this month." />
       </div>
-      <div class="rounded-box border-base-300 border" style="height: 240px">
+      <div style="height: 240px">
         <c-echarts.region id="storage-used"
                           name="Storage used"
                           description="Storage consumed against the plan's limit, month by month." />
@@ -86,20 +87,21 @@
           grid above is what keeps that true: a stretched grid cell has a
           definite height, and the percentage would resolve against it.
         {% endcomment %}
-        <div class="rounded-box border-base-300 mt-3 border" style="height: 100%">
+        <div class="mt-3" style="height: 100%">
           <c-echarts.region id="signups-no-height"
                             name="Signups"
                             description="New accounts per week." />
         </div>
       </div>
       <div>
-        <h3 class="text-base font-semibold">No description</h3>
+        <h3 class="text-base font-semibold">No id</h3>
         <c-text tight muted>
-          The id, the name and the description are all required, and none of
-          them is defaulted to nothing.
+          The id is the author's to give and the package invents none, because
+          a caption has to point at the region it describes.
         </c-text>
         <div class="mt-3">
-          <c-echarts.region id="open-tickets-no-description" name="Open tickets" />
+          <c-echarts.region name="Open tickets"
+                            description="Tickets still open at the end of each day." />
         </div>
       </div>
       <div>

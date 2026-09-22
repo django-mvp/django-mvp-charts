@@ -1,0 +1,45 @@
+{# ============================================================ #}
+{# <c-echarts.line> — a line chart drawn from values written      #}
+{# directly in the template                                       #}
+{#                                                                #}
+{# Renders a <c-echarts.region> for the space, sizing and the      #}
+{# accessible name and text alternative, and beside it a JSON      #}
+{# payload that echarts-chart.js draws from once the region        #}
+{# reports ready. No JavaScript here — the payload is data, not    #}
+{# a script the author wrote (FR-001).                             #}
+{#                                                                #}
+{# Props:                                                          #}
+{#   id          – element id, the author's to give; also the      #}
+{#                 region's (FR-006)                                #}
+{#   :values     – the run of numbers to draw, a Python value       #}
+{#   :labels     – what the points are called, a Python value       #}
+{#   :options    – any ECharts option, a Python value, deep-merged  #}
+{#                 over what this component built and winning on    #}
+{#                 every key it names (FR-012)                      #}
+{#   name        – accessible name, passed straight to the region  #}
+{#   description – text alternative, passed straight to the region #}
+{#                                                                #}
+{# values and labels are never read out of text (FR-002a): write   #}
+{# them as Python values, with a colon, or the chart does not draw.#}
+{# Without labels, xAxis loses its data key and ECharts draws from  #}
+{# the series' own indices.                                        #}
+{#                                                                #}
+{# This component contributes no appearance of its own (FR-013):   #}
+{# a colour, a line width or anything else that changes how the    #}
+{# chart looks is the page's to set through :options, never a      #}
+{# default this package supplies or derives from the running       #}
+{# theme (FR-015).                                                  #}
+{#                                                                #}
+{# A missing id renders the region's own missing-id message and    #}
+{# no options script, because <c-echarts.region> is what decides   #}
+{# that (FR-006) — this component adds nothing of its own for it.  #}
+{# ============================================================ #}
+<c-vars id="" values="" labels="" options="" name="" description="" />
+{% load mvp_charts %}
+{% echarts_chart element_id=id values=values labels=labels options=options as chart %}
+<c-echarts.region id="{{ id }}" name="{{ name }}" description="{{ description }}" />
+{% if chart %}
+  <script id="{{ chart.options_id }}" type="application/json" data-mvp-echarts-options-for="{{ id }}">
+      {{ chart.payload }}
+  </script>
+{% endif %}

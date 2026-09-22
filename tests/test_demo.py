@@ -67,17 +67,26 @@ class TestSidebarMenu:
         assert re.findall(r'href="([^"]*)"', sidebar_navigation) == [
             "/",
             "/chart-region/",
+            "/line/",
         ]
 
     def test_the_chart_region_page_is_a_top_level_entry(self, sidebar_navigation):
         """Not filed under Charts, which is for chart types.
 
-        The region is not a chart type, and burying the one page that exists
-        under a section for pages that do not would make it harder to find
-        than it needs to be.
+        The region is not a chart type, and burying it under a section for
+        pages that are would make it harder to find than it needs to be. Now
+        that a chart type exists the Charts group appears in the sidebar, so
+        what this asserts is that the region precedes it rather than sitting
+        inside it.
         """
         assert "<span>Chart region</span>" in sidebar_navigation
-        assert "Charts</span>" not in sidebar_navigation
+        region_at = sidebar_navigation.index("Chart region</span>")
+        charts_group_at = sidebar_navigation.index("Charts</span>")
+        assert region_at < charts_group_at
+
+    def test_the_line_chart_page_is_filed_under_charts(self, sidebar_navigation):
+        assert "<span>Line</span>" in sidebar_navigation
+        assert "Charts</span>" in sidebar_navigation
 
     def test_no_section_is_drawn_with_nothing_under_it(self, overview_page):
         """A container added before it has children renders as a dead control.
@@ -154,11 +163,11 @@ class TestChartRegionPage:
         shown_source = re.sub(r"&quot;|&#39;", '"', chart_region_page)
         assert "height: 320px" in shown_source
 
-    def test_it_shows_seven_independent_regions(self, chart_region_page):
-        """Five that work, plus the two failing states this document can hold.
+    def test_it_shows_six_independent_regions(self, chart_region_page):
+        """Five that work, plus the no-height state, which still draws a region.
 
-        The third failing state needs a document with no charting library, so
-        it is framed rather than placed here.
+        The other two failing states draw none: a region with no id reports it
+        instead, and the missing-library state needs a document of its own.
         """
         ids = re.findall(r'<figure id="([^"]+)"', chart_region_page)
         assert len(ids) == 6
@@ -243,9 +252,15 @@ class TestTheStatesAreShownOnThatPage:
     ):
         assert 'style="height: 100%"' in chart_region_page
 
-    def test_it_shows_the_missing_attribute_state(self, chart_region_page):
+    def test_it_shows_the_missing_id_state(self, chart_region_page):
+        """The id is the one attribute still required, so it is the one shown.
+
+        A missing name or description stopped being a failing state when a
+        chart became renderable without either, so the example that used to
+        stand here demonstrated something the package no longer does.
+        """
         assert 'role="alert"' in chart_region_page
-        assert "has no description" in chart_region_page
+        assert "has no id" in chart_region_page
 
     def test_it_frames_the_missing_library_state(self, chart_region_page):
         """The library check reads a global, so that state needs its own document.

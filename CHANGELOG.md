@@ -7,17 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-The first component: a chart region. Nothing draws into it yet, and nothing
-has been released.
+The chart region, and the first chart type that draws into it: a line chart.
+Nothing has been released.
 
 ### Added
 
 - `<c-echarts.region>`, the space a chart is drawn into. It fills the element
   around it and has no height of its own, so the project's own wrapper decides
-  how big it is. `id`, `name` and `description` are all required: the id ties
-  the caption to the right chart, and the other two carry the accessible name
-  and the text alternative. Leaving any of them out replaces the region with a
-  message naming what is missing, rather than rendering with an empty value.
+  how big it is. `id` ties the caption to the right chart and is required;
+  leaving it out, or passing it empty, replaces the region with a message
+  saying so. `name` and `description` carry the accessible name and the text
+  alternative, and are optional: given, they are carried exactly as written;
+  left out or given empty, the region still renders without them.
 - `mvp_charts/locale/`, with a base English catalog. These are the package's
   first user-facing strings.
 - A demo page showing a region in a sized wrapper, four more at four different
@@ -65,6 +66,38 @@ has been released.
   ECharts, one for this package's module — and what makes the first safe to
   copy. The package ships no charting library, names no origin and renders no
   script tag, so installing it adds nothing a project did not ask for.
+- `<c-echarts.line>`, the first chart type: a line chart drawn from values and
+  point labels written directly on the tag as Python values, never as text —
+  the package splits nothing, guesses at no numbers and reports no mistake, so
+  data written as text simply does not draw. Labels are optional; without them
+  the points still draw, in the order the values were given. Every value is
+  drawn exactly as given, with nothing reordered, dropped, combined, rounded
+  or filled in. Carries the same `id`, `name` and `description` a chart region
+  does, `id` required and the other two optional, and keeps filling its
+  wrapper exactly as a region does.
+- `mvp_charts/js/echarts-chart.js`, the module a line chart needs in the
+  browser: it waits for its region to report ready, draws into it, and
+  redraws on the resize contract the region already publishes — no library
+  poll, no height check and no resize observer of its own, because the region
+  already owns all three.
+- The demo project shows a line chart on a page of its own, first in its new
+  Charts section, alongside a bare chart region to show that the two never
+  read or change each other's state.
+- The README shows the complete markup for a line chart, including the
+  wrapper that sizes it, and states plainly that an attribute carrying data
+  takes a Python value written with a colon.
+- The demo's line page shows the smallest working chart — one tag, an id
+  and values — beside the fully-described one, and the README states what
+  omitting the name and the text alternative costs the people reading the
+  page.
+- `:options`, reaching any ECharts option a chart component does not name.
+  Deep-merged over the object the component built: a mapping merges
+  recursively, a list replaces a list, and `series` is matched entry by entry
+  against position so an option added to an entry keeps that entry's own
+  data. No key is filtered anywhere the merge looks, including one this
+  package has never heard of. The README shows appearance belonging to the
+  page and a colour set by the author through `:options`, rather than one
+  this package supplied or derived from the running theme.
 
 ### Changed
 

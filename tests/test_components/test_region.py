@@ -116,7 +116,13 @@ class TestChartRegionIdentity:
 
 
 class TestMissingAttributes:
-    """A missing id, name or text alternative replaces the region rather than degrading it."""
+    """A missing id replaces the region rather than degrading it.
+
+    FR-010 supersedes FS-001's rule that a missing name or a missing text
+    alternative does the same: those two branches are gone from
+    region.html, so a region that carries only an id now renders. The id
+    stays the one thing whose absence is still reported.
+    """
 
     def test_missing_id_names_it_and_renders_no_region(self):
         html = render(
@@ -127,21 +133,17 @@ class TestMissingAttributes:
         assert "id" in alert.group(1).lower()
         assert "<figure" not in html
 
-    def test_missing_name_names_it_and_renders_no_region(self):
+    def test_missing_name_no_longer_blocks_the_region_fr_010(self):
         html = render(
             '<c-echarts.region id="revenue" description="Revenue by month." />'
         )
-        alert = re.search(r'<div[^>]*role="alert"[^>]*>(.*?)</div>', html, re.S)
-        assert alert is not None
-        assert "name" in alert.group(1).lower()
-        assert "<figure" not in html
+        assert 'role="alert"' not in html
+        assert '<figure id="revenue"' in html
 
-    def test_missing_description_names_it_and_renders_no_region(self):
+    def test_missing_description_no_longer_blocks_the_region_fr_010(self):
         html = render('<c-echarts.region id="revenue" name="Revenue" />')
-        alert = re.search(r'<div[^>]*role="alert"[^>]*>(.*?)</div>', html, re.S)
-        assert alert is not None
-        assert "description" in alert.group(1).lower()
-        assert "<figure" not in html
+        assert 'role="alert"' not in html
+        assert '<figure id="revenue"' in html
 
     def test_empty_string_id_is_treated_as_missing(self):
         html = render(
@@ -150,26 +152,91 @@ class TestMissingAttributes:
         assert 'role="alert"' in html
         assert "<figure" not in html
 
-    def test_empty_string_name_is_treated_as_missing(self):
+    def test_empty_string_name_is_treated_as_not_given_fr_010(self):
         html = render(
             '<c-echarts.region id="revenue" name="" description="Revenue by month." />'
         )
-        assert 'role="alert"' in html
-        assert "<figure" not in html
+        assert 'role="alert"' not in html
+        assert '<figure id="revenue"' in html
 
-    def test_empty_string_description_is_treated_as_missing(self):
+    def test_empty_string_description_is_treated_as_not_given_fr_010(self):
         html = render('<c-echarts.region id="revenue" name="Revenue" description="" />')
-        assert 'role="alert"' in html
-        assert "<figure" not in html
+        assert 'role="alert"' not in html
+        assert '<figure id="revenue"' in html
 
-    def test_all_three_missing_names_all_three(self):
+    def test_all_three_missing_names_only_the_id_fr_010(self):
         html = render("<c-echarts.region />")
         alert = re.search(r'<div[^>]*role="alert"[^>]*>(.*?)</div>', html, re.S)
         assert alert is not None
         message = alert.group(1).lower()
         assert "id" in message
-        assert "name" in message
-        assert "description" in message
+        assert "name" not in message
+        assert "description" not in message
+
+
+class TestOptionalNameAndDescription:
+    """US2: a region with only an id renders, per FR-008, FR-009 and FR-010.
+
+    The previous feature made an accessible name and a text alternative a
+    condition of the region rendering at all. This feature keeps both
+    available and worth giving, and stops requiring either.
+    """
+
+    def test_a_region_with_only_an_id_renders_with_no_missing_message(self):
+        html = render('<c-echarts.region id="revenue" />')
+        assert 'role="alert"' not in html
+        assert "has no name" not in html
+        assert "has no description" not in html
+        assert '<figure id="revenue"' in html
+
+    def test_the_surface_carries_no_role_and_no_aria_label_without_a_name(self):
+        html = render(
+            '<c-echarts.region id="revenue" description="Revenue by month." />'
+        )
+        surface = re.search(
+            r"<div[^>]*data-mvp-chart-region-surface[^>]*>", html
+        ).group(0)
+        assert "role=" not in surface
+        assert "aria-label" not in surface
+
+    def test_no_figcaption_without_a_description(self):
+        html = render('<c-echarts.region id="revenue" name="Revenue" />')
+        assert "<figcaption" not in html
+
+    def test_name_and_description_are_still_carried_exactly_when_given(self):
+        """FR-009: giving both still works precisely as the previous feature specified."""
+        html = render(A_REGION)
+        surface = re.search(
+            r"<div[^>]*data-mvp-chart-region-surface[^>]*>", html
+        ).group(0)
+        assert 'role="img"' in surface
+        assert 'aria-label="Monthly revenue"' in surface
+        figcaption = re.search(
+            r'<figcaption[^>]*class="sr-only"[^>]*>(.*?)</figcaption>', html
+        )
+        assert figcaption is not None
+        assert figcaption.group(1).strip() == "Revenue by month, in EUR."
+
+    def test_an_empty_name_is_not_carried_as_an_empty_attribute(self):
+        html = render(
+            '<c-echarts.region id="revenue" name="" description="Revenue by month." />'
+        )
+        surface = re.search(
+            r"<div[^>]*data-mvp-chart-region-surface[^>]*>", html
+        ).group(0)
+        assert "aria-label" not in surface
+
+    def test_an_empty_description_is_not_carried_as_an_empty_figcaption(self):
+        html = render('<c-echarts.region id="revenue" name="Revenue" description="" />')
+        assert "<figcaption" not in html
+
+    def test_a_missing_id_is_still_reported_when_name_and_description_are_given(self):
+        html = render(
+            '<c-echarts.region name="Revenue" description="Revenue by month." />'
+        )
+        alert = re.search(r'<div[^>]*role="alert"[^>]*>(.*?)</div>', html, re.S)
+        assert alert is not None
+        assert "id" in alert.group(1).lower()
 
 
 FIXTURE_LOCALE = Path(__file__).resolve().parent.parent / "locale"
@@ -182,22 +249,26 @@ class TestTranslatedMessages:
     this test brings its own fixture catalog under `tests/locale/` rather
     than requiring a real second language to ship. It proves the wrapping
     and the catalog mechanics; the fixture is not distributed.
+
+    FR-010 removes the missing-name message this fixture catalog used to
+    translate, so the fixture and these tests exercise the message that
+    survives — the missing-id one — instead.
     """
 
     @override_settings(LOCALE_PATHS=[FIXTURE_LOCALE])
     def test_a_translated_message_is_shown_under_its_language(self):
         with translation.override("de"):
             html = render(
-                '<c-echarts.region id="revenue" description="Revenue by month." />'
+                '<c-echarts.region name="Revenue" description="Revenue by month." />'
             )
-        assert "Diese Diagrammfläche hat keinen Namen." in html
-        assert "This chart region has no name." not in html
+        assert "Diese Diagrammfläche hat keine ID." in html
+        assert "This chart region has no id." not in html
 
     def test_the_english_source_string_shows_with_no_translation_active(self):
         html = render(
-            '<c-echarts.region id="revenue" description="Revenue by month." />'
+            '<c-echarts.region name="Revenue" description="Revenue by month." />'
         )
-        assert "This chart region has no name." in html
+        assert "This chart region has no id." in html
 
 
 class TestFailureMessages:

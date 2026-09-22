@@ -5,15 +5,20 @@
 {# wrapper — the host project's own sized element — is the only  #}
 {# thing that decides how big a region is.                       #}
 {#                                                                #}
-{# Props, all three required:                                     #}
+{# Props:                                                         #}
 {#   id          – element id, which the caption and the drawing  #}
-{#                 surface are tied to                            #}
-{#   name        – accessible name for the chart                  #}
-{#   description – text alternative for what the chart shows      #}
+{#                 surface are tied to. Required: the package     #}
+{#                 invents none (FR-010).                         #}
+{#   name        – accessible name for the chart. Optional; when  #}
+{#                 given, carried as the surface's aria-label.    #}
+{#   description – text alternative for what the chart shows.     #}
+{#                 Optional; when given, carried as a figcaption. #}
 {#                                                                #}
-{# Any of the three missing or empty replaces the region with a  #}
-{# visible message naming what is missing, rather than rendering  #}
-{# with an empty value.                                          #}
+{# A missing id replaces the region with a visible message naming #}
+{# it, rather than rendering with an empty value. A missing name   #}
+{# or description no longer does (FR-008, FR-010): the region     #}
+{# renders without the attribute it was not given, and an empty   #}
+{# string is treated the same as not given (FR-009).              #}
 {#                                                                #}
 {# The region loads nothing. chart-region.js is a script tag the  #}
 {# project puts in its own base template, next to the charting    #}
@@ -22,13 +27,9 @@
 {# ============================================================ #}
 <c-vars id="" name="" description="" />
 {% load i18n %}
-{% if not id or not name or not description %}
+{% if not id %}
   <div class="alert alert-error" role="alert" data-mvp-chart-region-error>
-    <span>
-      {% if not id %}{% trans "This chart region has no id." %}{% endif %}
-      {% if not name %}{% trans "This chart region has no name." %}{% endif %}
-      {% if not description %}{% trans "This chart region has no description." %}{% endif %}
-    </span>
+    <span>{% trans "This chart region has no id." %}</span>
   </div>
 {% else %}
   {% comment %}
@@ -45,10 +46,11 @@
           data-mvp-chart-region-missing-library="{% trans 'No charting library to draw with. Load ECharts from your own base template, or expose it as window.echarts from your bundle.' %}"
           data-mvp-chart-region-no-height="{% trans 'No height to fill. Give the element around this chart a height: a chart region takes its size from its wrapper and has none of its own.' %}">
     <div class="absolute inset-0"
-         role="img"
-         aria-label="{{ name }}"
-         aria-describedby="{{ id }}-description"
+         {% if name %}role="img" aria-label="{{ name }}"{% endif %}
+         {% if description %}aria-describedby="{{ id }}-description"{% endif %}
          data-mvp-chart-region-surface></div>
-    <figcaption id="{{ id }}-description" class="sr-only">{{ description }}</figcaption>
+    {% if description %}
+      <figcaption id="{{ id }}-description" class="sr-only">{{ description }}</figcaption>
+    {% endif %}
   </figure>
 {% endif %}
