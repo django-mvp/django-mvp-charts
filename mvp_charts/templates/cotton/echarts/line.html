@@ -7,8 +7,6 @@
 {# @prop :series:text | description:"Several named series: [{'name': …, 'data': [...], 'color': …}]. color is any colour ECharts understands, forwarded untouched" #}
 {# @prop :config:text | description:"An object carrying any of these same attributes, built in Python. An attribute written on the tag wins over the same key here" #}
 {# @prop :options:text | description:"Raw ECharts options, deep-merged over everything the component built. Series colour lives here too, as options.color" #}
-{# @prop empty:text | description:"What to say when there is nothing to draw. Defaults to a translated message" #}
-{# @prop renderer:select['canvas', 'svg'] | description:"Which ECharts renderer draws this chart. Defaults to canvas" #}
 {# @prop id:text | description:"Element id. Assigned per request when omitted" #}
 {% comment %}
   Every attribute is declared with an empty default on purpose: a component's
@@ -16,9 +14,9 @@
   Cotton cannot tell an absent attribute from one written empty. The defaults
   live in mvp_charts.echarts.options instead.
 {% endcomment %}
-<c-vars name="" description="" labels="" values="" series="" config="" options="" empty="" renderer="" id="" />
+<c-vars name="" description="" labels="" values="" series="" config="" options="" id="" />
 {% load mvp_charts %}
-{% echarts_chart "line" name=name description=description labels=labels values=values series=series config=config options=options empty=empty renderer=renderer id=id as chart %}
+{% echarts_chart "line" name=name description=description labels=labels values=values series=series config=config options=options id=id as chart %}
 <c-echarts.region name="{{ chart.name }}"
                   description="{{ chart.description }}"
                   id="{{ chart.id }}"

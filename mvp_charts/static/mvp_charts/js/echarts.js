@@ -2,12 +2,11 @@
  * Drawing into a chart region with ECharts.
  *
  * The server decided everything it can: which chart type, which values, which
- * axes, and what the empty message says. This file does the three things only a
- * running page can.
+ * axes, and which renderer. This file does the two things only a running page
+ * can.
  *
  *   1. Hand the options to ECharts once the region says it is ready.
  *   2. Redraw at the new size on every resize the region reports.
- *   3. Say there is nothing to draw, where the chart would have been.
  *
  * Colour is not here either. Series take ECharts' own palette unless the chart
  * named one, and this package makes no attempt to follow the daisyUI theme: a
@@ -40,28 +39,6 @@
     }
   }
 
-  /*
-   * Say there is nothing to draw, where the chart would have been.
-   *
-   * A chart with no data draws an empty rectangle, which is the exact failure
-   * this package exists not to produce: indistinguishable from a broken chart,
-   * a missing library, or a wrapper with no height. The wording comes from the
-   * server so it is translated with everything else.
-   */
-  function reportEmpty(region, message) {
-    var surface = region.querySelector("[data-mvp-chart-region-surface]");
-    if (!surface) {
-      return;
-    }
-    surface.textContent = "";
-    var note = document.createElement("p");
-    note.className =
-      "text-base-content/60 grid h-full place-items-center p-4 text-sm";
-    note.setAttribute("role", "status");
-    note.textContent = message || "";
-    surface.appendChild(note);
-  }
-
   function Drawing(region, payload) {
     this.region = region;
     this.payload = payload;
@@ -74,7 +51,7 @@
       return;
     }
     this.instance = window.echarts.init(this.surface, null, {
-      renderer: this.payload.renderer === "svg" ? "svg" : "canvas",
+      renderer: this.payload.renderer,
     });
     var options = this.payload.options;
     /*
@@ -119,10 +96,6 @@
      * message in the page, so there is nothing to add here.
      */
     var begin = function () {
-      if (!payload.options) {
-        reportEmpty(region, payload.empty);
-        return;
-      }
       var drawing = new Drawing(region, payload);
       drawing.draw();
       region.addEventListener("mvp-chart-region:resize", function () {

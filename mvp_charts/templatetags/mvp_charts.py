@@ -15,6 +15,7 @@ from django.utils.html import format_html, json_script
 from django.utils.safestring import SafeString
 
 from mvp_charts import versions
+from mvp_charts.config import MVP_CHARTS_CONFIG
 from mvp_charts.echarts.options import CHART_TYPES, Chart
 
 register = template.Library()
@@ -114,11 +115,15 @@ class RenderedChart:
 
         `DjangoJSONEncoder` is what lets a view pass the values it actually has
         — dates, times, decimals — without converting them first.
+
+        The renderer rides along beside the options rather than being read in
+        the browser, because it is an argument to `echarts.init` and not one of
+        the options at all. It is a project setting, so every chart on a page
+        carries the same answer.
         """
         payload: dict[str, Any] = {
-            "renderer": self.chart.renderer,
-            "empty": str(self.chart.empty),
-            "options": None if self.chart.is_empty else self.chart.options(),
+            "renderer": MVP_CHARTS_CONFIG["echarts"]["renderer"],
+            "options": self.chart.options(),
         }
         return json_script(payload, self.script_id, encoder=ChartJSONEncoder)
 

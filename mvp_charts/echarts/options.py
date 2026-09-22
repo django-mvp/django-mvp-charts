@@ -31,11 +31,6 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any
 
-from django.utils.translation import gettext_lazy as _
-
-#: The wording shown in place of a chart that has nothing to draw.
-DEFAULT_EMPTY_MESSAGE = _("No data to chart.")
-
 
 class Attribute:
     """Reading one attribute that carries data rather than text.
@@ -139,9 +134,15 @@ class Chart:
     """The options object one chart component hands to ECharts.
 
     Subclasses differ only in their axes and in what one datum is. Everything
-    else — the grid, the legend, the tooltip, the empty case, the raw-options
-    merge — is shared, because a vocabulary that means the same thing on four
-    charts has to be built in one place to stay that way.
+    else — the grid, the legend, the tooltip, the raw-options merge — is
+    shared, because a vocabulary that means the same thing on four charts has
+    to be built in one place to stay that way.
+
+    **A chart with no data is a chart with no data.** The options are built and
+    handed over exactly as they are for any other, and ECharts draws whatever
+    it draws for an empty series. The package writes no message, because what a
+    page should show when it has nothing to plot is the page's decision, and
+    one made here could not be undone from a template.
     """
 
     #: The ECharts series type this chart draws.
@@ -162,8 +163,6 @@ class Chart:
         values: Any = None,
         series: Any = None,
         options: Any = None,
-        empty: str = "",
-        renderer: str = "canvas",
         **extra: Any,
     ) -> None:
         self.name = name
@@ -171,8 +170,6 @@ class Chart:
         self.labels = [str(label) for label in (Attribute.value(labels) or [])]
         self.series = Series.read(series) or self._single_series(values)
         self.raw_options = Attribute.mapping(options)
-        self.empty = empty or DEFAULT_EMPTY_MESSAGE
-        self.renderer = "svg" if str(renderer).lower() == "svg" else "canvas"
         self.configure(**extra)
 
     def configure(self, **extra: Any) -> None:
@@ -236,11 +233,6 @@ class Chart:
         return not (isinstance(value, str) and not value.strip())
 
     # -- the options object ---------------------------------------------------
-
-    @property
-    def is_empty(self) -> bool:
-        """Whether there is anything at all to draw."""
-        return not any(series.data for series in self.series)
 
     def options(self) -> dict[str, Any]:
         """The full ECharts options object, with the raw ones merged last."""
