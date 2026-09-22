@@ -309,3 +309,19 @@ appearance decision, no unrelated edit to either file.
 
 **ADR:** none — plumbing implied by the story's own acceptance criteria, not an architecture
 decision.
+
+## D11 — the options module's internals are documented on a page, not just in docstrings
+
+**Decided**: `docs/options.md` describes `Attribute`, `Line` and `Merge` — what each is responsible
+for and what it deliberately does not do — and the README's styling section links to it. The three
+classes also lose their leading-underscore attribute and method names.
+
+**Why**: this feature is the first to add public Python names to the package, and the documentation
+gate reads `docs/` rather than docstrings: three names no page mentioned is a red gate, and a real
+gap for anyone adding a second chart type, who needs to reuse these decisions rather than
+reimplement them. The page says plainly that the template is the supported way to configure a chart
+and these classes are the namespace's internals, so documenting them does not turn them into an API
+to import. The underscore names go because marking something private with an underscore prefix is
+not a convention these repositories use, and this is new code.
+
+**ADR:** none — a documentation and naming correction, nothing downstream inherits it.

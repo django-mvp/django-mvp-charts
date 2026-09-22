@@ -244,23 +244,69 @@
       "priority": "P3",
       "issue": 27,
       "worktree": null,
-      "status": "todo",
+      "status": "done",
       "replans": 0,
       "tasks": [
         {
           "id": "T012a",
-          "status": "todo",
-          "attempts": 0
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests": [
+              "tests/test_echarts/test_options.py::TestMerge::test_a_mapping_merges_deeply",
+              "tests/test_echarts/test_options.py::TestMerge::test_the_overrides_value_wins_on_a_key_both_sides_name",
+              "tests/test_echarts/test_options.py::TestMerge::test_a_list_replaces_a_list_rather_than_merging_element_by_element",
+              "tests/test_echarts/test_options.py::TestMerge::test_series_merges_entry_by_entry_against_position",
+              "tests/test_echarts/test_options.py::TestMerge::test_series_merge_leaves_an_unnamed_position_untouched",
+              "tests/test_echarts/test_options.py::TestMerge::test_series_merge_carries_an_entry_beyond_the_base_length",
+              "tests/test_echarts/test_options.py::TestMerge::test_a_key_this_package_has_never_heard_of_arrives_unchanged",
+              "tests/test_echarts/test_options.py::TestMerge::test_nothing_named_by_the_base_is_dropped"
+            ],
+            "commands": [
+              "poetry run pytest tests/test_echarts/test_options.py -q",
+              "poetry run pytest tests/test_echarts/test_options.py -q"
+            ]
+          }
         },
         {
           "id": "T012",
-          "status": "todo",
-          "attempts": 0
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests": [
+              "tests/test_components/test_line.py::TestOptionsAttribute::test_options_wins_on_every_key_it_names",
+              "tests/test_components/test_line.py::TestOptionsAttribute::test_a_mapping_in_options_merges_recursively",
+              "tests/test_components/test_line.py::TestOptionsAttribute::test_a_list_in_options_replaces_a_list_rather_than_merging",
+              "tests/test_components/test_line.py::TestOptionsAttribute::test_series_in_options_merges_entry_by_entry_and_keeps_the_data",
+              "tests/test_components/test_line.py::TestOptionsAttribute::test_a_key_this_package_has_never_heard_of_arrives_unchanged",
+              "tests/test_components/test_line.py::TestOptionsAttribute::test_no_options_attribute_leaves_the_built_object_untouched",
+              "tests/test_components/test_line.py::TestNoAppearanceOfItsOwn::test_the_built_object_is_byte_for_byte_the_dictionary_and_nothing_more",
+              "tests/test_components/test_line_e2e.py::TestAnAuthorSuppliedColourReachesTheLiveInstance::test_the_colour_written_on_the_tag_is_the_colour_echarts_drew_with"
+            ],
+            "commands": [
+              "poetry run pytest tests/test_components/test_line.py -q",
+              "poetry run pytest tests/test_components/test_line.py -q",
+              "poetry run pytest tests/test_components/test_line_e2e.py -q"
+            ]
+          }
         },
         {
           "id": "T013",
-          "status": "todo",
-          "attempts": 0
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "commands": [
+              "poetry run pytest tests/test_echarts/test_options.py tests/test_components/test_line.py -q",
+              "poetry run pytest tests/test_components/test_line_e2e.py -q",
+              "poetry run pytest tests/test_demo.py -q",
+              "poetry run mypy mvp_charts/echarts/options.py mvp_charts/templatetags/mvp_charts.py",
+              "poetry run ruff check mvp_charts/echarts/options.py mvp_charts/templatetags/mvp_charts.py tests/test_echarts/test_options.py tests/test_components/test_line.py tests/test_components/test_line_e2e.py",
+              "poetry run ruff format --check mvp_charts/echarts/options.py mvp_charts/templatetags/mvp_charts.py tests/test_echarts/test_options.py tests/test_components/test_line.py tests/test_components/test_line_e2e.py",
+              "poetry run pytest -q",
+              "poetry run pre-commit run --all-files",
+              "cd /home/sam/.openclaw/workspaces/forge/engineering-org/kit && ./forge verify --repo /home/sam/projects/django-mvp/charts-fs002-line-chart"
+            ]
+          }
         }
       ]
     }

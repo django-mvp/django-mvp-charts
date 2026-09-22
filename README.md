@@ -133,6 +133,8 @@ That chart draws with the colour given, and no other. This package neither suppl
 
 The merge is deep: a mapping in `:options` merges recursively with the mapping the component built, rather than replacing it wholesale, so `{'xAxis': {'axisLine': {'show': false}}}` only turns the axis line off and leaves everything else about `xAxis` as it was. A list, `series` aside, replaces a list outright — there is no position to merge two arbitrary lists against. `series` is the one exception: its entries are matched by position, so `{'series': [{'lineStyle': {'color': '#7c3aed'}}]}` adds a line colour to the first series without touching the data that series already carries.
 
+`docs/options.md` describes how the options object is built, for anyone reading the source or adding a chart type.
+
 ## Keeping its shape
 
 A page is not a fixed rectangle. The window is resized, a sidebar collapses, a tab reveals content that was hidden when the page loaded. A region tracks the element around it through all of that, so it is never left at a size the page has stopped having.
