@@ -210,7 +210,7 @@ An attribute earns its name by being needed often enough that spelling it out in
 visible cost. The test at review is whether removing the attribute would make a common chart
 meaningfully worse to write.
 
-### Article XV — Rendered output is a contract, and a chart is not only a picture
+### Article XV — Rendered output is a contract, and how a chart looks belongs to the page
 
 Components render valid, semantic HTML. Every packaged component has a test proving it renders,
 and a change to its output updates or adds a test asserting the part of the contract it changed.
@@ -218,14 +218,20 @@ Assertions are made against rendered output, never against the presence of a cla
 assertion proves a string is in a template and says nothing about what the browser draws.
 
 A chart drawn into a canvas is invisible to assistive technology and to anyone who cannot
-distinguish the colours. Components therefore carry an accessible name and a text alternative
-describing what the chart shows, and neither is optional or silently defaulted to the empty
-string. Where a backend can render to SVG, that option is preserved rather than hidden.
+distinguish the colours, so every component takes an accessible name and a text alternative
+describing what the chart shows, and where a backend can render to SVG that option is preserved
+rather than hidden. Neither the name nor the alternative decides whether a chart is drawn. A plain chart on a
+page that supplies its own surrounding markup is an ordinary thing to want, and refusing to draw
+one is the package overruling the page about its own content. The case for writing both is made in
+the documentation, where it can be argued rather than enforced.
 
-Colour comes from the daisyUI semantic palette supplied by django-mvp, never a literal value and
-never a hard-coded series palette. A chart follows the site's theme for the same reason every
-other component does, and a categorical palette is checked for distinguishability rather than
-picked for looks.
+Appearance is not this package's to set. A series takes the charting library's own palette and the
+library's own defaults, and a page that wants something else says so through a named attribute or
+through the options that reach the backend untouched. Colour is not derived from the theme the
+surrounding application happens to be running: matching a canvas to a running theme costs a
+colour-space implementation, something watching for the theme to change and a repaint path, and it
+makes this package responsible for a guarantee no charting library offers. Article XIV sets the
+direction for the option surface, and appearance follows the same principle.
 
 ### Article XVI — Compatibility
 
@@ -269,4 +275,4 @@ first. Do not cite it as an enforced standard until it runs in CI.
 
 ---
 
-**Version**: 1.0.0 | **Ratified**: 2026-09-21 | **Last Amended**: 2026-09-21
+**Version**: 1.1.0 | **Ratified**: 2026-09-21 | **Last Amended**: 2026-09-22

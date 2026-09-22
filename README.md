@@ -134,7 +134,7 @@ This package does not supply that tag, and there is no component here that rende
 
 ## Scope & philosophy
 
-**What this is.** A presentation layer for charts: Cotton components that take data and options as attributes and render the markup and initialisation a charting library needs. Charts read their colours from the daisyUI theme the host project is running, so they re-theme with the rest of the site instead of pinning literal colours into the template.
+**What this is.** A presentation layer for charts: Cotton components that take data and options as attributes and render the markup and initialisation a charting library needs. How a chart looks is the page's call rather than this package's: a series is drawn with the charting library's own palette and the library's own defaults until an attribute or a passed-through option says otherwise.
 
 **Each charting library gets its own namespace, and you choose one.** `<c-echarts.line>` speaks ECharts. A future Plotly namespace would speak Plotly. There is no neutral `<c-chart.line>` that renders through a swappable backend, and there is not going to be one. Charting libraries differ in small, load-bearing ways, and an interface that hides those differences can only expose what all of them have in common — then needs an escape hatch to the native options for anything real, at which point it is a translation layer you are paying to work around. Library-agnostic here means the package is not welded to one library, not that a chart is portable between them.
 
@@ -145,8 +145,9 @@ This package does not supply that tag, and there is no component here that rende
 - **Not a query or aggregation layer.** Turning a queryset into series is the project's job. This package takes the result.
 - **Not a dashboard framework.** Components render one chart each. Composing them into a page is layout, which django-mvp already handles.
 - **Not a wrapper around every ECharts option.** The common cases get named attributes. Everything else passes through to the underlying options object rather than being mirrored in Python.
+- **Not a theming layer.** Nothing here reads the daisyUI theme your site is running, translates it into chart colours, or repaints a chart when the theme changes. Deriving a palette from a running theme means implementing colour-space maths, watching for the theme to change and repainting on every chart, and it would make this package responsible for a guarantee no charting library offers. Give a chart the colours you want it to have.
 
-**Tie-breaks.** When these pull against each other: passing through beats abstracting, theme-driven beats hard-coded, and one obvious way to render a common chart beats a complete mapping of the option surface.
+**Tie-breaks.** When these pull against each other: passing through beats abstracting, what the page asked for beats a default this package invented, and one obvious way to render a common chart beats a complete mapping of the option surface.
 
 ## License
 

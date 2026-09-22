@@ -54,11 +54,12 @@ how the charting library is delivered to the browser in production.
 _Avoid_: consumer, client, downstream, user.
 
 **Theme**:
-A daisyUI theme, supplied by django-mvp and selected by the host project. Chart colours are derived
-from its semantic palette rather than written as literal colours, which is what makes a chart
-follow the site when the theme changes.
+A daisyUI theme, supplied by django-mvp and selected by the host project. It styles the page a
+chart sits on and nothing inside the chart. Colours inside a chart come from the charting library
+or from the options the page passes it, and a chart does not change when the theme does.
 _Avoid_: skin, palette (the palette is part of a theme, not a synonym for it), colour scheme
-(ECharts has a `theme` of its own, and these are bridged, not equated).
+(ECharts has a `theme` of its own, which is a different thing entirely and never a synonym for
+this one).
 
 **Delivery**:
 How the backend's JavaScript reaches the browser. Two supported answers: a CDN, used in development

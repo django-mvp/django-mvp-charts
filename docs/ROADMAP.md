@@ -76,8 +76,8 @@ Serves G1. Out of scope: querying, aggregating or reshaping data, which stays th
 *multi-feature · advances G1, G2, G4*
 
 The four shapes that cover most of what an application dashboard shows, and the item that proves
-the whole idea end to end: a template author writes one tag with attributes and gets a working,
-themed, labelled chart with no JavaScript anywhere on the page.
+the whole idea end to end: a template author writes one tag with attributes and gets a working
+chart with no JavaScript anywhere on the page.
 
 They are one item rather than four because the attribute vocabulary is the real deliverable. Built
 separately they would drift into four dialects; built together, the same words mean the same thing
@@ -95,14 +95,15 @@ it against.
 - Line, bar, pie and scatter charts, each declared with attributes alone
 - One series and several, on every type that admits the distinction
 - One attribute vocabulary across the four, rather than four parallel ones
-- Colour taken from the theme the host project is running
-- A text alternative on every chart, so it is usable without seeing it
+- An accessible name and a text alternative available on every type, so a chart can be made
+  usable without seeing it
 - Options the components do not name, reachable from the template, with a stated and tested rule
   for what happens when a named attribute and a passed option disagree
 - The demo project rendering all four, and documentation showing the tags that produced them
 
 Serves G1, G2 and G4. Out of scope: area fills, stacking and other variants, which arrive once
-enough types exist to show which of them are genuinely shared.
+enough types exist to show which of them are genuinely shared; and colour, which the charting
+library decides unless the page says otherwise.
 
 ## Expected goals: v1.0.0
 

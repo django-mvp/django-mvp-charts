@@ -298,8 +298,8 @@ Each of these belongs to a later feature or roadmap item, and none is deferred w
 - Data reaching a chart from a view, the shapes a view produces, several named series, dates, times,
   decimals and missing values, and proving that content cannot break out of the page — the next
   feature under R2.
-- Bar, pie and scatter, one attribute vocabulary across the four chart types, chart colour taken from
-  the running theme, and the rule for a named attribute disagreeing with a passed option — R3.
+- Bar, pie and scatter, one attribute vocabulary across the four chart types, and the rule for a
+  named attribute disagreeing with a passed option — R3.
 - Named attributes for axes, legends and tooltips — R5.
 - Number and date formatting — R6.
 - A second charting library alongside ECharts — R7.
