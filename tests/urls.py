@@ -18,10 +18,5 @@ urlpatterns = [
         TemplateView.as_view(template_name="probe/failures.html"),
         name="probe_failures",
     ),
-    path(
-        "probe/no-region/",
-        TemplateView.as_view(template_name="probe/no_region.html"),
-        name="probe_no_region",
-    ),
     path("", include("demo.urls")),
 ]

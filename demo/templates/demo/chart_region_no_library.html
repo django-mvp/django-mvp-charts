@@ -12,10 +12,16 @@
     <meta charset="utf-8">
     <title>A chart region with no charting library</title>
     <link rel="stylesheet" href="{% static 'css/django-mvp.css' %}">
+    {% comment %}
+      The package's own module, which reports the missing library. The
+      charting library is what this page withholds, not this.
+    {% endcomment %}
+    <script defer src="{% static 'mvp_charts/js/chart-region.js' %}"></script>
   </head>
   <body class="bg-base-100 text-base-content">
     <div style="height: 180px">
-      <c-echarts.region name="Monthly revenue"
+      <c-echarts.region id="monthly-revenue"
+                        name="Monthly revenue"
                         description="Revenue by month over the last year." />
     </div>
   </body>

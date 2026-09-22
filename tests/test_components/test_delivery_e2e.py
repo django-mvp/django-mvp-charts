@@ -97,18 +97,20 @@ class TestALateBundleIsNotAFault:
         assert page.evaluate(REGION_STATE) == "ready"
 
 
-class TestAPageWithNoRegionPaysNothing:
-    """T012: installing the package costs a page that places no region nothing."""
+class TestNoThirdPartyOriginIsContacted:
+    """A region fetches nothing, so whatever a page loads, the project asked for it.
 
-    def test_nothing_of_this_package_is_requested(self, chromium, live_server, page):
+    The probe page loads the package's module and a stand-in for the charting
+    library, both from its own origin. A region reaching for a script of its
+    own — the thing Article XII forbids — would show up here as an origin
+    nobody in the template named.
+    """
+
+    def test_a_rendered_region_contacts_no_other_origin(
+        self, chromium, live_server, page
+    ):
         requested = []
         page.on("request", lambda request: requested.append(request.url))
-        page.goto(f"{live_server.url}/probe/no-region/")
-        assert not [url for url in requested if "mvp_charts" in url]
-
-    def test_no_third_party_origin_is_contacted(self, chromium, live_server, page):
-        requested = []
-        page.on("request", lambda request: requested.append(request.url))
-        page.goto(f"{live_server.url}/probe/no-region/")
+        page.goto(f"{live_server.url}/probe/delivery/separate-file/")
         offsite = [url for url in requested if not url.startswith(live_server.url)]
         assert offsite == []

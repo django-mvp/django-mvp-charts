@@ -18,6 +18,12 @@
     {% endcomment %}
     <link rel="stylesheet" href="{% static 'css/django-mvp.css' %}">
     <title>{{ route }}</title>
+    {% comment %}
+      The package's own module, loaded by the page the way a project loads it
+      from its base template. It is what the region needs in the browser, and
+      it arrives independently of however the charting library does.
+    {% endcomment %}
+    <script defer src="{% static 'mvp_charts/js/chart-region.js' %}"></script>
     {% if route == "separate-file" %}
       <script src="{% static 'probe/echarts-stand-in.js' %}"></script>
     {% endif %}
@@ -27,7 +33,9 @@
       <script>window.echarts = { version: "stand-in" };</script>
     {% endif %}
     <div style="height: 240px">
-      <c-echarts.region name="Revenue" description="Revenue by month, in EUR." />
+      <c-echarts.region id="revenue"
+                        name="Revenue"
+                        description="Revenue by month, in EUR." />
     </div>
   </body>
 </html>

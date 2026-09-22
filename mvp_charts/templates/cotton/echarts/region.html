@@ -5,35 +5,32 @@
 {# wrapper — the host project's own sized element — is the only  #}
 {# thing that decides how big a region is.                       #}
 {#                                                                #}
-{# Props:                                                         #}
-{#   name        – accessible name for the chart (required)      #}
-{#   description – text alternative for what the chart shows     #}
-{#                 (required)                                    #}
-{#   id          – element id; auto-assigned per request when    #}
-{#                 omitted, so several regions on one page stay  #}
-{#                 independently identifiable                    #}
+{# Props, all three required:                                     #}
+{#   id          – element id, which the caption and the drawing  #}
+{#                 surface are tied to                            #}
+{#   name        – accessible name for the chart                  #}
+{#   description – text alternative for what the chart shows      #}
 {#                                                                #}
-{# A missing or empty name or description replaces the region    #}
-{# with a visible message naming what is missing, rather than    #}
-{# rendering with an empty value.                                #}
+{# Any of the three missing or empty replaces the region with a  #}
+{# visible message naming what is missing, rather than rendering  #}
+{# with an empty value.                                          #}
+{#                                                                #}
+{# The region loads nothing. chart-region.js is a script tag the  #}
+{# project puts in its own base template, next to the charting    #}
+{# library itself, so the project decides which of its pages pay  #}
+{# for it and where in the document it goes.                     #}
 {# ============================================================ #}
-<c-vars name="" description="" id="" />
+<c-vars id="" name="" description="" />
 {% load i18n %}
-{% load mvp_charts %}
-{% if not name or not description %}
+{% if not id or not name or not description %}
   <div class="alert alert-error" role="alert" data-mvp-chart-region-error>
     <span>
-      {% if not name and not description %}
-        {% trans "This chart region has no name or description." %}
-      {% elif not name %}
-        {% trans "This chart region has no name." %}
-      {% else %}
-        {% trans "This chart region has no description." %}
-      {% endif %}
+      {% if not id %}{% trans "This chart region has no id." %}{% endif %}
+      {% if not name %}{% trans "This chart region has no name." %}{% endif %}
+      {% if not description %}{% trans "This chart region has no description." %}{% endif %}
     </span>
   </div>
 {% else %}
-  {% if not id %}{% chart_region_id as id %}{% endif %}
   {% comment %}
     Both messages travel with the region rather than living in the module.
     The module cannot translate, and a second copy of these strings in
@@ -54,5 +51,4 @@
          data-mvp-chart-region-surface></div>
     <figcaption id="{{ id }}-description" class="sr-only">{{ description }}</figcaption>
   </figure>
-  {% chart_region_assets %}
 {% endif %}

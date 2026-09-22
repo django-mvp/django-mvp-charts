@@ -15,14 +15,30 @@ msgstr ""
 msgid "Charts"
 msgstr "Charts"
 
-#: mvp_charts/templates/cotton/echarts/region.html:27
-msgid "This chart region has no name or description."
-msgstr "This chart region has no name or description."
+#: mvp_charts/templates/cotton/echarts/region.html:28
+msgid "This chart region has no id."
+msgstr "This chart region has no id."
 
 #: mvp_charts/templates/cotton/echarts/region.html:29
 msgid "This chart region has no name."
 msgstr "This chart region has no name."
 
-#: mvp_charts/templates/cotton/echarts/region.html:31
+#: mvp_charts/templates/cotton/echarts/region.html:30
 msgid "This chart region has no description."
 msgstr "This chart region has no description."
+
+#: mvp_charts/templates/cotton/echarts/region.html:46
+msgid ""
+"No charting library to draw with. Add the c-echarts.cdn component to your "
+"base template, or expose ECharts as window.echarts from your bundle."
+msgstr ""
+"No charting library to draw with. Add the c-echarts.cdn component to your "
+"base template, or expose ECharts as window.echarts from your bundle."
+
+#: mvp_charts/templates/cotton/echarts/region.html:47
+msgid ""
+"No height to fill. Give the element around this chart a height: a chart "
+"region takes its size from its wrapper and has none of its own."
+msgstr ""
+"No height to fill. Give the element around this chart a height: a chart "
+"region takes its size from its wrapper and has none of its own."

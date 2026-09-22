@@ -14,13 +14,10 @@ has been released.
 
 - `<c-echarts.region>`, the space a chart is drawn into. It fills the element
   around it and has no height of its own, so the project's own wrapper decides
-  how big it is. `name` and `description` are required and carry the
-  accessible name and the text alternative; leaving either out replaces the
-  region with a message naming what is missing, rather than rendering with an
-  empty value.
-- Per-request numbering for regions without an author-supplied `id`, so
-  several regions on one page stay separately identifiable and each one's
-  description is tied to the right chart.
+  how big it is. `id`, `name` and `description` are all required: the id ties
+  the caption to the right chart, and the other two carry the accessible name
+  and the text alternative. Leaving any of them out replaces the region with a
+  message naming what is missing, rather than rendering with an empty value.
 - `mvp_charts/locale/`, with a base English catalog. These are the package's
   first user-facing strings.
 - A demo page showing a region in a sized wrapper, four more at four different
@@ -34,8 +31,12 @@ has been released.
   known to render against and the exact version the delivery component pins.
   ECharts remains undeclared as a dependency, because this package does not
   ship it.
-- A region loads the package's own module once per page, whatever the number
-  of regions on it. A page carrying no region requests nothing.
+- `mvp_charts/js/chart-region.js`, the module a chart region needs in the
+  browser. The project loads it from its own template with a `{% static %}`
+  tag, next to whichever line supplies the charting library. A region emits no
+  script tag of any kind, so which pages carry the module, where it goes in the
+  document and whether it is bundled with the project's other JavaScript stay
+  the project's decisions.
 - A region that cannot draw says why, in the page, where the chart would have
   been. A missing charting library is reported once waiting for a late bundle
   stops being a reasonable explanation, and names both ways to supply one. A
@@ -59,10 +60,11 @@ has been released.
   It shows a component live, the Cotton that produced it, and the HTML it
   rendered to.
 
-- `docs/adr/`, with the three architectural decisions this feature settled:
-  how browser behaviour is delivered, what counts as evidence for a guarantee
-  that only exists in a running page, and the single contract between this
-  package and the project that installs it.
+- `docs/adr/`, with the architectural decisions this feature settled: how
+  browser behaviour is delivered, what counts as evidence for a guarantee that
+  only exists in a running page, the single contract between this package and
+  the project that installs it, and which side of that line the script tag and
+  the region's id fall on.
 
 ### Changed
 
