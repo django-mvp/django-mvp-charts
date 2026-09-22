@@ -42,22 +42,25 @@ Components are then available under the namespace of the library they render wit
 <c-echarts.bar ... />
 ```
 
-Then load two scripts from your own base template — the charting library, and this package's module:
+Then load two scripts from your own base template — ECharts, and this package's module:
 
 ```html
 {% load static %}
 {% block extra_js %}
   {{ block.super }}
-  <c-echarts.cdn />
+  <script src="https://cdn.jsdelivr.net/npm/echarts@6.1.0/dist/echarts.min.js"
+          integrity="sha384-C2iskrW/uPW46KzOjrvJIQo4YkV8lkD+QS0CrDN18IIPIpT/g2USu8bTP3nvmIAD"
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer"></script>
   <script defer src="{% static 'mvp_charts/js/chart-region.js' %}"></script>
 {% endblock %}
 ```
 
 `chart-region.js` is what a chart region needs in the browser: it checks the library arrived, checks the region has a box to draw into, and publishes the resize contract below. It has no dependencies, is safe to evaluate twice, and is served from this package's static files.
 
-Nothing in this package emits either tag for you. Which pages carry them, where in the document they go, whether they are bundled with the rest of your JavaScript, and whether they need a nonce under your content security policy are all your project's decisions, and a component that made them on your behalf would be taking them away. If only one page in your project shows a chart, put both lines on that page instead of in the base template.
+Both lines are yours. This package emits no script tag of any kind and supplies no component that does. Which pages carry them, where in the document they go, whether they are bundled with the rest of your JavaScript, and whether they need a nonce under your content security policy are your project's decisions to make, and a component making them on your behalf would be taking them away. If one page in your project shows a chart, put both lines on that page rather than in the base template.
 
-`<c-echarts.cdn />` is the development route and is covered in full under [Getting ECharts to the browser](#getting-echarts-to-the-browser). A project that bundles ECharts itself leaves that line out and keeps the second one.
+The ECharts line above is the development route, covered in full under [Getting ECharts to the browser](#getting-echarts-to-the-browser). A project that bundles ECharts itself drops it and keeps the second line.
 
 ## Placing a chart region
 
@@ -119,27 +122,15 @@ One region failing leaves every other region on the page working.
 
 A region reads one thing: `window.echarts`. Anything that puts the library there works, and nothing in this package records or asks which route you chose.
 
-**In development**, put the delivery component in your own base template and you are done — no Node toolchain, no build step:
+**In development**, a script tag in your own base template is the whole of it — no Node toolchain, no build step. The line under [Install](#install) is one you can copy.
 
-```html
-{% block extra_js %}
-  {{ block.super }}
-  <c-echarts.cdn />
-{% endblock %}
-```
+Two details in it are worth keeping. Pin the version rather than floating it, because a URL without a version is a different file on any given day. Then `integrity` and `crossorigin` go together: a browser only checks an integrity hash on a cross-origin request made in CORS mode, so a hash without `crossorigin` is never verified while still looking as though it is.
 
-It renders one script tag, pinned to an exact version and carrying a subresource integrity hash, so the browser refuses the file if it is not the one this package was built against.
+This package does not supply that tag, and there is no component here that renders one. It ships no copy of ECharts, names no origin, and loads nothing on a reader's behalf, so installing it adds no external origin you did not choose.
 
-**In production**, build a bundle and expose the library as `window.echarts`. Delete the line above and change nothing else. ECharts ships per-chart-type and per-component entry points, so a page importing a line chart and a tooltip pays for a fraction of a full build — which is the reason this package ships no copy of the library and never loads one on a reader's behalf. A project that installs it gains no external origin it did not choose.
+**In production**, build a bundle and expose the library as `window.echarts`. Drop the script tag and change nothing else. ECharts ships per-chart-type and per-component entry points, so a page importing a line chart and a tooltip pays for a fraction of a full build, which is why the recommendation is to bundle rather than to keep loading the whole thing.
 
-`mvp_charts.versions` states what the `echarts` namespace is known to render against:
-
-| | |
-|---|---|
-| Supported range | `>=6.0,<7.0` |
-| Version the delivery component pins | `6.1.0` |
-
-The library is not a dependency of this package, so neither of those is enforced at install time. They are what the namespace claims, and a bundle outside the range is untested rather than blocked.
+`mvp_charts.versions.ECHARTS_SUPPORTED_VERSIONS` states what the `echarts` namespace is known to render against: `>=6.0,<7.0`. The library is not a dependency of this package, so that is not enforced at install time. It is what the namespace claims, and a bundle outside the range is untested rather than blocked.
 
 ## Scope & philosophy
 

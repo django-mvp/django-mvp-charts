@@ -1,6 +1,9 @@
 # ADR 0003 — `window.echarts` is the whole delivery contract, and nothing declares which route supplied it
 
 **Status:** accepted
+**Amended by:** [ADR 0005](0005-the-package-supplies-no-delivery-component.md), which removes the
+component this names as the development route. The decision below is unchanged: the global is still
+the whole contract, and nothing still declares which route supplied it.
 
 ## Decision
 

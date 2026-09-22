@@ -215,9 +215,13 @@ class TestFailureMessages:
         assert "data-mvp-chart-region-no-height=" in figure
 
     def test_the_missing_library_message_names_both_ways_to_supply_it(self):
-        """A message that only says what is wrong leaves the reader stuck."""
+        """A message that only says what is wrong leaves the reader stuck.
+
+        Neither route is a thing this package supplies, so the message names
+        what the reader has to do rather than a component they could place.
+        """
         message = self.message(render(A_REGION), "missing-library")
-        assert "c-echarts.cdn" in message
+        assert "your own base template" in message
         assert "window.echarts" in message
 
     def test_the_no_height_message_says_where_the_height_belongs(self):

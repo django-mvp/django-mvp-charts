@@ -62,7 +62,7 @@ class TestMissingLibrary:
             timeout=15000,
         )
         message = page.evaluate(MESSAGE_TEXT)
-        assert "c-echarts.cdn" in message
+        assert "your own base template" in message
         assert "window.echarts" in message
 
 

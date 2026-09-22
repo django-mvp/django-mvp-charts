@@ -7,19 +7,26 @@
   "base.html" by that name, and because it is the one place a project-wide
   override goes.
 
-  Both scripts are loaded here, by this project, rather than by any component.
-  The charting library first: installing the package adds no external origin a
-  project did not choose, and a project that builds its own bundle deletes that
-  line and exposes the library as window.echarts instead.
+  Both scripts are loaded here, by this project. Neither comes from the
+  package, which supplies no script tag of any kind.
+
+  ECharts first, from a public copy, which is what a project does while it has
+  no build step. The version is pinned and carries an integrity hash, so the
+  browser refuses the file if it is not the one it was expected to be.
+  `crossorigin` is not decoration: a browser only checks integrity on a
+  cross-origin request made in CORS mode, so without it the hash is never
+  verified while still looking as though it is. A project that builds its own
+  bundle drops this line and exposes the library as window.echarts instead.
 
   Then the package's own module, which is what a chart region needs in the
-  browser. It is here for the same reason — the project decides which of its
-  pages carry it and where in the document it goes. A demo whose every page
-  shows a chart puts it in the base template; a project with one dashboard
-  among fifty pages would put it on that page instead.
+  browser. A demo whose every page shows a chart puts it in the base template.
+  A project with one dashboard among fifty pages would put it on that page.
 {% endcomment %}
 {% block extra_js %}
   {{ block.super }}
-  <c-echarts.cdn />
+  <script src="https://cdn.jsdelivr.net/npm/echarts@6.1.0/dist/echarts.min.js"
+          integrity="sha384-C2iskrW/uPW46KzOjrvJIQo4YkV8lkD+QS0CrDN18IIPIpT/g2USu8bTP3nvmIAD"
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer"></script>
   <script defer src="{% static 'mvp_charts/js/chart-region.js' %}"></script>
 {% endblock extra_js %}

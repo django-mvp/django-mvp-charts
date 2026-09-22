@@ -23,14 +23,10 @@ has been released.
 - A demo page showing a region in a sized wrapper, four more at four different
   heights, the markup that produced them, and every state a region can be in
   when it cannot draw.
-- `<c-echarts.cdn>`, the development delivery: one script tag, pinned to an
-  exact ECharts version and carrying a subresource integrity hash. A project
-  places it in its own base template. No component emits it, so installing
-  this package adds no external origin a project did not choose.
 - `mvp_charts.versions`, stating the ECharts range the `echarts` namespace is
-  known to render against and the exact version the delivery component pins.
-  ECharts remains undeclared as a dependency, because this package does not
-  ship it.
+  known to render against. ECharts remains undeclared as a dependency, because
+  this package does not ship it, and the range is not enforced anywhere — a
+  bundle outside it is untested rather than blocked.
 - `mvp_charts/js/chart-region.js`, the module a chart region needs in the
   browser. The project loads it from its own template with a `{% static %}`
   tag, next to whichever line supplies the charting library. A region emits no
@@ -63,8 +59,12 @@ has been released.
 - `docs/adr/`, with the architectural decisions this feature settled: how
   browser behaviour is delivered, what counts as evidence for a guarantee that
   only exists in a running page, the single contract between this package and
-  the project that installs it, and which side of that line the script tag and
+  the project that installs it, and which side of that line the script tags and
   the region's id fall on.
+- The README shows the two script tags a project writes for itself — one for
+  ECharts, one for this package's module — and what makes the first safe to
+  copy. The package ships no charting library, names no origin and renders no
+  script tag, so installing it adds nothing a project did not ask for.
 
 ### Changed
 

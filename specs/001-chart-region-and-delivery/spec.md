@@ -189,7 +189,7 @@ its wrapper's.
 **Getting the library to the browser — US2**
 
 - **FR-008**: A project in development MUST be able to render a working chart region without
-  installing a JavaScript toolchain and without running a build.
+  installing a JavaScript toolchain and without running a build, by writing a script tag of its own.
 - **FR-009**: A project that builds a bundle exposing the charting library MUST have that bundle used,
   without adding any project setting naming which delivery is in play.
 - **FR-010**: The package MUST NOT vendor, serve or bundle a charting library, and a chart region MUST
@@ -200,10 +200,14 @@ its wrapper's.
   the project's other JavaScript are the project's decisions, and the package MUST NOT take any of
   them.
 - **FR-011**: The package MUST state, per namespace, the range of the charting library's own versions
-  it is known to render against, and MUST NOT pin that library as a dependency.
+  it is known to render against, and MUST NOT pin that library as a dependency. It MUST NOT name a
+  version, a URL or an origin for the library anywhere else, because doing so would make the package
+  a party to a delivery decision it does not take.
 - **FR-012**: The documentation MUST state both ways the library reaches the browser and what a
-  project does for each, and MUST show the script tag that loads the package's own module, since none
-  of it is discoverable from the component surface.
+  project does for each, MUST show a script tag that loads the library and a script tag that loads the
+  package's own module, and MUST state what makes the first of those safe to copy. None of it is
+  discoverable from the component surface, and the package supplies no component that would make it
+  so.
 
 **Saying what is wrong — US3**
 
@@ -332,6 +336,18 @@ founding notes. Rationale too long to carry here is in `decisions.md`.
   stable only until a region is added above it. Both are removed, the id joins the required
   attributes, and a breaking change is what the changelog is for. Integrated into FR-004, FR-005,
   FR-006, FR-010a and FR-012, and SC-008 is withdrawn.
+
+- **Q**: `<c-echarts.cdn />` is a component the project places itself, not one a region emits. Does
+  the same reasoning reach it?
+  **A**: Yes, and it is removed. The project supplies its own script tag. A component wrapping a URL
+  and a hash is not a thing a developer needs written for them, and the package holding those two
+  values makes it a party to a delivery decision it does not take: a project pinning a different
+  version, serving the library from its own origin, or loading it from a bundle gets no use from the
+  component and cannot change what it renders. The pinned version, the integrity hash and the origin
+  leave the package entirely, and the documentation shows the tag and states what makes it safe to
+  copy. The supported range stays, because nothing else answers what the namespace renders against.
+  The package now emits no script tag from any surface, which is what makes FR-010a exceptionless.
+  Integrated into FR-008, FR-011 and FR-012.
 
 ## Assumptions
 

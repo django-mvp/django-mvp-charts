@@ -76,6 +76,17 @@ class TestShippedTemplates:
         leftover = [line.strip() for line in source.splitlines() if line.strip()]
         assert leftover == []
 
+    @pytest.mark.parametrize(**BY_TEMPLATE)
+    def test_no_shipped_template_names_a_remote_origin(self, template):
+        """Article XII, asserted over what ships rather than left to review.
+
+        A component that loaded a third-party script on a reader's behalf
+        would give every project installing this package an external origin
+        it did not choose. There is no exception to this and no template that
+        gets one: every script a page loads is a line some project wrote.
+        """
+        assert not re.search(r"https?://", template.read_text())
+
     def test_a_rendered_region_carries_no_explanation_of_itself(self):
         """The end state the checks above exist to protect.
 
@@ -83,7 +94,9 @@ class TestShippedTemplates:
         about how the component works.
         """
         html = render(
-            '<c-echarts.region name="Revenue" description="Revenue by month." />'
+            '<c-echarts.region id="revenue" name="Revenue"'
+            ' description="Revenue by month." />'
         )
+        assert "<figure" in html, "this has to be a rendered region, not the guard"
         for tell in ("the module", "Article", "data attributes", "{#", "#}"):
             assert tell not in html

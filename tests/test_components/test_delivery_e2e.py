@@ -7,10 +7,9 @@ these tests put the same region on two pages that differ only in how the
 library arrives.
 
 What is deliberately not tested here: whether a public CDN is reachable. The
-rendered-output tests in test_cdn.py assert the delivery component's tag is
-pinned and integrity-checked, which is this package's whole contribution to
-that route. Fetching it during a test run would make the suite fail for
-reasons that say nothing about this package.
+tag that loads the library belongs to the project, not to this package, and
+fetching a third-party file during a test run would make the suite fail for
+reasons that say nothing about anything here.
 """
 
 import pytest
