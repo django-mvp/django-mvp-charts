@@ -116,3 +116,48 @@ nothing on it will be right until it is fixed, which is why that one is reported
 data is a page working correctly on a day when there is nothing to show. Whether that should be an
 empty chart, a sentence, a link or no chart at all is a decision about one page, and a page that
 wants its own answer writes it around the tag or does not render the tag.
+
+---
+
+# Planning decisions
+
+Recorded while the plan was written. Each one carries the verdict on whether it graduates to an
+architecture decision record.
+
+## D1 — the options script points at the region, not the region at the script
+
+**Decided**: the line component renders `json_script` carrying
+`data-mvp-echarts-options-for="<region id>"`, and the drawing module finds its work by querying for
+that attribute. `region.html` gains nothing and changes nothing for this.
+
+**Why**: the region is the one component that deliberately knows nothing about chart types, and a
+second backend would otherwise have to agree with ECharts about an attribute name on it. Pointing
+the other way also makes the relationship readable in the rendered output, where an id convention
+would leave it invisible from both ends.
+
+**ADR:** none — it is a wiring choice inside one namespace, and nothing downstream inherits it.
+
+## D2 — the drawing module owns nothing the region already owns
+
+**Decided**: `echarts-chart.js` subscribes to `mvp-chart-region:state` and
+`mvp-chart-region:resize`. It runs no library poll, no height check and no resize observer of its
+own.
+
+**Why**: the previous feature shipped those two events describing itself as "the contract being
+designed before there is a consumer for it". A second copy of the waiting logic would be a second
+thing to keep in step, and the two would disagree the first time either changed.
+
+**ADR:** none — it applies the rule ADR 0001 already set for the browser module.
+
+## D3 — the built options object is compared whole, not checked for absences
+
+**Decided**: the test for "no appearance decision from this package" asserts the entire options
+object equals the dictionary a person would write by hand, rather than asserting that a list of
+appearance keys is absent.
+
+**Why**: an absence list only catches the keys somebody thought to list, and the failure mode being
+guarded against is a key nobody meant to add. A whole-object comparison is also the only honest
+reading of the requirement that a chart drawn through this package asks ECharts for the same thing
+as one drawn directly.
+
+**ADR:** none — a testing choice local to this feature.
