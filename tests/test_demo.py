@@ -147,21 +147,22 @@ class TestChartRegionPage:
     def test_the_page_is_served(self, client, db):
         assert client.get(reverse("chart_region")).status_code == 200
 
-    def test_it_shows_a_region_inside_a_wrapper_with_a_visible_height(
-        self, chart_region_page
-    ):
-        """The height is on the wrapper, and the reader can see that it is.
+    def test_it_shows_a_region_whose_height_the_reader_can_see(self, chart_region_page):
+        """The height has to be visible twice, wherever it is written.
 
-        It has to be visible twice: in the live example, where the browser
-        needs it to give the region anything to fill, and in the source pane
-        beside it, where a reader copying the example needs to see that the
-        wrapper is carrying it. A region has no height of its own, so an
-        example that hid the wrapper's would not be copyable.
+        Once in the live example, where the browser needs it to give the
+        region a box at all, and once in the source pane beside it, where a
+        reader copying the example needs to see what gave it that box. An
+        example that hid its height would not be copyable.
+
+        The placement example carries its height on the tag, so that is what
+        both assertions look for. The wrapper-mode examples further down the
+        page are covered by ``TestDocumentedExample``.
         """
         assert "data-mvp-chart-region" in chart_region_page
-        assert "height: 320px" in chart_region_page
+        assert 'style="height: 320px"' in chart_region_page
         shown_source = re.sub(r"&quot;|&#39;", '"', chart_region_page)
-        assert "height: 320px" in shown_source
+        assert 'height="320px"' in shown_source
 
     def test_it_shows_six_independent_regions(self, chart_region_page):
         """Five that work, plus the no-height state, which still draws a region.
@@ -194,28 +195,53 @@ class TestChartRegionPage:
 
 
 class TestDocumentedExample:
-    """The README's example is the markup the demo actually renders."""
+    """The README's examples are the markup the demo actually renders.
 
-    def test_the_readme_example_is_the_one_the_demo_shows(self):
-        """A documented example is only worth anything if it is exercised.
+    A documented example is only worth anything if it is exercised, so each
+    one in the README's placement section has a counterpart on the chart
+    region page, and the demo page rendering is what proves it works.
+    Comparing them here is what stops the two drifting apart silently, which
+    is the usual way a README example stops being true.
 
-        The placement example in the README and the one on the chart region
-        page are the same markup, so the demo page rendering is what proves
-        the documented example works. Comparing them here is what stops the
-        two drifting apart silently, which is the usual way a README example
-        stops being true.
-        """
+    Both sizing modes are checked, and they are matched by their ids rather
+    than by the shape of the markup. An earlier version searched for the
+    first `<div style="height: ...">` block in the file: when the placement
+    example moved to the height attribute, that search silently slid onto the
+    example below it and went on passing, guarding a different example than
+    the one it named.
+    """
+
+    @staticmethod
+    def readme_example(anchor):
         readme = (Path(settings.BASE_DIR) / "README.md").read_text()
-        example = re.search(
-            r"```html\n(<div[^\n]*style=\"height: 320px\">.*?</div>)\n```",
-            readme,
-            re.S,
+        for block in re.findall(r"```html\n(.*?)\n```", readme, re.S):
+            if anchor in block:
+                return " ".join(block.split())
+        return None
+
+    @staticmethod
+    def region_page():
+        return " ".join(
+            (Path(settings.BASE_DIR) / "demo/templates/demo/chart_region.html")
+            .read_text()
+            .split()
         )
+
+    def test_the_height_attribute_example_is_the_one_the_demo_shows(self):
+        example = self.readme_example('id="monthly-revenue"')
         assert example, "the README no longer carries the placement example"
-        page = (
-            Path(settings.BASE_DIR) / "demo/templates/demo/chart_region.html"
-        ).read_text()
-        assert " ".join(example.group(1).split()) in " ".join(page.split())
+        assert 'height="320px"' in example, (
+            "the placement example no longer shows a height on the tag"
+        )
+        assert example in self.region_page()
+
+    def test_the_wrapper_example_is_the_one_the_demo_shows(self):
+        example = self.readme_example('id="signups"')
+        assert example, "the README no longer carries the wrapper-mode example"
+        assert 'style="height: 200px"' in example, (
+            "the wrapper-mode example no longer shows a sized element around the region"
+        )
+        assert example in self.region_page()
 
 
 class TestTheDemoLoadsTheLibraryItself:

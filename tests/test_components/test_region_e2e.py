@@ -24,6 +24,7 @@ MEASURE_REGIONS = """
   (region) => ({
     id: region.id,
     state: region.dataset.mvpChartRegionState,
+    carriesItsOwnHeight: region.style.height !== "",
     region: { width: region.offsetWidth, height: region.offsetHeight },
     wrapper: {
       width: region.parentElement.clientWidth,
@@ -38,12 +39,18 @@ MEASURE_REGIONS = """
 def chart_region_measurements(chromium, live_server, page):
     """The regions on the demo's chart region page that can draw, measured.
 
-    The page also carries a region whose wrapper deliberately resolves to no
-    height, to show what that state looks like. It is excluded here: it is
-    reporting rather than drawing, and it is given a readable minimum height
-    to say so, which is the one case where a region is *not* its wrapper.
-    `TestTheReportingRegionIsExcludedOnPurpose` asserts it is really there,
-    so this filter cannot quietly empty the list.
+    Two regions on the page are excluded, and both are asserted to be really
+    there elsewhere, so neither filter can quietly empty the list.
+
+    The first is the one whose wrapper deliberately resolves to no height, to
+    show what that state looks like: it is reporting rather than drawing, and
+    it is given a readable minimum height to say so, which is the one case
+    where a drawing region is *not* its wrapper.
+    `TestTheReportingRegionIsExcludedOnPurpose` covers it.
+
+    The second is the placement example, which carries its own height on the
+    tag. It is not filling anything, so it has no wrapper claim to make;
+    `TestARegionCarriesItsOwnHeight` is what covers it instead.
     """
     page.goto(f"{live_server.url}/chart-region/")
     page.wait_for_function(
@@ -52,7 +59,9 @@ def chart_region_measurements(chromium, live_server, page):
         timeout=5000,
     )
     measured = page.evaluate(MEASURE_REGIONS)
-    return [m for m in measured if m["state"] == "ready"]
+    return [
+        m for m in measured if m["state"] == "ready" and not m["carriesItsOwnHeight"]
+    ]
 
 
 class TestRegionFillsItsWrapper:
@@ -67,7 +76,7 @@ class TestRegionFillsItsWrapper:
         regions would give an empty one, and every loop over it would be
         vacuously true.
         """
-        assert len(chart_region_measurements) == 5
+        assert len(chart_region_measurements) == 4
 
     def test_each_region_is_exactly_its_wrapper(self, chart_region_measurements):
         for measured in chart_region_measurements:
@@ -76,19 +85,51 @@ class TestRegionFillsItsWrapper:
     def test_the_wrappers_are_genuinely_different_sizes(
         self, chart_region_measurements
     ):
-        """Five regions that happened to be identical would prove much less.
+        """Four regions that happened to be identical would prove much less.
 
-        The page sizes its wrappers at five different heights on purpose, so
+        The page sizes these wrappers at four different heights on purpose, so
         the measurement above holds across sizes rather than at one of them.
         """
         heights = {m["wrapper"]["height"] for m in chart_region_measurements}
-        assert len(heights) == 5
+        assert len(heights) == 4
 
     def test_no_region_has_collapsed(self, chart_region_measurements):
         """A region matching a wrapper that is itself nothing is not a pass."""
         for measured in chart_region_measurements:
             assert measured["region"]["height"] > 0, measured["id"]
             assert measured["region"]["width"] > 0, measured["id"]
+
+
+class TestARegionCarriesItsOwnHeight:
+    """The other sizing mode, measured rather than read off the markup.
+
+    The placement example takes its height from the tag and has no sized
+    element around it at all. Rendered markup can say the style attribute is
+    there; only a browser can say the figure ended up that tall.
+    """
+
+    @pytest.fixture
+    def placement_example(self, chromium, live_server, page):
+        page.goto(f"{live_server.url}/chart-region/")
+        page.wait_for_function(
+            "() => Array.from(document.querySelectorAll('[data-mvp-chart-region]'))"
+            ".every((r) => r.dataset.mvpChartRegionState)",
+            timeout=5000,
+        )
+        return [
+            m for m in page.evaluate(MEASURE_REGIONS) if m["id"] == "monthly-revenue"
+        ]
+
+    def test_the_page_still_carries_it(self, placement_example):
+        """So the filter in the fixture above cannot pass by finding nothing."""
+        assert len(placement_example) == 1
+
+    def test_the_figure_is_the_height_the_tag_asked_for(self, placement_example):
+        assert placement_example[0]["region"]["height"] == 320
+
+    def test_it_did_not_get_that_height_from_a_wrapper(self, placement_example):
+        """Otherwise the test above would pass on a region still in a wrapper."""
+        assert placement_example[0]["wrapper"]["height"] != 320
 
 
 #: The region fills its wrapper's *inner* box — that is the contract, and it is
@@ -98,8 +139,13 @@ class TestRegionFillsItsWrapper:
 #: numbers would need the difference subtracting.
 WRAPPER_BORDER = 0
 
+#: Resize the wrapper of the first region that actually has one to track — the
+#: first region on the page carries its own height, and resizing the element
+#: around that one is a no-op the assertions below would read as a regression.
 RESIZE_FIRST_WRAPPER = (
-    "() => {{ document.querySelector('[data-mvp-chart-region]')"
+    "() => {{ Array.from("
+    "document.querySelectorAll('[data-mvp-chart-region]')"
+    ").find((region) => region.style.height === '')"
     ".parentElement.style.height = '{height}px'; }}"
 )
 
@@ -129,7 +175,16 @@ class TestHoldsItsShape:
 
     @staticmethod
     def measure(page):
-        return page.evaluate(MEASURE_REGIONS)
+        """Only the regions that fill something, for the fixture's reasons.
+
+        A region carrying its own height is not tracking a wrapper, and the
+        reporting one is not drawing, so neither has a claim to make here.
+        """
+        return [
+            m
+            for m in page.evaluate(MEASURE_REGIONS)
+            if m["state"] == "ready" and not m["carriesItsOwnHeight"]
+        ]
 
     def test_a_window_resize_leaves_every_region_filling_its_wrapper(
         self, page_with_regions
@@ -202,8 +257,9 @@ class TestHoldsItsShape:
         page_with_regions.evaluate("() => { window.__resizes.length = 0; }")
         page_with_regions.evaluate(
             """() => {
-              const wrapper = document.querySelector('[data-mvp-chart-region]')
-                .parentElement;
+              const wrapper = Array.from(
+                document.querySelectorAll('[data-mvp-chart-region]')
+              ).find((region) => region.style.height === '').parentElement;
               for (let height = 200; height < 500; height += 10) {
                 wrapper.style.height = height + 'px';
               }

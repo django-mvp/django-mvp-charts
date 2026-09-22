@@ -3,10 +3,13 @@
 {% block page.content %}
   <c-section title="Placing a region" icon="info">
     <c-text>
-      A chart region is placed like any other component, inside an element the
-      project has already given a height. It fills that element exactly and has
-      no height of its own, so the wrapper below carries one and the region
-      takes it.
+      A chart region is placed like any other component, and given a height.
+      Write one on the tag and the region carries it, as below. Leave it out
+      and the region fills the element around it instead, which is what the
+      four in the next section do — that mode is for a chart whose height the
+      page decides at layout time, a grid cell being the usual case. The
+      package invents neither: a region left with no height from either is
+      reported on the page rather than drawn as an empty box.
     </c-text>
     <c-text>
       Only the id is required. It is what the caption and the drawing surface
@@ -25,11 +28,10 @@
     {% endcomment %}
     {% show_code %}
       {% cotton:verbatim %}
-        <div style="height: 320px">
-          <c-echarts.region id="monthly-revenue"
-                            name="Monthly revenue"
-                            description="Revenue by month over the last year, rising from January to a December peak." />
-        </div>
+        <c-echarts.region id="monthly-revenue"
+                          name="Monthly revenue"
+                          height="320px"
+                          description="Revenue by month over the last year, rising from January to a December peak." />
       {% endcotton:verbatim %}
     {% endshow_code %}
     <c-alert variant="info" soft>

@@ -14,13 +14,12 @@
     {% endcomment %}
     {% show_code %}
       {% cotton:verbatim %}
-        <div style="height: 320px">
-          <c-echarts.line id="monthly-revenue"
-                          name="Monthly revenue"
-                          description="Revenue by month over the last year, rising from January to a December peak."
-                          :values="[820, 932, 901, 934, 1290, 1330, 1320, 1250, 1400, 1520, 1600, 1710]"
-                          :labels="['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']" />
-        </div>
+        <c-echarts.line id="monthly-revenue"
+                        name="Monthly revenue"
+                        height="320px"
+                        description="Revenue by month over the last year, rising from January to a December peak."
+                        :values="[820, 932, 901, 934, 1290, 1330, 1320, 1250, 1400, 1520, 1600, 1710]"
+                        :labels="['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']" />
       {% endcotton:verbatim %}
     {% endshow_code %}
   </c-section>

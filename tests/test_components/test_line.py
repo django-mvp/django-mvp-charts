@@ -126,6 +126,23 @@ class TestPayloadIsNestedInsideTheFigure:
         html = render(LINE, values=[12, 14, 15], labels=["Jan", "Feb", "Mar"])
         assert 'id="revenue-options"' not in html
 
+    def test_the_payload_says_which_namespace_it_belongs_to(self):
+        """The slot is generic, so the payload has to say whose it is.
+
+        The region renders whatever its caller nests and knows nothing about
+        it, which is what lets a second charting library use the same slot.
+        That is also why the drawing module cannot recognise its own work by
+        the media type alone: a Plotly payload nested in a region would be an
+        ``application/json`` script inside ``[data-mvp-chart-region]`` too.
+        The marker goes on the script, which is this namespace's own element,
+        and never on the region.
+        """
+        html = render(LINE, values=[12, 14, 15], labels=["Jan", "Feb", "Mar"])
+        figure = re.search(r"<figure[^>]*>(.*)</figure>", html, re.S).group(1)
+        assert re.search(r"<script[^>]*\bdata-mvp-echarts-options[\s>]", figure)
+        outside_the_script = re.sub(r"<script.*?</script>", "", figure, flags=re.S)
+        assert "data-mvp-echarts-options" not in outside_the_script
+
 
 class TestOptionsAttribute:
     """FR-012 … FR-014: an `options` attribute deep-merges over the built object.

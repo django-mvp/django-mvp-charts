@@ -166,22 +166,58 @@ class TestAnAuthorSuppliedColourReachesTheLiveInstance:
 
 
 class TestTheChartKeepsFillingItsWrapper:
-    """FR-005, US1 scenario 5: a line chart holds its shape like any region."""
+    """FR-005, US1 scenario 5: a line chart holds its shape like any region.
+
+    Measured against ``signups-line``, which is the page's chart in wrapper
+    mode — it sits in a grid cell with a height and carries none of its own.
+    ``monthly-revenue`` moved to the height attribute when the wrapper stopped
+    being mandatory, so it is no longer a chart that fills anything; what it
+    proves now is the class below.
+    """
 
     def test_the_chart_fills_its_wrapper_before_any_resize(self, line_page):
-        measured = line_page.evaluate(MEASURE, "monthly-revenue")
+        measured = line_page.evaluate(MEASURE, "signups-line")
         assert measured["region"] == measured["wrapper"]
 
     def test_a_window_resize_leaves_it_filling_its_wrapper(self, line_page):
         line_page.set_viewport_size({"width": 700, "height": 900})
         line_page.wait_for_timeout(200)
-        measured = line_page.evaluate(MEASURE, "monthly-revenue")
+        measured = line_page.evaluate(MEASURE, "signups-line")
         assert measured["region"] == measured["wrapper"]
 
     def test_the_viewport_change_really_changed_the_layout(self, line_page):
         """Otherwise the test above would pass by resizing nothing."""
-        before = line_page.evaluate(MEASURE, "monthly-revenue")["wrapper"]["width"]
+        before = line_page.evaluate(MEASURE, "signups-line")["wrapper"]["width"]
         line_page.set_viewport_size({"width": 700, "height": 900})
         line_page.wait_for_timeout(200)
-        after = line_page.evaluate(MEASURE, "monthly-revenue")["wrapper"]["width"]
+        after = line_page.evaluate(MEASURE, "signups-line")["wrapper"]["width"]
         assert after != before
+
+
+class TestAChartCarriesItsOwnHeight:
+    """The other sizing mode, measured in a browser rather than asserted.
+
+    ``monthly-revenue`` is the page's chart in height mode: the attribute is
+    on the tag and there is no sized element around it at all. Rendered
+    markup can say the style attribute is present; only a browser can say the
+    figure ended up that tall and drew into it.
+    """
+
+    def test_the_figure_is_the_height_the_tag_asked_for(self, line_page):
+        measured = line_page.evaluate(MEASURE, "monthly-revenue")
+        assert measured["region"]["height"] == 320
+
+    def test_it_did_not_get_that_height_from_a_wrapper(self, line_page):
+        """Otherwise the test above would pass on a chart still in a wrapper."""
+        parent_height = line_page.evaluate(
+            "(elementId) => document.getElementById(elementId)"
+            ".parentElement.style.height",
+            "monthly-revenue",
+        )
+        assert parent_height == ""
+
+    def test_a_window_resize_leaves_the_height_alone(self, line_page):
+        line_page.set_viewport_size({"width": 700, "height": 900})
+        line_page.wait_for_timeout(200)
+        measured = line_page.evaluate(MEASURE, "monthly-revenue")
+        assert measured["region"]["height"] == 320

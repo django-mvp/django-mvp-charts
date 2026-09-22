@@ -41,7 +41,7 @@
 {% echarts_chart element_id=id values=values labels=labels options=options as chart %}
 <c-echarts.region id="{{ id }}" name="{{ name }}" description="{{ description }}" height="{{ height }}">
   {% if chart %}
-    <script type="application/json">
+    <script type="application/json" data-mvp-echarts-options>
         {{ chart.payload }}
     </script>
   {% endif %}

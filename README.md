@@ -78,10 +78,10 @@ A chart region is the space a chart is drawn into. Give it a height:
 **A region can also take its height from the element around it, instead of carrying one itself:**
 
 ```html
-<div style="height: 320px">
-  <c-echarts.region id="monthly-revenue"
-                    name="Monthly revenue"
-                    description="Revenue by month over the last year, rising from January to a December peak." />
+<div style="height: 200px">
+  <c-echarts.region id="signups"
+                    name="Signups"
+                    description="New accounts per week for the last quarter." />
 </div>
 ```
 
