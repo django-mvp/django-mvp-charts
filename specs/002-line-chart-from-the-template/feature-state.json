@@ -2,7 +2,7 @@
   "feature": "002-line-chart-from-the-template",
   "branch": "002-line-chart-from-the-template",
   "repo": "django-mvp/django-mvp-charts",
-  "state": "CONVERGE",
+  "state": "PR_READY",
   "state_history": [
     {
       "state": "PLAN",
@@ -23,6 +23,11 @@
       "state": "CONVERGE",
       "at": "2026-09-22T21:17:39Z",
       "note": "All three stories done and accepted; docs gate and naming closed"
+    },
+    {
+      "state": "PR_READY",
+      "at": "2026-09-22T21:24:16Z",
+      "note": "Review approved, no findings; PR #31 open and ready, awaiting walkthrough"
     }
   ],
   "gates": {
