@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.1.0] - 2026-09-23
+
 One component, and the chart it draws is built in Python. Nothing has been released, so nothing
 here is a breaking change to anyone — but it replaces everything the package previously offered.
 
