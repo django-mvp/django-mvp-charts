@@ -70,10 +70,11 @@ because a navigation node with no children renders as an inert button rather tha
 4. A `MenuItem` in `CHART_TYPE_PAGES` in `demo/menus.py`. The Charts group appears with the first
    entry.
 
-`{% show_code %}` renders through a template named `cotton/documentation.html`. django-mvp ships the
-tag but not that template, so this project supplies its own in `demo/templates/`. It is written in
-plain Django template syntax because the tag renders it with `render_to_string()`, outside the
-Cotton pipeline, and it uses only classes the packaged stylesheet emits.
+`{% show_code %}` renders through a template named `cotton/documentation.html`, which django-mvp
+ships alongside the tag from 0.24.0 onwards. This project supplied its own while the package had
+none and no longer does. Do not add one back: `demo` comes first in `INSTALLED_APPS`, so a copy
+here shadows the packaged surface by name, and this demo would go on showing an older one after
+every other project had moved.
 
 ## Releasing
 

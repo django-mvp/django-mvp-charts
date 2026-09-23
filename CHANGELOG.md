@@ -72,6 +72,9 @@ here is a breaking change to anyone — but it replaces everything the package p
   no appearance of its own, and the README says whose the defaults are.
 - `CONSTITUTION.md` Articles XII to XV, `CONTEXT.md`, `GOALS.md` and the roadmap, all rewritten
   against the one-component design.
+- django-mvp 0.24.0 is the minimum, up from 0.23.0. It ships the display surface that
+  `{% show_code %}` renders through, which this project had been supplying itself for want of one
+  upstream. The demo's copy is gone, so its examples now use the packaged surface.
 
 ### Not supported
 

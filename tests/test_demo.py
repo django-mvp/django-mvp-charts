@@ -100,20 +100,26 @@ class TestSidebarMenu:
 class TestDocumentationSurface:
     """``{% show_code %}`` and the template it renders its examples through."""
 
-    def test_the_tag_has_a_display_template(self):
-        """django-mvp ships the tag but not the template it renders through.
+    def test_the_display_template_is_the_packaged_one(self):
+        """django-mvp ships the surface alongside the tag from 0.24.0.
 
-        A project that calls the tag without supplying one gets
-        ``TemplateDoesNotExist`` at render time, so this repo provides its own
-        under ``demo/templates/``. Reported upstream.
+        This project supplied its own while the package had none. What is
+        checked now is that it no longer does: ``demo`` comes first in
+        ``INSTALLED_APPS``, so a file of that name under ``demo/templates/``
+        would shadow the packaged surface and leave the demo showing an older
+        one after every other project had moved on.
         """
         try:
-            get_template("cotton/documentation.html")
+            origin = get_template("cotton/documentation.html").origin.name
         except TemplateDoesNotExist:  # pragma: no cover - the failure message
             pytest.fail(
                 "cotton/documentation.html is missing, so {% show_code %} "
                 "raises instead of rendering"
             )
+        assert "/demo/templates/" not in Path(origin).as_posix(), (
+            f"{{% show_code %}} is rendering through {origin}, which shadows "
+            "the one django-mvp ships"
+        )
 
     def test_the_example_shows_its_cotton_source(self, overview_page):
         assert "&lt;c-chart :chart=&quot;revenue&quot;" in overview_page
@@ -132,7 +138,9 @@ class TestDocumentationSurface:
         What does is that the prettifier puts every closing tag on a line of
         its own, where the raw output keeps ``<span>text</span>`` inline.
         """
-        panes = re.findall(r"<pre[^>]*><code>(.*?)</code></pre>", overview_page, re.S)
+        panes = re.findall(
+            r"<pre[^>]*><code[^>]*>(.*?)</code></pre>", overview_page, re.S
+        )
         # The rendered-HTML pane is the one showing the markup the component
         # produced, rather than the source panes showing what was written.
         rendered = [pane for pane in panes if "&lt;figure" in pane]

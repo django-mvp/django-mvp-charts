@@ -24,9 +24,10 @@ SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 
 # This project's own apps come first so its templates win over any the
-# libraries ship under the same name. That is what lets the demo supply
-# cotton/documentation.html, the display surface the {% show_code %} tag
-# renders its examples through.
+# libraries ship under the same name, which is how demo/templates/base.html
+# reaches the pages that extend "base.html". Take care adding to that
+# directory: a file named after one django-mvp ships replaces it everywhere,
+# silently, for every page in the demo.
 INSTALLED_APPS = [
     "demo",
     "mvp_charts",
