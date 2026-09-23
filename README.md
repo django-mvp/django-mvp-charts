@@ -36,7 +36,7 @@ Version 0.0.1. Nothing here is stable.
 
 - Python 3.12+
 - Django 5.2 or 6.0
-- django-mvp 0.23.0+
+- django-mvp 0.24.0+
 - pyecharts 2.1+
 
 ## Install

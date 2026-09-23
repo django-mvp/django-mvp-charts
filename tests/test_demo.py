@@ -17,6 +17,9 @@ from django.conf import settings
 from django.template import TemplateDoesNotExist
 from django.template.loader import get_template
 from django.urls import reverse
+from django.utils.html import escape
+
+from demo.views import ChartTypesView, conversion_rate, invoiced, source_of
 
 
 def payloads(page):
@@ -159,6 +162,19 @@ class TestChartTypesPage:
         drawn = {options["series"][0]["type"] for options in payloads(chart_types_page)}
         assert drawn == {"line", "bar", "pie", "scatter"}
 
+    def test_every_chart_shows_the_code_that_built_it(self, chart_types_page):
+        """The listing beside a chart is read off the function that ran.
+
+        A page that hand-copies its own example is the usual way a demo ends
+        up describing a chart it is no longer drawing, so what is asserted is
+        that each listing is the builder's current source rather than that
+        something code-shaped is on the page.
+        """
+        for builder in ChartTypesView.builders.values():
+            assert escape(source_of(builder)) in chart_types_page, (
+                f"{builder.__name__} is not listed on the page it builds a chart for"
+            )
+
     def test_every_chart_describes_its_own_caption(self, chart_types_page):
         """Four distinct ids prove nothing on their own.
 
@@ -195,6 +211,13 @@ class TestChartOptionsPage:
 
     def test_the_page_is_served(self, client, db):
         assert client.get(reverse("chart_options")).status_code == 200
+
+    def test_both_listings_are_the_code_that_ran(self, chart_options_page):
+        """This page's whole claim is that the options are set in that code."""
+        for builder in (conversion_rate, invoiced):
+            assert escape(source_of(builder)) in chart_options_page, (
+                f"{builder.__name__} is not listed on the page it builds a chart for"
+            )
 
     def test_the_styled_chart_carries_options_no_attribute_names(
         self, chart_options_page
