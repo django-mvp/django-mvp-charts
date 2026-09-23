@@ -1,0 +1,34 @@
+{% extends "page_view.html" %}
+{% block page.content %}
+  {% comment %}
+    Charts in boxes that are a different shape of "not drawable yet", and one
+    that rescues itself. Built as a page of its own because each case needs CSS
+    the demo has no reason to carry, and because one of them is only
+    interesting before and after something on the page changes.
+  {% endcomment %}
+  <style>
+    .collapsed-panel { display: none; }
+    .collapsed-panel.open { display: block; height: 300px; }
+    /* A percentage of an ancestor sized by its own content resolves to
+       nothing. This is the common shape of the mistake. */
+    .unresolved-wrapper { height: 100%; }
+  </style>
+  <div style="height: 300px">
+    <c-chart :chart="chart" id="control" name="Drawn from the start" />
+  </div>
+  <div id="collapsed" class="collapsed-panel">
+    <c-chart :chart="chart" id="in-collapsed-panel" name="In a collapsed panel" />
+  </div>
+  <div class="unresolved-wrapper">
+    <c-chart :chart="chart" id="never-has-height" name="In a wrapper with no height" />
+  </div>
+  {% comment %}
+    The same wrapper as the case above, with the ratio supplying the height the
+    wrapper cannot. 400px wide, so the height it derives is a number the test
+    can name.
+  {% endcomment %}
+  <div class="unresolved-wrapper" style="width: 400px">
+    <c-chart :chart="chart" id="sized-by-its-ratio" aspect-ratio="2"
+             name="Sized by its ratio" />
+  </div>
+{% endblock page.content %}

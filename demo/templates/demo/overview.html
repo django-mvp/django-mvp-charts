@@ -36,7 +36,7 @@ class RevenueView(TemplateView):
     </div>
     <c-text>
       The template places it. That is the entire public surface of this package — one
-      component, and the four attributes below.
+      component, and the attributes below.
     </c-text>
     {% comment %}
       cotton:verbatim is required, not decoration: without it Cotton compiles
@@ -55,9 +55,10 @@ class RevenueView(TemplateView):
   </c-section>
   <c-section title="What the component names" icon="document">
     <c-text>
-      Four attributes, and nothing about the chart. Its type, its data, its axes, its
-      colours and its tooltip are all set on the chart object in Python, where the whole
-      of ECharts is reachable rather than the part a template attribute happens to name.
+      Where the chart goes and how it is announced, and nothing about the chart. Its
+      type, its data, its axes, its colours and its tooltip are all set on the chart
+      object in Python, where the whole of ECharts is reachable rather than the part a
+      template attribute happens to name.
     </c-text>
     <div class="overflow-x-auto">
       <table class="table">
@@ -85,6 +86,11 @@ class RevenueView(TemplateView):
           <td>A CSS height. Leave it out and the figure fills the element around it instead.</td>
         </tr>
         <tr>
+          <td><code>aspect-ratio</code></td>
+          <td>No</td>
+          <td>The shape of the figure instead of its height: <code>2</code>, or <code>16/9</code>. It takes the width it is given and works the height out. Ignored when <code>height</code> is also set.</td>
+        </tr>
+        <tr>
           <td><code>name</code></td>
           <td>No</td>
           <td>What a screen reader announces the chart as.</td>
@@ -96,6 +102,48 @@ class RevenueView(TemplateView):
         </tr>
         </tbody>
       </table>
+    </div>
+  </c-section>
+  <c-section title="Three ways to give a chart a box" icon="chart">
+    <c-text>
+      A chart is drawn into a canvas, and a canvas has to be told how big it is. Write a
+      height on the tag, write a ratio and let the width decide the height, or write
+      neither and let the element around it do both.
+    </c-text>
+    {% comment %}
+      The source is shown rather than captured with show_code, because show_code
+      renders a live preview of whatever it captures — which would put a second
+      chart on the page under each of the ids used below.
+    {% endcomment %}
+    <div class="mockup-code w-full text-sm">
+      <pre class="px-6"><code>&lt;c-chart :chart="revenue" id="sizing-fixed" height="240px" ... /&gt;
+
+&lt;c-chart :chart="revenue" id="sizing-ratio" aspect-ratio="16/9" ... /&gt;</code></pre>
+    </div>
+    <div class="grid gap-6 md:grid-cols-2">
+      <div>
+        <c-text>
+          <strong>240 pixels tall</strong>, whatever the column does. Narrow the window
+          and it keeps its height while losing width, so the chart grows squatter.
+        </c-text>
+        <c-chart :chart="revenue"
+                 id="sizing-fixed"
+                 height="240px"
+                 name="Monthly revenue, in a figure 240 pixels tall"
+                 description="Revenue by month over the first half of the year, rising from January to a June peak." />
+      </div>
+      <div>
+        <c-text>
+          <strong>Sixteen by nine</strong>, at any width. Narrow the window and the
+          height follows it down, so the chart keeps its shape and the column below it
+          moves up.
+        </c-text>
+        <c-chart :chart="revenue"
+                 id="sizing-ratio"
+                 aspect-ratio="16/9"
+                 name="Monthly revenue, in a figure shaped sixteen by nine"
+                 description="Revenue by month over the first half of the year, rising from January to a June peak." />
+      </div>
     </div>
   </c-section>
   <c-section title="The library reaches the browser from your project" icon="info">

@@ -133,7 +133,11 @@ class TestDocumentationSurface:
         its own, where the raw output keeps ``<span>text</span>`` inline.
         """
         panes = re.findall(r"<pre[^>]*><code>(.*?)</code></pre>", overview_page, re.S)
-        assert re.search(r"\n\s*&lt;/figure&gt;", panes[-1])
+        # The rendered-HTML pane is the one showing the markup the component
+        # produced, rather than the source panes showing what was written.
+        rendered = [pane for pane in panes if "&lt;figure" in pane]
+        assert len(rendered) == 1, "expected exactly one rendered-HTML pane"
+        assert re.search(r"\n\s*&lt;/figure&gt;", rendered[0])
 
 
 class TestChartTypesPage:

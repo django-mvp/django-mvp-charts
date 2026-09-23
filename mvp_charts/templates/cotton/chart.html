@@ -11,9 +11,13 @@
 {#                 the caption and the drawing surface are tied  #}
 {#                 to it, and an id invented here would shift    #}
 {#                 the moment a second chart went above it.      #}
-{#   height      – a CSS height for the figure. Optional; leave  #}
-{#                 it out and the figure fills the element       #}
-{#                 around it instead.                            #}
+{#   height      – a CSS height for the figure. Optional.        #}
+{#   aspect-ratio – the shape of the figure instead of its       #}
+{#                 height: the figure takes the width it is      #}
+{#                 given and derives a height from it. Optional, #}
+{#                 and ignored when height is also given.        #}
+{#                 Leave both out and the figure fills the       #}
+{#                 element around it instead.                    #}
 {#   name        – accessible name. Optional; carried as the     #}
 {#                 drawing surface's aria-label when given.      #}
 {#   description – text alternative for what the chart shows.    #}
@@ -28,10 +32,12 @@
 {# loads that file and the charting library from its own base    #}
 {# template.                                                     #}
 {# ============================================================ #}
-<c-vars chart id="" name="" description="" height="" />
+<c-vars chart id="" name="" description="" height="" aspect-ratio="" />
 {% load mvp_charts %}
+{# `calc()` is what makes a ratio written as `16/9` one number rather than two. #}
 <figure id="{{ id }}"
-        {% if height %}class="relative w-full" style="height: {{ height }}"{% else %}class="relative h-full w-full"{% endif %}
+        class="relative w-full{% if not height and not aspect_ratio %} h-full{% endif %}"
+        {% if height %}style="height: {{ height }}"{% elif aspect_ratio %}style="aspect-ratio: calc({{ aspect_ratio }})"{% endif %}
         data-mvp-chart>
   <div class="absolute inset-0"
        {% if name %}role="img" aria-label="{{ name }}"{% endif %}

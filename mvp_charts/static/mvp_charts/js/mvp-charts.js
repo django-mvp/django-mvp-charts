@@ -25,8 +25,40 @@
     if (window.ResizeObserver) {
       new window.ResizeObserver(function () {
         chart.resize();
+        reportIfFlat(figure);
       }).observe(figure);
     }
+  }
+
+  /*
+   * A figure with width but no height, said once.
+   *
+   * This is the one way a chart fails that leaves no trace anywhere: the
+   * options are correct, ECharts initialised, nothing threw, and the reader
+   * sees blank page. It is almost always a percentage height inside an
+   * ancestor sized by its own content.
+   *
+   * Width-but-no-height is the whole test, and it is what makes the check
+   * safe to run on every resize. A chart inside a `display: none` panel or an
+   * unselected tab measures 0x0 — both zero — which is not a mistake and not
+   * reported. It is also self-correcting: the panel opening fires the
+   * observer again with a real box, and the chart draws.
+   */
+  function reportIfFlat(figure) {
+    if (figure.dataset.mvpChartFlatReported) {
+      return;
+    }
+    var box = figure.getBoundingClientRect();
+    if (box.width <= 0 || box.height >= 1) {
+      return;
+    }
+    figure.dataset.mvpChartFlatReported = "1";
+    window.console.warn(
+      "mvp-charts: " +
+        (figure.id || "a chart") +
+        " has no height to draw into. Give it a height attribute, or give the " +
+        "element around it a height a percentage can resolve against."
+    );
   }
 
   function drawAll(root) {

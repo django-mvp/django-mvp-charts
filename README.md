@@ -26,7 +26,7 @@ Your template places it:
          description="Revenue by month over the first half of the year, rising from January to a June peak." />
 ```
 
-That is the whole API. One component, five attributes, and no JavaScript on the page.
+That is the whole API. One component, six attributes, and no JavaScript on the page.
 
 ## Status
 
@@ -116,19 +116,34 @@ pyecharts' own [documentation](https://pyecharts.org/#/en-us/) is the reference 
 
 ## Placing the chart
 
-`<c-chart>` renders the figure, the accessible name, the text alternative and the options payload. It names five attributes and nothing about the chart itself.
+`<c-chart>` renders the figure, the accessible name, the text alternative and the options payload. It names six attributes and nothing about the chart itself.
 
 | Attribute | Required | What it does |
 |---|---|---|
 | `:chart` | Yes | The pyecharts chart to draw. Written with a colon, because it is a Python value. |
 | `id` | Yes | The element id. The caption is tied to it, and it is how your own JavaScript finds the figure. |
-| `height` | No | A CSS height for the figure. Leave it out and the figure fills the element around it. |
+| `height` | No | A CSS height for the figure. |
+| `aspect-ratio` | No | The shape of the figure instead of its height. Ignored when `height` is also given. |
 | `name` | No | What a screen reader announces the chart as. |
 | `description` | No | What the chart shows, in words, read instead of the picture. |
 
 `id` is never generated for you — an id this package invented would be stable only until someone added a second chart higher up the page, at which point every id below it would shift.
 
-**A chart can take its height from the element around it instead of carrying one:**
+### Giving the chart a box
+
+A chart is drawn into a canvas, and a canvas has to be told how big it is. There are three ways to say it, and the package invents none of them: no default height, no minimum, no fallback shape.
+
+**A height on the tag** is the first, and it is the one above.
+
+**A ratio on the tag** gives the figure its width from the page and works the height out from that:
+
+```html
+<c-chart :chart="signups" id="signups" aspect-ratio="16/9" name="Signups" />
+```
+
+Write it as a number, `2`, or as the fraction it comes from, `16/9`. The chart then keeps its shape at every window width instead of growing squatter as the column narrows, and a chart in a column that has no height of its own still has one. Both are what an outer element sized for the chart would otherwise be for.
+
+**Neither** leaves the figure filling the element around it:
 
 ```html
 <div style="height: 200px">
@@ -136,7 +151,7 @@ pyecharts' own [documentation](https://pyecharts.org/#/en-us/) is the reference 
 </div>
 ```
 
-This is a second sizing mode, not a replacement for the first — a chart sharing a grid row, a dashboard tile or a flex child has no fixed number to write on the tag, and filling the wrapper exactly is what that mode buys. Neither mode invents a height: no default, no minimum, no aspect ratio.
+That suits a chart in a grid row, a dashboard tile or a flex child, where the layout already decides the box and there is no number to write on the tag.
 
 **A chart drawn into a canvas is invisible to anyone who cannot see it, and to anyone who cannot tell its colours apart.** Leaving out `name` and `description` is a real choice, not a shortcut: without them there is nothing else on the page for a screen reader to announce, or for someone who cannot make out the shape of the line to read instead. Give both whenever the chart is more than decoration.
 
@@ -146,11 +161,13 @@ A page is not a fixed rectangle. The window is resized, a sidebar collapses, a t
 
 ## When something goes wrong
 
-Two things stop a chart drawing, and both go to the browser console.
+Three things go to the browser console, and nowhere else.
 
 **No charting library.** `window.echarts` is not there. The message names both ways to supply one.
 
 **A chart that throws while drawing.** Reported with the id of the figure it belongs to, and the other charts on the page carry on.
+
+**A figure with a width and no height.** The one failure that otherwise leaves no trace: the options are right, ECharts started, nothing threw, and the reader sees blank page. It is almost always a percentage height inside an element sized by its own content. Said once per chart, naming the figure, and a `height` or an `aspect-ratio` on the tag is the fix. A chart inside a closed panel or an unselected tab measures nothing on either axis, which is the page working as intended, so it is not reported — and it draws itself when the panel opens.
 
 Nothing is written into the page. What a project shows its readers when something is broken is the project's decision — an empty box with your own words around it, a fallback table, or nothing at all — and a message this package drew into the page would take that decision away.
 

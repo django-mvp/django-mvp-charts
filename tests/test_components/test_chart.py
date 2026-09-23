@@ -70,7 +70,7 @@ class TestTheFigure:
 
 
 class TestSizing:
-    """A height on the tag, or the element around it. The package invents none."""
+    """A height, a ratio, or the element around it. The package invents none."""
 
     def test_a_height_on_the_tag_is_carried_by_the_figure(self, render, line):
         html = render(
@@ -83,11 +83,46 @@ class TestSizing:
         assert "style=" not in html
         assert "h-full" in html
 
-    def test_no_default_height_is_invented(self, render, line):
-        """Neither a number, nor a minimum, nor an aspect ratio."""
+    def test_no_size_of_any_kind_is_invented(self, render, line):
+        """A chart given no size attribute gets none from here."""
         html = render('<c-chart :chart="chart" id="revenue" />', chart=line)
         assert "min-height" not in html
         assert "aspect-" not in html
+
+    def test_a_ratio_on_the_tag_is_carried_by_the_figure(self, render, line):
+        html = render(
+            '<c-chart :chart="chart" id="revenue" aspect-ratio="2" />', chart=line
+        )
+        assert 'style="aspect-ratio: calc(2)"' in html
+
+    def test_a_ratio_is_written_as_the_fraction_it_is(self, render, line):
+        """`calc()` is what makes `16/9` a number rather than two of them."""
+        html = render(
+            '<c-chart :chart="chart" id="revenue" aspect-ratio="16/9" />', chart=line
+        )
+        assert 'style="aspect-ratio: calc(16/9)"' in html
+
+    def test_a_figure_with_a_ratio_is_not_also_told_to_fill_its_parent(
+        self, render, line
+    ):
+        """`h-full` would hand it a height, and the ratio would have nothing to say."""
+        html = render(
+            '<c-chart :chart="chart" id="revenue" aspect-ratio="2" />', chart=line
+        )
+        assert "h-full" not in html
+        assert "w-full" in html
+
+    def test_a_height_and_a_ratio_together_leave_the_height_in_charge(
+        self, render, line
+    ):
+        """Both describe the same box, so one of them has to win, and it is the
+        one that says what the box is rather than what shape it should be."""
+        html = render(
+            '<c-chart :chart="chart" id="revenue" height="320px" aspect-ratio="2" />',
+            chart=line,
+        )
+        assert 'style="height: 320px"' in html
+        assert "aspect-ratio" not in html
 
 
 class TestTheOptionsPayload:
