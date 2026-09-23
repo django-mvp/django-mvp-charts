@@ -161,6 +161,30 @@ class TestHeightIsJudgedAtFirstVisibility:
         assert height == 240
 
 
+class TestOwnHeight:
+    """Issue #32: a height given on the tag needs no wrapper.
+
+    ``own-height`` places the region directly in the body, which resolves to
+    no height of its own, so a region that reaches "ready" and measures at
+    the height it was given can only be reading that height off itself.
+    """
+
+    def test_a_region_with_its_own_height_reaches_ready_with_no_wrapper(
+        self, failure_page
+    ):
+        page = failure_page("own-height")
+        page.wait_for_function(
+            "() => document.querySelector('[data-mvp-chart-region]')"
+            "?.dataset.mvpChartRegionState === 'ready'",
+            timeout=5000,
+        )
+        height = page.evaluate(
+            "() => document.querySelector('[data-mvp-chart-region]')"
+            ".getBoundingClientRect().height"
+        )
+        assert height == 200
+
+
 class TestOneFailingRegionLeavesTheOthers:
     """T017: a page does not lose its working charts to one broken one."""
 

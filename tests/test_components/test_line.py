@@ -93,6 +93,57 @@ class TestOptionalNameAndDescription:
         assert "<figcaption" not in html
 
 
+class TestHeightPassesThrough:
+    """Issue #32: a height given on the tag reaches the figure a line chart is."""
+
+    def test_a_height_given_on_the_line_tag_reaches_the_figure(self):
+        html = render(
+            '<c-echarts.line id="revenue" height="240px" :values="values" />',
+            values=[12, 14, 15],
+        )
+        figure = re.search(r"<figure[^>]*>", html).group(0)
+        assert 'style="height: 240px"' in figure
+
+
+class TestPayloadIsNestedInsideTheFigure:
+    """Issue #33: the payload sits inside the figure it belongs to.
+
+    The drawing module walks up to its region with ``closest()`` rather than
+    matching an id across the document, so the payload no longer needs a
+    second id or an attribute tying it back to its region.
+    """
+
+    def test_the_options_script_is_inside_the_figure(self):
+        html = render(LINE, values=[12, 14, 15], labels=["Jan", "Feb", "Mar"])
+        figure = re.search(r"<figure[^>]*>(.*)</figure>", html, re.S).group(1)
+        assert re.search(r'<script[^>]*type="application/json"', figure)
+
+    def test_no_options_for_attribute_appears_anywhere(self):
+        html = render(LINE, values=[12, 14, 15], labels=["Jan", "Feb", "Mar"])
+        assert "data-mvp-echarts-options-for" not in html
+
+    def test_no_second_generated_id_appears_anywhere(self):
+        html = render(LINE, values=[12, 14, 15], labels=["Jan", "Feb", "Mar"])
+        assert 'id="revenue-options"' not in html
+
+    def test_the_payload_says_which_namespace_it_belongs_to(self):
+        """The slot is generic, so the payload has to say whose it is.
+
+        The region renders whatever its caller nests and knows nothing about
+        it, which is what lets a second charting library use the same slot.
+        That is also why the drawing module cannot recognise its own work by
+        the media type alone: a Plotly payload nested in a region would be an
+        ``application/json`` script inside ``[data-mvp-chart-region]`` too.
+        The marker goes on the script, which is this namespace's own element,
+        and never on the region.
+        """
+        html = render(LINE, values=[12, 14, 15], labels=["Jan", "Feb", "Mar"])
+        figure = re.search(r"<figure[^>]*>(.*)</figure>", html, re.S).group(1)
+        assert re.search(r"<script[^>]*\bdata-mvp-echarts-options[\s>]", figure)
+        outside_the_script = re.sub(r"<script.*?</script>", "", figure, flags=re.S)
+        assert "data-mvp-echarts-options" not in outside_the_script
+
+
 class TestOptionsAttribute:
     """FR-012 … FR-014: an `options` attribute deep-merges over the built object.
 

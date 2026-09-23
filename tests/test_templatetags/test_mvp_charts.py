@@ -12,19 +12,18 @@ from mvp_charts.templatetags.mvp_charts import echarts_chart
 
 
 class TestEChartsChart:
-    """The tag returns an id, a derived options-script id and a JSON payload."""
+    """The tag returns an id and a JSON payload.
+
+    Issue #33 removes the second generated id: the payload now nests inside
+    its region's figure instead of sitting beside it and being matched back
+    by id, so there is no options-script id to derive.
+    """
 
     def test_the_tag_returns_the_id_it_was_given(self):
         chart = echarts_chart(
             element_id="revenue", values=[12, 14, 15], labels=["Jan", "Feb", "Mar"]
         )
         assert chart.id == "revenue"
-
-    def test_the_options_script_id_is_derived_from_the_chart_id(self):
-        chart = echarts_chart(
-            element_id="revenue", values=[12, 14, 15], labels=["Jan", "Feb", "Mar"]
-        )
-        assert chart.options_id == "revenue-options"
 
     def test_the_payload_parses_back_to_the_object_line_built(self):
         chart = echarts_chart(

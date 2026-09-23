@@ -59,6 +59,17 @@
         <c-echarts.region id="revenue" name="Revenue" description="Revenue by month, in EUR." />
       </div>
 
+    {% elif case == "own-height" %}
+      {% comment %}
+        No wrapper at all: the height is the tag's own, per issue #32. The
+        region's parent is the bare body, which resolves to no height of its
+        own, so a region reaching "ready" here can only be reading its own.
+      {% endcomment %}
+      <c-echarts.region id="revenue"
+                        name="Revenue"
+                        description="Revenue by month, in EUR."
+                        height="200px" />
+
     {% elif case == "mixed" %}
       {% comment %}
         One region that cannot draw, beside two that can. The library is

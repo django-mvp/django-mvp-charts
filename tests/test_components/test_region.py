@@ -115,6 +115,54 @@ class TestChartRegionIdentity:
             assert f'aria-describedby="{figure_id}-description"' in surface
 
 
+class TestHeight:
+    """Issue #32: a region can be given its height directly.
+
+    A second sizing mode, not a replacement for the first: given a height,
+    the figure carries it and needs no wrapper; given none, the figure fills
+    its parent exactly as before.
+    """
+
+    def test_a_given_height_is_carried_on_the_figure_itself(self):
+        html = render('<c-echarts.region id="revenue" height="320px" />')
+        figure = re.search(r"<figure[^>]*>", html).group(0)
+        assert 'style="height: 320px"' in figure
+
+    def test_no_height_still_fills_its_parent_exactly_as_before(self):
+        html = render(A_REGION)
+        figure = re.search(r"<figure[^>]*>", html).group(0)
+        assert re.search(r'class="relative h-full w-full"', figure)
+        assert "style=" not in figure
+
+    def test_an_empty_string_height_is_treated_as_not_given(self):
+        html = render('<c-echarts.region id="revenue" height="" />')
+        figure = re.search(r"<figure[^>]*>", html).group(0)
+        assert re.search(r'class="relative h-full w-full"', figure)
+        assert "style=" not in figure
+
+
+class TestSlotContent:
+    """Issue #33: a region takes slot content and renders it inside the figure.
+
+    The mechanism a chart type composes on top of, not anything specific to
+    one charting library: the region renders whatever its caller puts between
+    its open and close tags, after the drawing surface, and knows nothing
+    about what that content is.
+    """
+
+    def test_slot_content_is_rendered_inside_the_figure_after_the_surface(self):
+        html = render(
+            '<c-echarts.region id="revenue">'
+            '<mark id="caller-content">payload</mark>'
+            "</c-echarts.region>"
+        )
+        figure = re.search(r"<figure[^>]*>(.*)</figure>", html, re.S).group(1)
+        assert '<mark id="caller-content">payload</mark>' in figure
+        surface_at = figure.index("data-mvp-chart-region-surface")
+        content_at = figure.index('id="caller-content"')
+        assert content_at > surface_at
+
+
 class TestMissingAttributes:
     """A missing id replaces the region rather than degrading it.
 

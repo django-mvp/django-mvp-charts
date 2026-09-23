@@ -66,17 +66,26 @@ The ECharts line above is the development route, covered in full under [Getting 
 
 ## Placing a chart region
 
-A chart region is the space a chart is drawn into. Put it inside an element that already has a height:
+A chart region is the space a chart is drawn into. Give it a height:
 
 ```html
-<div style="height: 320px">
-  <c-echarts.region id="monthly-revenue"
-                    name="Monthly revenue"
-                    description="Revenue by month over the last year, rising from January to a December peak." />
+<c-echarts.region id="monthly-revenue"
+                  name="Monthly revenue"
+                  height="320px"
+                  description="Revenue by month over the last year, rising from January to a December peak." />
+```
+
+**A region can also take its height from the element around it, instead of carrying one itself:**
+
+```html
+<div style="height: 200px">
+  <c-echarts.region id="signups"
+                    name="Signups"
+                    description="New accounts per week for the last quarter." />
 </div>
 ```
 
-**The wrapper is where the height lives.** A region fills the element around it and has no height of its own — no default, no minimum, no aspect ratio. That is deliberate: a height invented by this package would be wrong on most pages and would stop a chart sharing a grid row with anything else. It does mean a region placed in an element with no resolved height gets none itself, which is the most common way a first attempt goes wrong, so the region says so on the page instead of rendering as an empty box.
+This is a second sizing mode, not a replacement for the first — a chart sharing a grid row, a dashboard tile or a flex child has no fixed number to write on the tag, and filling the wrapper exactly is what that mode buys. Neither mode invents a height: no default, no minimum, no aspect ratio. A region placed in an element with no resolved height, and given none of its own, gets none at all — which is the most common way a first attempt goes wrong, so the region says so on the page instead of rendering as an empty box.
 
 Only `id` is required:
 
@@ -91,21 +100,18 @@ Only `id` is required:
 `<c-echarts.line>` is a chart region that already knows how to draw. It takes everything a region does — `id` is required and `name`/`description` are optional in exactly the same way — plus the values to draw and, optionally, what each point is called. The smallest working chart is one tag, an id and values, and nothing else:
 
 ```html
-<div style="height: 320px">
-  <c-echarts.line id="quarterly-orders" :values="[54, 61, 58, 70]" />
-</div>
+<c-echarts.line id="quarterly-orders" height="320px" :values="[54, 61, 58, 70]" />
 ```
 
 The fully-described version below is the one to reach for whenever the chart is more than decoration:
 
 ```html
-<div style="height: 320px">
-  <c-echarts.line id="monthly-revenue"
-                  name="Monthly revenue"
-                  description="Revenue by month over the last year, rising from January to a December peak."
-                  :values="[820, 932, 901, 934, 1290, 1330, 1320, 1250, 1400, 1520, 1600, 1710]"
-                  :labels="['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']" />
-</div>
+<c-echarts.line id="monthly-revenue"
+                name="Monthly revenue"
+                height="320px"
+                description="Revenue by month over the last year, rising from January to a December peak."
+                :values="[820, 932, 901, 934, 1290, 1330, 1320, 1250, 1400, 1520, 1600, 1710]"
+                :labels="['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']" />
 ```
 
 **`:values` and `:labels` carry Python values, and the colon is what says so.** Write `:values="[820, 932, 901]"`, never `values="820, 932, 901"` — the second form is text, and this package never reads data out of text. It splits nothing on a separator, guesses at no numbers, and does not report the mistake: a value written as text travels into the chart's options object exactly as it arrived, and the chart does not draw, which is how you find out.
@@ -121,12 +127,11 @@ A chart's appearance belongs to the page, not to this package. `<c-echarts.line>
 `:options` is how you reach anything ECharts offers, including an option this package has never heard of. It carries a Python value, deep-merged over what the component built, and it wins on every key it names:
 
 ```html
-<div style="height: 320px">
-  <c-echarts.line id="conversion-rate"
-                  name="Conversion rate"
-                  :values="[2.1, 2.4, 2.2, 2.8, 3.1, 3.4, 3.0]"
-                  :options="{'series': [{'lineStyle': {'color': '#7c3aed'}}]}" />
-</div>
+<c-echarts.line id="conversion-rate"
+                name="Conversion rate"
+                height="320px"
+                :values="[2.1, 2.4, 2.2, 2.8, 3.1, 3.4, 3.0]"
+                :options="{'series': [{'lineStyle': {'color': '#7c3aed'}}]}" />
 ```
 
 That chart draws with the colour given, and no other. This package neither supplies a palette of its own nor derives one from the daisyUI theme your project is running — a colour left unset is ECharts' own default, not this package's.

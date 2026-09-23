@@ -18,12 +18,15 @@
     return;
   }
 
-  var OPTIONS_SELECTOR = "[data-mvp-echarts-options-for]";
+  // The marker sits on the script, never on the region: the region renders
+  // whatever its caller nests and knows nothing about it, so a second charting
+  // library's payload has to be distinguishable from this one's. Selecting on
+  // the media type alone would claim every JSON script any caller ever nests.
+  var OPTIONS_SELECTOR = "[data-mvp-chart-region] script[data-mvp-echarts-options]";
   var INIT_FLAG = "mvpEchartsChartInit";
 
   function findRegion(script) {
-    var id = script.getAttribute("data-mvp-echarts-options-for");
-    return id ? document.getElementById(id) : null;
+    return script.closest("[data-mvp-chart-region]");
   }
 
   function drawingSurface(region) {

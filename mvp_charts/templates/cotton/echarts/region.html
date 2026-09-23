@@ -1,9 +1,13 @@
 {# ============================================================ #}
 {# <c-echarts.region> — the sized area a chart draws into        #}
 {#                                                                #}
-{# Fills its wrapper exactly; has no height of its own. The      #}
-{# wrapper — the host project's own sized element — is the only  #}
-{# thing that decides how big a region is.                       #}
+{# Takes its height from a wrapper, or carries one of its own.   #}
+{# Give it a height and the figure carries that height itself,   #}
+{# needing no wrapper. Leave it out and the figure fills the      #}
+{# element around it exactly as before — the host project's own  #}
+{# sized element is what decides how big the region is. Neither  #}
+{# resolving to a height is still reported: the package invents   #}
+{# none, no default, no minimum, no aspect ratio.                 #}
 {#                                                                #}
 {# Props:                                                         #}
 {#   id          – element id, which the caption and the drawing  #}
@@ -13,6 +17,15 @@
 {#                 given, carried as the surface's aria-label.    #}
 {#   description – text alternative for what the chart shows.     #}
 {#                 Optional; when given, carried as a figcaption. #}
+{#   height      – an explicit height for the figure. Optional;   #}
+{#                 leave it out and the figure fills its wrapper.  #}
+{#                                                                #}
+{# Whatever the caller writes between the open and close tags is  #}
+{# rendered inside the figure, after the drawing surface. This is #}
+{# a generic slot, not an ECharts one: the region renders it and  #}
+{# knows nothing about what it is, which is what lets a chart     #}
+{# type put its own payload there without the region learning     #}
+{# anything about that chart type.                                #}
 {#                                                                #}
 {# A missing id replaces the region with a visible message naming #}
 {# it, rather than rendering with an empty value. A missing name   #}
@@ -25,7 +38,7 @@
 {# library itself, so the project decides which of its pages pay  #}
 {# for it and where in the document it goes.                     #}
 {# ============================================================ #}
-<c-vars id="" name="" description="" />
+<c-vars id="" name="" description="" height="" />
 {% load i18n %}
 {% if not id %}
   <div class="alert alert-error" role="alert" data-mvp-chart-region-error>
@@ -41,7 +54,7 @@
     output on every pull request rather than only where a browser runs.
   {% endcomment %}
   <figure id="{{ id }}"
-          class="relative h-full w-full"
+          {% if height %}class="relative w-full" style="height: {{ height }}"{% else %}class="relative h-full w-full"{% endif %}
           data-mvp-chart-region
           data-mvp-chart-region-missing-library="{% trans 'No charting library to draw with. Load ECharts from your own base template, or expose it as window.echarts from your bundle.' %}"
           data-mvp-chart-region-no-height="{% trans 'No height to fill. Give the element around this chart a height: a chart region takes its size from its wrapper and has none of its own.' %}">
@@ -52,5 +65,6 @@
     {% if description %}
       <figcaption id="{{ id }}-description" class="sr-only">{{ description }}</figcaption>
     {% endif %}
+    {{ slot }}
   </figure>
 {% endif %}
