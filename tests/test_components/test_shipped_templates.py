@@ -8,10 +8,9 @@ import re
 from pathlib import Path
 
 import pytest
+from pyecharts.charts import Line
 
 import mvp_charts
-
-from .test_region import render
 
 PACKAGE_TEMPLATES = Path(mvp_charts.__file__).parent / "templates"
 SHIPPED = sorted(PACKAGE_TEMPLATES.rglob("*.html"))
@@ -87,16 +86,18 @@ class TestShippedTemplates:
         """
         assert not re.search(r"https?://", template.read_text())
 
-    def test_a_rendered_region_carries_no_explanation_of_itself(self):
+    def test_a_rendered_chart_carries_no_explanation_of_itself(self, render):
         """The end state the checks above exist to protect.
 
         A reader of a page should see the chart's own content and nothing
         about how the component works.
         """
+        chart = Line().add_xaxis(["Jan"]).add_yaxis("Revenue", [12])
         html = render(
-            '<c-echarts.region id="revenue" name="Revenue"'
-            ' description="Revenue by month." />'
+            '<c-chart :chart="chart" id="revenue" name="Revenue"'
+            ' description="Revenue by month." />',
+            chart=chart,
         )
-        assert "<figure" in html, "this has to be a rendered region, not the guard"
-        for tell in ("the module", "Article", "data attributes", "{#", "#}"):
+        assert "<figure" in html, "this has to be a rendered chart, not the guard"
+        for tell in ("the module", "Props:", "pyecharts", "{#", "#}"):
             assert tell not in html

@@ -7,103 +7,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-The chart region, and the first chart type that draws into it: a line chart.
-Nothing has been released.
+One component, and the chart it draws is built in Python. Nothing has been released, so nothing
+here is a breaking change to anyone — but it replaces everything the package previously offered.
 
 ### Added
 
-- `<c-echarts.region>`, the space a chart is drawn into. It fills the element
-  around it and has no height of its own, so the project's own wrapper decides
-  how big it is. `id` ties the caption to the right chart and is required;
-  leaving it out, or passing it empty, replaces the region with a message
-  saying so. `name` and `description` carry the accessible name and the text
-  alternative, and are optional: given, they are carried exactly as written;
-  left out or given empty, the region still renders without them.
-- `mvp_charts/locale/`, with a base English catalog. These are the package's
-  first user-facing strings.
-- A demo page showing a region in a sized wrapper, four more at four different
-  heights, the markup that produced them, and every state a region can be in
-  when it cannot draw.
-- `mvp_charts.versions`, stating the ECharts range the `echarts` namespace is
-  known to render against. ECharts remains undeclared as a dependency, because
-  this package does not ship it, and the range is not enforced anywhere — a
-  bundle outside it is untested rather than blocked.
-- `mvp_charts/js/chart-region.js`, the module a chart region needs in the
-  browser. The project loads it from its own template with a `{% static %}`
-  tag, next to whichever line supplies the charting library. A region emits no
-  script tag of any kind, so which pages carry the module, where it goes in the
-  document and whether it is bundled with the project's other JavaScript stay
-  the project's decisions.
-- A region that cannot draw says why, in the page, where the chart would have
-  been. A missing charting library is reported once waiting for a late bundle
-  stops being a reasonable explanation, and names both ways to supply one. A
-  wrapper that resolves to no height is reported too, with enough room taken
-  for the message to be read. Both messages are translatable and identical in
-  development and production.
-- The height is judged at a region's first visibility rather than at first
-  paint, so a region in a collapsed panel or an unselected tab is measured
-  when it is revealed. A region that loses its height afterwards reports
-  nothing.
-- One region failing leaves every other region on the page working.
-- `mvp-chart-region:resize`, dispatched on a region whenever its box changes
-  and carrying the measured `{ width, height }`. This is the contract a chart
-  type subscribes to in order to redraw, designed before any chart type exists
-  so the first one has something to meet rather than a gap to work around.
-- A region keeps filling its wrapper through a window resize, a wrapper
-  resized on its own, and being revealed after starting hidden.
-- `demo/templates/cotton/documentation.html`, the display surface django-mvp's
-  `{% show_code %}` tag renders through. The tag ships with django-mvp; the
-  template it names does not, so a project calling the tag has to supply one.
-  It shows a component live, the Cotton that produced it, and the HTML it
-  rendered to.
+- `pyecharts` as a dependency, and the API. A chart is a pyecharts object built in the host
+  project's own Python, which is where every chart type and every ECharts option already lives.
+  The types a Django view produces — dates, times, `Decimal` values and `None` — are serialised by
+  pyecharts, so nothing has to be converted first.
+- `<c-chart>`, the single component this package ships. It renders the figure a chart is drawn
+  into, its accessible name and text alternative, its height, and the chart's own options as JSON.
+  It names five attributes: `:chart`, `id`, `height`, `name` and `description`. It names nothing
+  about the chart.
+- `{% chart_options %}`, which escapes the three character sequences that can end a `<script>`
+  element early. pyecharts escapes none of them, so a label read out of a database and carrying
+  `</script>` would otherwise close the element it sits in. Asserted against three hostile labels.
+- `mvp_charts/js/mvp-charts.js`, the one module a page needs. It finds every chart, hands its
+  options to ECharts, and redraws each one when its box changes. The project loads it from its own
+  template with a `{% static %}` tag, so which pages carry it and where it goes in the document
+  stay the project's decisions.
+- A demo project on the application shell showing line, bar, pie and scatter charts, the whole
+  option surface reached in Python, and the awkward types drawn rather than described. The view
+  code that built each chart is on the page beside it.
+- `docs/adr/0006`, recording why an attribute vocabulary over ECharts' options was replaced by a
+  chart object, and what that costs.
 
-- `docs/adr/`, with the architectural decisions this feature settled: how
-  browser behaviour is delivered, what counts as evidence for a guarantee that
-  only exists in a running page, the single contract between this package and
-  the project that installs it, and which side of that line the script tags and
-  the region's id fall on.
-- The README shows the two script tags a project writes for itself — one for
-  ECharts, one for this package's module — and what makes the first safe to
-  copy. The package ships no charting library, names no origin and renders no
-  script tag, so installing it adds nothing a project did not ask for.
-- `<c-echarts.line>`, the first chart type: a line chart drawn from values and
-  point labels written directly on the tag as Python values, never as text —
-  the package splits nothing, guesses at no numbers and reports no mistake, so
-  data written as text simply does not draw. Labels are optional; without them
-  the points still draw, in the order the values were given. Every value is
-  drawn exactly as given, with nothing reordered, dropped, combined, rounded
-  or filled in. Carries the same `id`, `name` and `description` a chart region
-  does, `id` required and the other two optional, and keeps filling its
-  wrapper exactly as a region does.
-- `mvp_charts/js/echarts-chart.js`, the module a line chart needs in the
-  browser: it waits for its region to report ready, draws into it, and
-  redraws on the resize contract the region already publishes — no library
-  poll, no height check and no resize observer of its own, because the region
-  already owns all three.
-- The demo project shows a line chart on a page of its own, first in its new
-  Charts section, alongside a bare chart region to show that the two never
-  read or change each other's state.
-- The README shows the complete markup for a line chart, including the
-  wrapper that sizes it, and states plainly that an attribute carrying data
-  takes a Python value written with a colon.
-- The demo's line page shows the smallest working chart — one tag, an id
-  and values — beside the fully-described one, and the README states what
-  omitting the name and the text alternative costs the people reading the
-  page.
-- `:options`, reaching any ECharts option a chart component does not name.
-  Deep-merged over the object the component built: a mapping merges
-  recursively, a list replaces a list, and `series` is matched entry by entry
-  against position so an option added to an entry keeps that entry's own
-  data. No key is filtered anywhere the merge looks, including one this
-  package has never heard of. The README shows appearance belonging to the
-  page and a colour set by the author through `:options`, rather than one
-  this package supplied or derived from the running theme.
+### Removed
+
+- `<c-echarts.region>` and `<c-echarts.line>`, and the `echarts` namespace they sat in. There is
+  one component now, and a chart type is the class the view instantiated.
+- `:values`, `:labels` and `:options`, with the options builder and deep merge behind them. Every
+  option is set on the chart object.
+- The on-page failure messages for a missing charting library, a wrapper that resolved to no
+  height, and a missing id — with the library poll, the load-grace window, the
+  `IntersectionObserver`, the translated message catalogue and the custom-event contract between
+  the two browser modules that supported them. What a project shows its readers when something is
+  broken is the project's decision. A missing library and a chart that throws while drawing are
+  reported in the browser console instead.
+- `mvp-chart-region:resize` and `mvp-chart-region:state`. The module that draws a chart is the
+  module that watches its box, so there is no longer a contract between two of them.
+- `mvp_charts/locale/`. The package has no user-facing strings left to translate.
+- `docs/options.md`, which described an options builder that no longer exists.
 
 ### Changed
 
-- The demo project runs on django-mvp's application shell — sidebar, header,
-  breadcrumbs, theme switcher — instead of a single hand-written page. Its
-  navigation is declared in `demo/menus.py`, and a chart page joins it as one
-  entry in `CHART_PAGES`.
-- The test settings inherit the demo project's configuration instead of
-  restating it, so the suite exercises the project a reader actually opens.
+- A chart's appearance is pyecharts' rather than ECharts' bare defaults. Point labels, the legend,
+  the tooltip and the animation are on because pyecharts turns them on. This package still writes
+  no appearance of its own, and the README says whose the defaults are.
+- `CONSTITUTION.md` Articles XII to XV, `CONTEXT.md`, `GOALS.md` and the roadmap, all rewritten
+  against the one-component design.
+
+### Not supported
+
+- pyecharts' `JsCode`. `dump_options()` emits such a function unquoted, which is not JSON and could
+  only be delivered by evaluating server-rendered code in the page. The quoted variant is valid
+  JSON, but the function arrives as a string and ECharts ignores it without a word. A formatter
+  that silently does nothing is worse than one that was never offered, so neither route is taken.
+  Write it against the chart instance in your own JavaScript.

@@ -1,4 +1,4 @@
-"""The demo project, which is where the components get looked at as they land.
+"""The demo project, which is where the component gets looked at as it lands.
 
 It is tested for the same reason ``test_app.py`` tests the template directory:
 everything here fails quietly. A Cotton component that cannot be resolved
@@ -8,6 +8,7 @@ the sidebar. None of that raises, so none of it shows up anywhere except in a
 browser.
 """
 
+import json
 import re
 from pathlib import Path
 
@@ -16,6 +17,18 @@ from django.conf import settings
 from django.template import TemplateDoesNotExist
 from django.template.loader import get_template
 from django.urls import reverse
+
+
+def payloads(page):
+    """Every options script on the page, parsed back."""
+    return [
+        json.loads(script)
+        for script in re.findall(
+            r'<script type="application/json" data-mvp-chart-options>(.*?)</script>',
+            page,
+            re.S,
+        )
+    ]
 
 
 class TestOverviewPage:
@@ -43,59 +56,43 @@ class TestOverviewPage:
     def test_page_heading_is_the_page_title(self, overview_page):
         assert re.search(r"<h1[^>]*>\s*Overview\s*</h1>", overview_page)
 
-    def test_page_explains_what_the_package_is(self, overview_page):
-        """The one thing the page exists to do."""
-        assert "&lt;c-echarts.line&gt;" in overview_page
-        assert "Apache ECharts" in overview_page
+    def test_page_shows_the_view_code_that_builds_a_chart(self, overview_page):
+        """The half of the story that is not in the template.
+
+        The whole point of the design this page documents is that a chart is
+        built in Python, so a page showing only the tag would describe half an
+        API.
+        """
+        assert "from pyecharts.charts import Line" in overview_page
+        assert "get_context_data" in overview_page
+
+    def test_page_shows_the_tag_that_places_it(self, overview_page):
+        assert "&lt;c-chart" in overview_page
+
+    def test_page_draws_the_chart_it_documents(self, overview_page):
+        assert payloads(overview_page)
 
 
 class TestSidebarMenu:
     """What the navigation holds, which is exactly the pages that exist."""
 
-    def test_the_overview_page_is_linked(self, sidebar_navigation):
-        assert "<span>Overview</span>" in sidebar_navigation
-        assert 'href="/"' in sidebar_navigation
-
     def test_it_holds_exactly_the_pages_that_exist(self, sidebar_navigation):
-        """The sidebar holds the pages that exist and nothing else.
+        """The list below is the one place that says what the navigation holds.
 
-        This started out asserting the sidebar held only Overview, which was
-        the same claim while there were no other pages. The list below is the
-        one place that says what the navigation should hold, so a page added
-        without a thought about where it belongs stops here.
+        A page added without a thought about where it belongs stops here.
         """
         assert re.findall(r'href="([^"]*)"', sidebar_navigation) == [
             "/",
-            "/chart-region/",
-            "/line/",
+            "/chart-types/",
+            "/options/",
         ]
-
-    def test_the_chart_region_page_is_a_top_level_entry(self, sidebar_navigation):
-        """Not filed under Charts, which is for chart types.
-
-        The region is not a chart type, and burying it under a section for
-        pages that are would make it harder to find than it needs to be. Now
-        that a chart type exists the Charts group appears in the sidebar, so
-        what this asserts is that the region precedes it rather than sitting
-        inside it.
-        """
-        assert "<span>Chart region</span>" in sidebar_navigation
-        region_at = sidebar_navigation.index("Chart region</span>")
-        charts_group_at = sidebar_navigation.index("Charts</span>")
-        assert region_at < charts_group_at
-
-    def test_the_line_chart_page_is_filed_under_charts(self, sidebar_navigation):
-        assert "<span>Line</span>" in sidebar_navigation
-        assert "Charts</span>" in sidebar_navigation
 
     def test_no_section_is_drawn_with_nothing_under_it(self, overview_page):
         """A container added before it has children renders as a dead control.
 
         django-mvp draws a navigation node from its leaf template until it has
         children, so a section declared while its page list is empty reaches
-        the page as a button carrying ``href="None"``. This is what keeps that
-        from being reintroduced without anyone noticing, and it is why the
-        Charts group is conditional on holding a page.
+        the page as a button carrying ``href="None"``.
         """
         assert 'href="None"' not in overview_page
 
@@ -118,14 +115,14 @@ class TestDocumentationSurface:
                 "raises instead of rendering"
             )
 
-    def test_the_example_shows_the_live_component(self, overview_page):
-        assert '<h2 class="card-title">' in overview_page
-
     def test_the_example_shows_its_cotton_source(self, overview_page):
-        assert "&lt;c-card title=&quot;Monthly revenue&quot;" in overview_page
+        assert "&lt;c-chart :chart=&quot;revenue&quot;" in overview_page
 
     def test_the_example_shows_the_html_it_rendered_to(self, overview_page):
-        assert "&lt;div class=&quot;card bg-base-100" in overview_page
+        """Attributes come back alphabetised, which is the prettifier's doing."""
+        assert "&lt;figure" in overview_page
+        assert "id=&quot;revenue&quot;" in overview_page
+        assert "data-mvp-chart-surface" in overview_page
 
     def test_the_html_is_prettified(self, overview_page):
         """The tag falls back to raw output when BeautifulSoup is absent.
@@ -136,79 +133,90 @@ class TestDocumentationSurface:
         its own, where the raw output keeps ``<span>text</span>`` inline.
         """
         panes = re.findall(r"<pre[^>]*><code>(.*?)</code></pre>", overview_page, re.S)
-        assert len(panes) == 2
-        html_pane = panes[1]
-        assert re.search(r"\n\s*&lt;/span&gt;", html_pane)
+        assert re.search(r"\n\s*&lt;/figure&gt;", panes[-1])
 
 
-class TestChartRegionPage:
-    """T005: the demo shows a placed region, and the Charts section appears."""
+class TestChartTypesPage:
+    """One component placing four chart types, each built in the view."""
 
     def test_the_page_is_served(self, client, db):
-        assert client.get(reverse("chart_region")).status_code == 200
+        assert client.get(reverse("chart_types")).status_code == 200
 
-    def test_it_shows_a_region_whose_height_the_reader_can_see(self, chart_region_page):
-        """The height has to be visible twice, wherever it is written.
+    def test_it_draws_one_of_every_type_it_claims(self, chart_types_page):
+        """Read off the payloads rather than the prose, which can say anything."""
+        drawn = {options["series"][0]["type"] for options in payloads(chart_types_page)}
+        assert drawn == {"line", "bar", "pie", "scatter"}
 
-        Once in the live example, where the browser needs it to give the
-        region a box at all, and once in the source pane beside it, where a
-        reader copying the example needs to see what gave it that box. An
-        example that hid its height would not be copyable.
+    def test_every_chart_describes_its_own_caption(self, chart_types_page):
+        """Four distinct ids prove nothing on their own.
 
-        The placement example carries its height on the tag, so that is what
-        both assertions look for. The wrapper-mode examples further down the
-        page are covered by ``TestDocumentedExample``.
-        """
-        assert "data-mvp-chart-region" in chart_region_page
-        assert 'style="height: 320px"' in chart_region_page
-        shown_source = re.sub(r"&quot;|&#39;", '"', chart_region_page)
-        assert 'height="320px"' in shown_source
-
-    def test_it_shows_six_independent_regions(self, chart_region_page):
-        """Five that work, plus the no-height state, which still draws a region.
-
-        The other two failing states draw none: a region with no id reports it
-        instead, and the missing-library state needs a document of its own.
-        """
-        ids = re.findall(r'<figure id="([^"]+)"', chart_region_page)
-        assert len(ids) == 6
-        assert len(set(ids)) == 6
-
-    def test_every_region_describes_its_own_caption(self, chart_region_page):
-        """Independence is what the ids are for, so assert what they buy.
-
-        Five distinct ids prove nothing on their own: the failure this guards
-        against is two regions on a page pointing at one caption, which counts
-        the same and reads wrong to anyone using a screen reader.
+        The failure this guards against is two charts on a page pointing at
+        one caption, which counts the same and reads wrong to anyone using a
+        screen reader.
         """
         pairs = re.findall(
             r'<figure id="([^"]+)".*?aria-describedby="([^"]+)"',
-            chart_region_page,
+            chart_types_page,
             re.S,
         )
-        assert len(pairs) == 6
-        assert all(described == f"{region}-description" for region, described in pairs)
+        assert len(pairs) >= 4
+        assert all(described == f"{chart}-description" for chart, described in pairs)
 
-    def test_the_sidebar_carries_its_entry(self, chart_region_page):
-        assert 'href="/chart-region/"' in chart_region_page
-        assert "Chart region</span>" in chart_region_page
+    def test_the_charts_that_take_their_height_from_a_wrapper_have_one(
+        self, chart_types_page
+    ):
+        """The sizing mode this page demonstrates, asserted rather than described.
+
+        Three charts here carry no height and fill a sized element instead. A
+        wrapper that lost its height would leave them invisible, with nothing
+        raising anywhere.
+        """
+        wrappers = re.findall(
+            r'<div class="[^"]*border[^"]*" style="height: 300px">\s*<figure',
+            chart_types_page,
+        )
+        assert len(wrappers) == 3
+
+
+class TestChartOptionsPage:
+    """Every ECharts option reached in Python, and the awkward types."""
+
+    def test_the_page_is_served(self, client, db):
+        assert client.get(reverse("chart_options")).status_code == 200
+
+    def test_the_styled_chart_carries_options_no_attribute_names(
+        self, chart_options_page
+    ):
+        """The claim the page makes, read back off what it actually sent."""
+        styled = next(
+            options for options in payloads(chart_options_page) if "title" in options
+        )
+        assert styled["title"][0]["text"] == "Conversion rate"
+        assert styled["toolbox"]["show"] is True
+        assert styled["tooltip"]["trigger"] == "axis"
+        assert styled["series"][0]["lineStyle"]["color"] == "#7c3aed"
+
+    def test_dates_decimals_and_a_gap_all_survive(self, chart_options_page):
+        invoiced = next(
+            options
+            for options in payloads(chart_options_page)
+            if options["series"][0]["name"] == "Invoiced"
+        )
+        assert invoiced["series"][0]["data"] == [
+            ["2026-01-01", 1420.5],
+            ["2026-02-01", None],
+            ["2026-03-01", 1683.75],
+        ]
 
 
 class TestDocumentedExample:
-    """The README's examples are the markup the demo actually renders.
+    """The README's example is the markup the demo actually renders.
 
-    A documented example is only worth anything if it is exercised, so each
-    one in the README's placement section has a counterpart on the chart
-    region page, and the demo page rendering is what proves it works.
-    Comparing them here is what stops the two drifting apart silently, which
-    is the usual way a README example stops being true.
-
-    Both sizing modes are checked, and they are matched by their ids rather
-    than by the shape of the markup. An earlier version searched for the
-    first `<div style="height: ...">` block in the file: when the placement
-    example moved to the height attribute, that search silently slid onto the
-    example below it and went on passing, guarding a different example than
-    the one it named.
+    A documented example is only worth anything if it is exercised, so the
+    README's placement example has a counterpart on the overview page, and the
+    demo page rendering is what proves it works. Comparing them here is what
+    stops the two drifting apart silently, which is the usual way a README
+    example stops being true.
     """
 
     @staticmethod
@@ -220,92 +228,34 @@ class TestDocumentedExample:
         return None
 
     @staticmethod
-    def region_page():
+    def overview_template():
         return " ".join(
-            (Path(settings.BASE_DIR) / "demo/templates/demo/chart_region.html")
+            (Path(settings.BASE_DIR) / "demo/templates/demo/overview.html")
             .read_text()
             .split()
         )
 
-    def test_the_height_attribute_example_is_the_one_the_demo_shows(self):
-        example = self.readme_example('id="monthly-revenue"')
+    def test_the_placement_example_is_the_one_the_demo_shows(self):
+        example = self.readme_example('id="revenue"')
         assert example, "the README no longer carries the placement example"
-        assert 'height="320px"' in example, (
-            "the placement example no longer shows a height on the tag"
-        )
-        assert example in self.region_page()
-
-    def test_the_wrapper_example_is_the_one_the_demo_shows(self):
-        example = self.readme_example('id="signups"')
-        assert example, "the README no longer carries the wrapper-mode example"
-        assert 'style="height: 200px"' in example, (
-            "the wrapper-mode example no longer shows a sized element around the region"
-        )
-        assert example in self.region_page()
+        assert example in self.overview_template()
 
 
 class TestTheDemoLoadsTheLibraryItself:
     """The project places the delivery; no component reaches off-site for it."""
 
     def test_every_page_carries_the_delivery_the_project_placed(
-        self, overview_page, chart_region_page
+        self, overview_page, chart_types_page, chart_options_page
     ):
-        for page in (overview_page, chart_region_page):
+        for page in (overview_page, chart_types_page, chart_options_page):
             assert page.count("cdn.jsdelivr.net/npm/echarts@") == 1
 
-    def test_it_is_pinned_and_integrity_checked(self, chart_region_page):
-        script = re.search(r"<script[^>]*jsdelivr[^>]*>", chart_region_page).group(0)
+    def test_it_is_pinned_and_integrity_checked(self, chart_types_page):
+        script = re.search(r"<script[^>]*jsdelivr[^>]*>", chart_types_page).group(0)
         assert 'integrity="sha384-' in script
         assert 'crossorigin="anonymous"' in script
 
-    def test_the_package_module_is_loaded_once_beside_it(self, chart_region_page):
-        """Five regions on the page, one module.
-
-        Counted as real script tags rather than as occurrences of the name.
-        The page also shows a rendered example through ``{% show_code %}``,
-        and that pane carries an escaped copy of the same tag — text in a
-        code block, which no browser fetches.
-        """
-        real_tags = re.findall(r"<script[^>]*chart-region\.js", chart_region_page)
+    def test_the_package_module_is_loaded_once_beside_it(self, chart_types_page):
+        """Four charts on the page, one module."""
+        real_tags = re.findall(r"<script[^>]*mvp-charts\.js", chart_types_page)
         assert len(real_tags) == 1
-
-
-class TestTheStatesAreShownOnThatPage:
-    """T018: every state a region can be in is demonstrated, not described."""
-
-    def test_it_shows_a_region_whose_wrapper_resolves_to_no_height(
-        self, chart_region_page
-    ):
-        assert 'style="height: 100%"' in chart_region_page
-
-    def test_it_shows_the_missing_id_state(self, chart_region_page):
-        """The id is the one attribute still required, so it is the one shown.
-
-        A missing name or description stopped being a failing state when a
-        chart became renderable without either, so the example that used to
-        stand here demonstrated something the package no longer does.
-        """
-        assert 'role="alert"' in chart_region_page
-        assert "has no id" in chart_region_page
-
-    def test_it_frames_the_missing_library_state(self, chart_region_page):
-        """The library check reads a global, so that state needs its own document.
-
-        A frame keeps it on the one page a reader visits while still showing
-        it live rather than describing it.
-        """
-        assert 'src="/chart-region/no-library/"' in chart_region_page
-        assert "<iframe" in chart_region_page
-
-    def test_the_framed_document_has_no_charting_library(self, client, db):
-        framed = client.get(reverse("chart_region_no_library")).content.decode()
-        assert "echarts@" not in framed
-        assert not re.search(r"<script[^>]*echarts", framed)
-
-    def test_the_framed_document_still_loads_the_package_module(self, client, db):
-        """Which is what makes the state visible rather than merely absent."""
-        framed = client.get(reverse("chart_region_no_library")).content.decode()
-        assert re.search(r"<script[^>]*chart-region\.js", framed)
-
-    def test_the_framed_document_is_not_in_the_navigation(self, sidebar_navigation):
-        assert "no-library" not in sidebar_navigation

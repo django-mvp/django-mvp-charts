@@ -175,40 +175,40 @@ Two supported ways for the library to reach the browser:
    project importing a line chart and a tooltip pays for a fraction of the full build. A vendored
    copy would take that choice away and hand every project the whole library.
 
-Components state which global or module they need and fail visibly when it is absent. They never
-inject a `<script>` tag pointing at a third-party origin on the reader's behalf. A project that
-installs this package gains no external origin it did not already have.
+The package states which global it needs and says so in the browser console when it is absent. It
+never injects a `<script>` tag pointing at a third-party origin on the reader's behalf. A project
+that installs this package gains no external origin it did not already have.
 
-### Article XIII — One namespace per backend, and no interface across them
+### Article XIII — Python builds the chart, the template places it
 
-A charting library is chosen by the template author, per chart, by picking a component namespace.
-`<c-echarts.line>` renders with ECharts and speaks ECharts' vocabulary. A second backend would get
-its own namespace and its own vocabulary, next to the first rather than underneath it.
+A chart is a pyecharts object, built in Python by the project and put in the template context. The
+template places it with `<c-chart>` and says nothing about what it is. The chart type, the data,
+the axes, the legend, the tooltip and every appearance decision are the chart object's, which is
+where the whole of ECharts is already reachable.
 
-There is no neutral component that renders through a configurable backend, and adding one is a
-change to this constitution rather than a feature. Charting libraries differ in many small,
-load-bearing ways, and those differences are usually why a library was chosen. A common interface
-can only expose what they share, then needs an escape hatch to native options for anything real —
-at which point templates contain native options, the portability is gone, and what remains is a
-translation layer to work around.
+This package ships one component. A second one is a change to this constitution rather than a
+feature: a second way to put a chart on a page means a page author has to know which to reach for,
+and there is no question a second component would answer that the chart object does not.
 
-Shared behaviour across namespaces is plumbing, not semantics: container markup and sizing,
-responsive resize, theme handoff, script delivery, and serialising Python data into the shape a
-library wants. Where two namespaces would implement the same plumbing, it is factored out. Where
-they would implement the same *chart*, it is not.
+What belongs here is everything the chart object cannot do from Python: the figure's markup, its
+sizing, its accessible name and text alternative, carrying the options to the browser safely, and
+keeping a drawn chart at the size of its box.
 
 ### Article XIV — Pass through rather than mirror
 
-Named attributes cover the common cases. Every other option a backend understands stays reachable
-by being forwarded to it untouched.
+Every option a chart understands is reached by building it into the chart object. Nothing here
+names an option, defaults one, filters one, or renames one.
 
 This package does not mirror someone else's option surface in Python or in template attributes. A
 mirror is permanently one release behind the thing it mirrors, it forces a decision about every
-option whether or not anyone asked for it, and it turns an upstream addition into work here.
+option whether or not anyone asked for it, and it turns an upstream addition into work here. An
+attribute vocabulary over a charting library's options is that mirror by another name, and it
+cannot be partial for long: the first chart that needs an unnamed option reaches past it, and from
+then on the vocabulary is a second way to say what the options already said.
 
-An attribute earns its name by being needed often enough that spelling it out in raw options is a
-visible cost. The test at review is whether removing the attribute would make a common chart
-meaningfully worse to write.
+An attribute on `<c-chart>` earns its place only by being about the page rather than about the
+chart. `height` qualifies, because a chart object has no way to know what box a template gave it.
+Anything the chart object could carry itself does not.
 
 ### Article XV — Rendered output is a contract, and how a chart looks belongs to the page
 
@@ -218,20 +218,20 @@ Assertions are made against rendered output, never against the presence of a cla
 assertion proves a string is in a template and says nothing about what the browser draws.
 
 A chart drawn into a canvas is invisible to assistive technology and to anyone who cannot
-distinguish the colours, so every component takes an accessible name and a text alternative
-describing what the chart shows, and where a backend can render to SVG that option is preserved
-rather than hidden. Neither the name nor the alternative decides whether a chart is drawn. A plain chart on a
-page that supplies its own surrounding markup is an ordinary thing to want, and refusing to draw
-one is the package overruling the page about its own content. The case for writing both is made in
-the documentation, where it can be argued rather than enforced.
+distinguish the colours, so the component takes an accessible name and a text alternative
+describing what the chart shows. Neither decides whether a chart is drawn. A plain chart on a page
+that supplies its own surrounding markup is an ordinary thing to want, and refusing to draw one is
+the package overruling the page about its own content. The case for writing both is made in the
+documentation, where it can be argued rather than enforced.
 
-Appearance is not this package's to set. A series takes the charting library's own palette and the
-library's own defaults, and a page that wants something else says so through a named attribute or
-through the options that reach the backend untouched. Colour is not derived from the theme the
-surrounding application happens to be running: matching a canvas to a running theme costs a
-colour-space implementation, something watching for the theme to change and a repaint path, and it
-makes this package responsible for a guarantee no charting library offers. Article XIV sets the
-direction for the option surface, and appearance follows the same principle.
+Appearance is not this package's to set. A chart looks the way the chart object says it looks, and
+a page that wants something else changes the chart object. Nothing here writes a colour, a width, a
+marker, a legend rule or an animation, and nothing here removes one either — the defaults a reader
+sees are pyecharts', stated in the documentation as pyecharts' rather than presented as this
+package's taste. Colour is not derived from the theme the surrounding application happens to be
+running: matching a canvas to a running theme costs a colour-space implementation, something
+watching for the theme to change and a repaint path, and it makes this package responsible for a
+guarantee no charting library offers.
 
 ### Article XVI — Compatibility
 
@@ -245,8 +245,8 @@ CI matrix as the authoritative statement of both. Dropping either is a minor-ver
 CHANGELOG entry. The django-mvp floor moves forward when a component needs something an older
 release does not ship, and moving it is a CHANGELOG entry rather than a silent bump.
 
-A backend's own version is not pinned by this package, because this package does not ship it. What
-is stated, per namespace, is the range of the library it is known to render against.
+ECharts' own version is not pinned by this package, because this package does not ship it. What is
+stated, in `mvp_charts.versions`, is the range it is known to render against.
 
 ## Quality bar
 

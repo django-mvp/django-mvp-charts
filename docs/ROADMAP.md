@@ -1,6 +1,6 @@
 # Roadmap — django-mvp-charts
 
-**Date:** 2026-09-21
+**Date:** 2026-09-23
 
 This document was designed against [GOALS.md](../GOALS.md). See also [CONTEXT.md](../CONTEXT.md)
 for domain terminology and [CONSTITUTION.md](../CONSTITUTION.md) for project standards.
@@ -21,123 +21,81 @@ Releases are gated on goal importance, not on a count of features.
 A goal is not one minor: some take several releases, and one release can move two. Once `1.0`
 ships, a breaking change never goes out as `1.x` — it waits for the next major.
 
-Aspirational goals may be developed against v2 or v1 as required.
 
 ## Essential goals: v0.1.0
 
 Everything needed to reach a minimum usable release.
 
-### R1 — A chart occupies a region of the page, and the library reaches the browser
+### R1 — A chart built in Python is placed with one tag
 
-*feature · advances G1*
+*feature · advances G1, G2*
 
-Before any chart type exists, a page needs somewhere to put one and a way to get hold of the
-charting library. This item covers both, because neither is useful alone and the choices interact.
-A chart holds a sized region that survives a window resize and a container that changes shape.
-Several charts coexist on one page without interfering. The library is available in development
-without a build step and comes from the host project's own bundle in production, with a clear,
-early failure when it is absent rather than a blank rectangle.
+Delivered. A view builds a pyecharts chart, puts it in the context, and `<c-chart>` places it. The
+component renders the figure, its accessible name and text alternative, its sizing, and the options
+payload. `mvp-charts.js` hands that payload to ECharts and keeps each chart at the size of its box.
 
-This is the plumbing every later item stands on, which is why it comes first.
+Because the chart is a pyecharts object, every chart type and every ECharts option arrives with it.
+There is no attribute vocabulary to extend and no chart type to add: what pyecharts can build, this
+places.
 
 **Deliverables:**
 
-- A chart region that is sized by the template author and holds its shape as the page changes
+- One component, placing any pyecharts chart
 - Several charts on one page, independent of each other
-- The library available in development without a build step
-- The library taken from the host project's bundle when it has one
-- A visible, diagnosable failure when the library is missing
+- The library available in development without a build step, and taken from the host project's
+  bundle when it has one
+- A diagnosable failure in the console when the library is missing
 
-Serves G1. Out of scope: any chart type, and any option a specific chart type understands.
-
-### R2 — Python values become chart data without hand-serialising
+### R2 — Documentation a reader can follow from an empty project
 
 *feature · advances G1*
 
-The point at which a template author currently gives up and writes JavaScript is the data. This
-item makes a Python value usable as a chart attribute directly, in the shapes a Django view
-actually produces, with the awkward types handled rather than crashing at render or arriving as
-the string `None`.
-
-It comes second because every chart type needs it, and building it once against a real chart is
-what stops it being designed in the abstract.
+The API is small enough to state completely, which makes the documentation's job the part that is
+not obvious: where a chart is built, what pyecharts is for, what this package does and does not
+decide, and what happens to the awkward types. The README and the demo project are the two halves,
+and they are checked against each other so an example cannot quietly stop being true.
 
 **Deliverables:**
 
-- Values passed straight from a view to a component attribute
-- The shapes a Django view produces in practice, including several named series
-- Dates, times, decimals and missing values arriving as something the chart can draw
-- Values escaped correctly, with a test that proves content cannot break out of the page
-
-Serves G1. Out of scope: querying, aggregating or reshaping data, which stays the project's job.
-
-### R3 — Four basic chart types: line, bar, pie and scatter
-
-*multi-feature · advances G1, G2, G4*
-
-The four shapes that cover most of what an application dashboard shows, and the item that proves
-the whole idea end to end: a template author writes one tag with attributes and gets a working
-chart with no JavaScript anywhere on the page.
-
-They are one item rather than four because the attribute vocabulary is the real deliverable. Built
-separately they would drift into four dialects; built together, the same words mean the same thing
-whichever chart carries them, and the shared plumbing is forced out into the open by the second
-type rather than discovered at the fourth. Scatter earns its place here despite being the least
-reached-for, because its data is pairs rather than a series against categories, and a vocabulary
-that has never met that shape will not survive meeting it later.
-
-This item is also where the escape hatch gets settled, because the rule for a named attribute and
-a passed-through option disagreeing can only be written honestly with several chart types to test
-it against.
-
-**Deliverables:**
-
-- Line, bar, pie and scatter charts, each declared with attributes alone
-- One series and several, on every type that admits the distinction
-- One attribute vocabulary across the four, rather than four parallel ones
-- An accessible name and a text alternative available on every type, so a chart can be made
-  usable without seeing it
-- Options the components do not name, reachable from the template, with a stated and tested rule
-  for what happens when a named attribute and a passed option disagree
-- The demo project rendering all four, and documentation showing the tags that produced them
-
-Serves G1, G2 and G4. Out of scope: area fills, stacking and other variants, which arrive once
-enough types exist to show which of them are genuinely shared; and colour, which the charting
-library decides unless the page says otherwise.
+- A README that is followable start to finish by someone who has not seen pyecharts
+- A demo project rendering the chart types an application dashboard shows, with the view code that
+  built each one visible beside it
+- The README's placement example asserted to be the markup the demo actually renders
 
 ## Expected goals: v1.0.0
 
 The breadth that makes the package dependable rather than merely usable.
 
-### R4 — Area, stacked and combined variants
+### R3 — The awkward types, proven rather than assumed
+
+*feature · advances G3*
+
+pyecharts serialises dates, times, decimals and missing values, and the demo shows it doing so. What
+is not yet covered is the rest of what a Django view produces: querysets, `timezone`-aware
+datetimes, `timedelta`, and the numeric types numpy and pandas introduce when a project reaches for
+them. Each either works, or has a documented shape to convert to first.
+
+Serves G3.
+
+### R4 — A chart that is genuinely usable without seeing it
+
+*feature · advances G4*
+
+`name` and `description` are carried today, and that is the floor rather than the finish. What is
+open is whether a canvas chart can offer more than a text alternative — ECharts' own `aria` support
+emits a generated description and decal patterns for colour-blind readers, and both are off by
+default in pyecharts. Whether to document them, recommend them, or leave them alone is the question
+this item answers.
+
+Serves G4.
+
+### R5 — The ECharts 7 question
 
 *feature · advances G2*
 
-The variants deferred from the basic types, once there are enough chart types to see which of them
-are genuinely shared rather than particular to one shape. Serves G2.
+pyecharts follows ECharts by roughly a year: 2.1.0, the first release targeting ECharts 6, landed in
+February 2026. When ECharts 7 arrives, this package has to decide what it claims and what it tells a
+project that has bundled a version pyecharts does not yet build for. The answer is documentation and
+a version range, not code, but it needs deciding before it is urgent.
 
-### R5 — Axes, legend and tooltip as named attributes
-
-*feature · advances G1, G2*
-
-The configuration every chart type shares, promoted out of the escape hatch and named once, so it
-reads the same whichever chart it is on. Serves G1 and G2.
-
-### R6 — Values read the way people write them
-
-*feature · advances G2*
-
-Currency, percentages, thousands separators and dates on an axis, so a chart does not need
-post-processing to be readable. Serves G2.
-
-## Aspirational goals: v2.0
-
-The payoff of the namespace design, if and when a second library is wanted.
-
-### R7 — A second charting library
-
-*multi-feature · advances G3*
-
-A second library alongside ECharts, in its own namespace and speaking its own vocabulary. The work
-is as much about what turns out to be genuinely shared as about the new components, and it is the
-only thing that proves the namespace structure was worth having. Serves G3.
+Serves G2.

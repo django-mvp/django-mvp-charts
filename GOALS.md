@@ -12,13 +12,12 @@ Importance is a tag on each goal, not a ranking:
 
 - **Essential** — not worth adopting without it.
 - **Expected** — a complete, dependable version is expected to have it.
-- **Aspirational** — a genuine want whose absence never makes the package incomplete.
 
 | ID | Goal | Importance | Status | Notes |
 |----|------|------------|--------|-------|
-| G1 | A chart is put on a page by passing attributes to a component, data included, and the page author writes no JavaScript | Essential | | |
-| G2 | The chart types an application dashboard needs are available | Expected | | |
-| G3 | A second charting library has its own namespace alongside ECharts | Aspirational | | |
-| G4 | Whatever the charting library can do stays reachable from the template, without writing JavaScript | Essential | | |
+| G1 | A chart built in Python is put on a page with one tag, and the page author writes no JavaScript | Essential | | |
+| G2 | Whatever ECharts can draw is reachable, without this package having to name it first | Essential | | |
+| G3 | The types a Django view produces reach a chart without being converted first | Expected | | |
+| G4 | A chart is usable by someone who cannot see it | Expected | | |
 
 _Written 2026-09-21. Revise as the goals change._

@@ -1,0 +1,62 @@
+{% extends "page_view.html" %}
+{% load mvp %}
+{% block page.content %}
+  <c-section title="One component, every chart type" icon="chart">
+    <c-text>
+      All four charts below are placed with the same tag and the same five attributes.
+      What makes one a pie and another a scatter is the class the view built, never
+      anything written in the template. A chart type this package has never heard of
+      works the same way, on the day pyecharts adds it.
+    </c-text>
+    {% comment %}
+      cotton:verbatim is required, not decoration: without it Cotton compiles
+      the markup before show_code can capture it, and the source pane comes out
+      empty.
+    {% endcomment %}
+    {% show_code %}
+      {% cotton:verbatim %}
+        <c-chart :chart="line"
+                 id="revenue-and-costs"
+                 height="320px"
+                 name="Revenue and costs"
+                 description="Revenue and costs by month over the first half of the year. Revenue rises from 820 in January to 1330 in June; costs rise more slowly, from 620 to 845." />
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
+  <c-section title="Three more, built the same way" icon="overview">
+    <c-text>
+      Each of these is a few lines in <code>demo/views.py</code> and one tag here.
+      They take their height from the grid cell around them rather than carrying one,
+      which is what the <code>height</code> attribute is for leaving out.
+    </c-text>
+    <div class="grid gap-6 lg:grid-cols-3">
+      <div class="rounded-box border-base-300 border p-4" style="height: 300px">
+        <c-chart :chart="bar"
+                 id="orders-by-region"
+                 name="Orders by region"
+                 description="Orders placed in each of four sales regions: North 154, South 121, East 98, West 187." />
+      </div>
+      <div class="rounded-box border-base-300 border p-4" style="height: 300px">
+        <c-chart :chart="pie"
+                 id="accounts-by-plan"
+                 name="Accounts by plan"
+                 description="Accounts on each plan: Free 620, Team 240, Enterprise 86." />
+      </div>
+      <div class="rounded-box border-base-300 border p-4" style="height: 300px">
+        <c-chart :chart="scatter"
+                 id="response-time"
+                 name="Response time against load"
+                 description="Median response time in milliseconds against concurrent requests, rising from 140 ms at 12 requests to 356 ms at 52." />
+      </div>
+    </div>
+  </c-section>
+  <c-section title="What a chart looks like by default" icon="info">
+    <c-text>
+      Everything above is drawn as pyecharts builds it, with no styling written here.
+      Point labels, the legend, the tooltip and the animation are pyecharts' defaults,
+      not this package's — this package writes no appearance of any kind. Turning any
+      of them off is a keyword argument where the chart is built, shown on the
+      <a href="{% url 'chart_options' %}" class="link">Options</a> page.
+    </c-text>
+  </c-section>
+{% endblock page.content %}

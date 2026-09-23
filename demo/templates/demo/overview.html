@@ -6,44 +6,37 @@
       A chart on a Django page is mostly plumbing. You serialise a queryset to JSON,
       drop a div with an id, then write a script that finds the div and hands the JSON
       to a charting library — and do all of it again on the next page with a slightly
-      different id. This package moves the plumbing into a Cotton component so the
-      template keeps only the intent.
+      different id. This package moves the plumbing into one Cotton component so the
+      template keeps only the placement.
     </c-text>
     <c-text>
-      Data arrives as an attribute, from a view the project already has. There are no
-      models, no views and no URLs in the package: it renders markup, and that is all.
-    </c-text>
-  </c-section>
-  <c-section title="One namespace per charting library" icon="chart">
-    <c-text>
-      A chart names the library that draws it. <code>&lt;c-echarts.line&gt;</code> is
-      Apache ECharts and speaks ECharts' own vocabulary, and a second library would get
-      a namespace of its own beside it rather than underneath it. There is no neutral
-      component that renders through a swappable back end, because an interface across
-      charting libraries can only offer what they have in common and then needs an
-      escape hatch for anything real.
-    </c-text>
-    <c-text>
-      The library itself is never shipped from here. This project loads it from a public
-      CDN, which suits a demonstration and keeps local development free of a Node
-      toolchain. An application is expected to bundle it instead, importing only the
-      chart types it draws.
+      The chart itself is built in the view, with
+      <a href="https://pyecharts.org" class="link">pyecharts</a>. There are no models,
+      no views and no URLs in the package: it renders markup, and that is all.
     </c-text>
   </c-section>
-  <c-section title="Where the charts will appear" icon="overview">
-    <c-alert variant="info" soft>
-      <span>
-        No chart components exist yet. As each one lands it gets a page of its own under
-        a <strong>Charts</strong> section in the sidebar, showing the chart, the tag that
-        produced it, and the HTML it rendered to.
-      </span>
-    </c-alert>
-  </c-section>
-  <c-section title="How a chart page will read" icon="document">
+  <c-section title="The whole of it" icon="chart">
     <c-text>
-      Every chart page presents its example the same way — the live component first,
-      then the Cotton that produced it beside the HTML it rendered to. Here is that
-      surface, demonstrated on a card until the first chart component is written.
+      The view builds a chart and puts it in the context:
+    </c-text>
+    <div class="mockup-code w-full text-sm">
+      <pre class="px-6"><code>from pyecharts.charts import Line
+
+class RevenueView(TemplateView):
+    template_name = "revenue.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["revenue"] = (
+            Line()
+            .add_xaxis(["Jan", "Feb", "Mar", "Apr", "May", "Jun"])
+            .add_yaxis("Revenue", [820, 932, 901, 934, 1290, 1330])
+        )
+        return context</code></pre>
+    </div>
+    <c-text>
+      The template places it. That is the entire public surface of this package — one
+      component, and the four attributes below.
     </c-text>
     {% comment %}
       cotton:verbatim is required, not decoration: without it Cotton compiles
@@ -52,10 +45,65 @@
     {% endcomment %}
     {% show_code %}
       {% cotton:verbatim %}
-        <c-card title="Monthly revenue" icon="chart">
-          <c-text tight muted>A chart component will stand here.</c-text>
-        </c-card>
+        <c-chart :chart="revenue"
+                 id="revenue"
+                 height="320px"
+                 name="Monthly revenue"
+                 description="Revenue by month over the first half of the year, rising from January to a June peak." />
       {% endcotton:verbatim %}
     {% endshow_code %}
+  </c-section>
+  <c-section title="What the component names" icon="document">
+    <c-text>
+      Four attributes, and nothing about the chart. Its type, its data, its axes, its
+      colours and its tooltip are all set on the chart object in Python, where the whole
+      of ECharts is reachable rather than the part a template attribute happens to name.
+    </c-text>
+    <div class="overflow-x-auto">
+      <table class="table">
+        <thead>
+        <tr>
+          <th>Attribute</th>
+          <th>Required</th>
+          <th>What it does</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>:chart</code></td>
+          <td>Yes</td>
+          <td>The pyecharts chart to draw. Written with a colon, because it is a Python value.</td>
+        </tr>
+        <tr>
+          <td><code>id</code></td>
+          <td>Yes</td>
+          <td>The element id. The caption is tied to it, and it is how your own JavaScript finds the figure.</td>
+        </tr>
+        <tr>
+          <td><code>height</code></td>
+          <td>No</td>
+          <td>A CSS height. Leave it out and the figure fills the element around it instead.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>No</td>
+          <td>What a screen reader announces the chart as.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>No</td>
+          <td>What the chart shows, in words, read instead of the picture.</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </c-section>
+  <c-section title="The library reaches the browser from your project" icon="info">
+    <c-text>
+      The charting library is never shipped from here. This project loads it from a public
+      CDN, which suits a demonstration and keeps local development free of a Node
+      toolchain. An application is expected to bundle it instead, importing only the
+      chart types it draws.
+    </c-text>
   </c-section>
 {% endblock page.content %}

@@ -1,0 +1,44 @@
+{# ============================================================ #}
+{# <c-chart> — the one component this package ships              #}
+{#                                                               #}
+{# Draws a chart built in Python with pyecharts. The view makes  #}
+{# the chart and puts it in the context; this renders the space  #}
+{# it draws into and carries its options to the browser as JSON. #}
+{#                                                               #}
+{# Props:                                                        #}
+{#   :chart      – a pyecharts chart, with a colon. Required.    #}
+{#   id          – element id, the author's to give. Required:   #}
+{#                 the caption and the drawing surface are tied  #}
+{#                 to it, and an id invented here would shift    #}
+{#                 the moment a second chart went above it.      #}
+{#   height      – a CSS height for the figure. Optional; leave  #}
+{#                 it out and the figure fills the element       #}
+{#                 around it instead.                            #}
+{#   name        – accessible name. Optional; carried as the     #}
+{#                 drawing surface's aria-label when given.      #}
+{#   description – text alternative for what the chart shows.    #}
+{#                 Optional; carried as a figcaption when given. #}
+{#                                                               #}
+{# Everything else about the chart — its type, its data, its     #}
+{# axes, its colours, its tooltip — is set on the chart object   #}
+{# in Python. This component names none of it.                   #}
+{#                                                               #}
+{# The options travel as data in a script tag, never as script   #}
+{# this package wrote. mvp-charts.js reads them, and the project #}
+{# loads that file and the charting library from its own base    #}
+{# template.                                                     #}
+{# ============================================================ #}
+<c-vars chart id="" name="" description="" height="" />
+{% load mvp_charts %}
+<figure id="{{ id }}"
+        {% if height %}class="relative w-full" style="height: {{ height }}"{% else %}class="relative h-full w-full"{% endif %}
+        data-mvp-chart>
+  <div class="absolute inset-0"
+       {% if name %}role="img" aria-label="{{ name }}"{% endif %}
+       {% if description %}aria-describedby="{{ id }}-description"{% endif %}
+       data-mvp-chart-surface></div>
+  {% if description %}
+    <figcaption id="{{ id }}-description" class="sr-only">{{ description }}</figcaption>
+  {% endif %}
+  <script type="application/json" data-mvp-chart-options>{% chart_options chart %}</script>
+</figure>
