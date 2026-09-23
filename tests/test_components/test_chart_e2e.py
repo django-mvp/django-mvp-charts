@@ -228,20 +228,28 @@ class TestThePlaceholder:
         page.wait_for_function("() => document.readyState === 'complete'", timeout=5000)
         return page
 
-    def test_it_fills_the_figure_it_is_standing_in_for(self, waiting_page):
-        """Measured against the figure rather than read off a class list,
-        which proves a string is in a template and nothing about the box."""
-        boxes = waiting_page.evaluate(
+    def test_it_sits_in_the_middle_of_the_figure(self, waiting_page):
+        """Centred with nothing around it to do the centring.
+
+        Measured rather than read off a class list, because the classes that
+        put an element in the middle of its figure only do so while it has a
+        size of its own for the automatic margins to divide up — and a class
+        list looks identical either way.
+        """
+        centres = waiting_page.evaluate(
             "() => { const figure = document.getElementById('waiting');"
-            " const placeholder = figure"
+            " const spinner = figure"
             ".querySelector('[data-mvp-chart-placeholder]');"
             " const f = figure.getBoundingClientRect();"
-            " const p = placeholder.getBoundingClientRect();"
-            " return { figure: [f.width, f.height], placeholder: [p.width, p.height] };"
+            " const s = spinner.getBoundingClientRect();"
+            " return { figure: [f.width, f.height],"
+            "  spinner: [s.width, s.height],"
+            "  offset: [s.left - f.left + s.width / 2 - f.width / 2,"
+            "           s.top - f.top + s.height / 2 - f.height / 2] };"
             " }"
         )
-        assert boxes["figure"] == [400, 200]
-        assert boxes["placeholder"] == boxes["figure"]
+        assert centres["figure"] == [400, 200]
+        assert centres["offset"] == [0, 0]
 
     def test_the_spinner_is_drawn_rather_than_only_classed(self, waiting_page):
         """`loading` is a class daisyUI has to have built for it to spin.
@@ -255,9 +263,8 @@ class TestThePlaceholder:
         )
         assert box["width"] > 0
         assert box["height"] > 0
-
-    def test_it_says_what_the_page_gave_it_to_say(self, waiting_page):
-        assert "Drawing the chart" in waiting_page.locator("#waiting").inner_text()
+        assert box["width"] < 400
+        assert box["height"] < 200
 
     def test_it_stays_while_there_is_no_chart_to_replace_it(self, waiting_page):
         """A figure that goes empty and stays empty is the worse of the two."""

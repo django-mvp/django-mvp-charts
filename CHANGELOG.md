@@ -25,12 +25,12 @@ here is a breaking change to anyone — but it replaces everything the package p
   fraction it comes from, `16/9`. A chart then holds its shape at every window width, and a chart
   in a column with no height of its own still has one, without an outer element existing only to
   supply it. `height` wins when both are given.
-- `placeholder` on `<c-chart>`, which fills the figure with a card carrying a spinner and those
-  words until the chart is drawn into it. The browser module removes it once the chart is on the
-  surface, and leaves it where a chart never draws, because a figure that empties itself and stays
-  empty tells a reader less than one that never stopped waiting. The words are the page's: this
-  package has none to offer and still ships no message catalogue, so a chart that asks for no
-  placeholder renders exactly what it did before.
+- `placeholder` on `<c-chart>`, written on its own with no value, which puts a spinner in the
+  middle of the figure until the chart is drawn into it. The browser module removes it once the
+  chart is on the surface, and leaves it where a chart never draws, because a figure that empties
+  itself and stays empty tells a reader less than one that never stopped waiting. It carries no
+  words, so the package still ships no message catalogue, and a chart that asks for no placeholder
+  renders exactly what it did before.
 - A console warning for a figure that has a width and no height — the one way a chart fails
   silently, with correct options, a started ECharts instance, nothing thrown and a blank space
   where the reader expected a chart. Said once per chart and naming the figure. A chart in a

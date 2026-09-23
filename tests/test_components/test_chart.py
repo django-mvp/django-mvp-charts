@@ -129,35 +129,33 @@ class TestThePlaceholder:
     """What stands in the figure until the chart is drawn into it."""
 
     def test_a_placeholder_is_rendered_when_one_is_asked_for(self, render, line):
-        html = render(
-            '<c-chart :chart="chart" id="revenue" placeholder="Drawing the chart" />',
-            chart=line,
-        )
-        assert "Drawing the chart" in html
+        html = render('<c-chart :chart="chart" id="revenue" placeholder />', chart=line)
         assert "data-mvp-chart-placeholder" in html
 
     def test_it_is_hidden_from_anyone_listening_to_the_page(self, render, line):
         """The drawing surface carries the accessible name already, and a
         second announcement of the same figure is one too many."""
         html = render(
-            '<c-chart :chart="chart" id="revenue" placeholder="Drawing" name="R" />',
+            '<c-chart :chart="chart" id="revenue" placeholder name="R" />',
             chart=line,
         )
         tag = re.search(r"<[a-z]+[^>]*data-mvp-chart-placeholder[^>]*>", html)
         assert tag is not None, "nothing in the figure is marked as the placeholder"
         assert 'aria-hidden="true"' in tag.group(0)
 
-    def test_it_carries_a_spinner(self, render, line):
+    def test_it_is_a_spinner_and_nothing_around_it(self, render, line):
         """A chart is arriving rather than missing, and a spinner says so.
 
         The classes are asserted here because they are not decoration: they
         are the whole of what daisyUI needs to animate, and this package
-        writes them itself rather than taking them from a component.
+        writes them itself rather than taking them from a component. That
+        they put the spinner in the middle of the figure is measured in the
+        browser instead, where a stylesheet exists.
         """
-        html = render(
-            '<c-chart :chart="chart" id="revenue" placeholder="Drawing" />', chart=line
-        )
-        assert re.search(r'class="loading loading-spinner loading-lg"', html)
+        html = render('<c-chart :chart="chart" id="revenue" placeholder />', chart=line)
+        tag = re.search(r"<[a-z]+[^>]*data-mvp-chart-placeholder[^>]*>", html)
+        assert "loading loading-spinner loading-lg" in tag.group(0)
+        assert "card" not in html
 
     def test_a_chart_asked_for_no_placeholder_has_none(self, render, line):
         html = render('<c-chart :chart="chart" id="revenue" />', chart=line)

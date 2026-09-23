@@ -126,7 +126,7 @@ pyecharts' own [documentation](https://pyecharts.org/#/en-us/) is the reference 
 | `aspect-ratio` | No | The shape of the figure instead of its height. Ignored when `height` is also given. |
 | `name` | No | What a screen reader announces the chart as. |
 | `description` | No | What the chart shows, in words, read instead of the picture. |
-| `placeholder` | No | What to say in the figure, under a spinner, until the chart is drawn into it. |
+| `placeholder` | No | Written on its own, with no value. Puts a spinner in the middle of the figure until the chart is drawn into it. |
 
 `id` is never generated for you — an id this package invented would be stable only until someone added a second chart higher up the page, at which point every id below it would shift.
 
@@ -164,12 +164,12 @@ A chart is drawn by the browser, after the charting library has loaded and run. 
 <c-chart :chart="revenue"
          id="revenue"
          height="320px"
-         placeholder="Drawing the chart" />
+         placeholder />
 ```
 
-That fills the figure with a card carrying a spinner and those words, and the browser module removes it once the chart is on the surface. A chart is arriving rather than missing, which is what a spinner says and an icon does not.
+That puts a spinner in the middle of the figure, and the browser module removes it once the chart is on the surface. A chart is arriving rather than missing, which is what a spinner says and an icon does not.
 
-The words are yours. This package has none of its own to offer here and ships no message catalogue, which is also why leaving `placeholder` out leaves the figure as empty as it was before.
+There are no words with it and no attribute to give it any. A message this package wrote would need a translation catalogue it does not ship, and one the page wrote would be a second thing to position and to keep out of the way of a screen reader, which already has the chart's own `name` to announce. Leave `placeholder` out and the figure is as empty as it was before.
 
 A placeholder goes only when a chart replaces it, so a chart that never draws keeps it. That is deliberate: a figure that empties itself and stays empty tells a reader less than one that never stopped waiting. It is not a failure message, and this package still writes none — what went wrong is in the console.
 
