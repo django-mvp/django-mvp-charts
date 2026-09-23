@@ -100,6 +100,124 @@ class TestAChartFollowsItsBox:
         assert after < before
 
 
+MEASURE = """
+(id) => {
+  const figure = document.getElementById(id);
+  const chart = echarts.getInstanceByDom(
+    figure.querySelector('[data-mvp-chart-surface]'));
+  return { width: chart.getWidth(), height: chart.getHeight() };
+}
+"""
+
+
+@pytest.fixture
+def sizing_page(chromium, live_server, page):
+    """The probe page of awkward boxes, with anything drawable drawn."""
+    warnings = []
+    page.on(
+        "console",
+        lambda message: message.type == "warning" and warnings.append(message.text),
+    )
+    page.goto(f"{live_server.url}/probe/sizing/")
+    page.wait_for_function(CHARTS_DRAWN, timeout=10000)
+    page.wait_for_timeout(200)
+    return page, warnings
+
+
+class TestAChartThatHasNoBoxYet:
+    """A chart is not always drawable at first paint, and not always at fault."""
+
+    def test_a_chart_in_a_collapsed_panel_draws_when_the_panel_opens(self, sizing_page):
+        """0x0 at load, a real box once revealed, and no complaint either way.
+
+        A panel that is closed is the page working as designed. The old
+        `IntersectionObserver` existed to tell this apart from a mistake; the
+        resize observer now does it by arithmetic, because a hidden element
+        measures zero on both axes and a mis-sized one does not.
+        """
+        page, warnings = sizing_page
+        assert page.evaluate(MEASURE, "in-collapsed-panel") == {
+            "width": 0,
+            "height": 0,
+        }
+        assert not any("in-collapsed-panel" in text for text in warnings)
+
+        page.evaluate(
+            "() => document.getElementById('collapsed').classList.add('open')"
+        )
+        page.wait_for_function(
+            "() => echarts.getInstanceByDom(document.querySelector"
+            "('#in-collapsed-panel [data-mvp-chart-surface]')).getHeight() > 0",
+            timeout=5000,
+        )
+        assert page.evaluate(MEASURE, "in-collapsed-panel")["height"] == 300
+        assert not any("in-collapsed-panel" in text for text in warnings)
+
+    def test_a_wrapper_that_resolves_to_no_height_is_reported(self, sizing_page):
+        """The one failure that otherwise leaves no trace anywhere.
+
+        The options are right, ECharts initialised, nothing threw, and the
+        reader sees blank page. Width without height is what separates it
+        from the collapsed panel above, and the console is where it is said.
+        """
+        page, warnings = sizing_page
+        measured = page.evaluate(MEASURE, "never-has-height")
+        assert measured["width"] > 0
+        assert measured["height"] == 0
+        assert any(
+            "never-has-height" in text and "no height" in text for text in warnings
+        )
+
+    def test_a_chart_with_a_box_is_not_reported(self, sizing_page):
+        page, warnings = sizing_page
+        assert page.evaluate(MEASURE, "control")["height"] == 300
+        assert not any("control" in text for text in warnings)
+
+    def test_it_is_said_once_rather_than_on_every_resize(self, sizing_page):
+        """The check runs on every resize, and a stream of identical warnings
+        is how a console stops being read."""
+        page, warnings = sizing_page
+        page.set_viewport_size({"width": 700, "height": 900})
+        page.set_viewport_size({"width": 1100, "height": 900})
+        page.wait_for_timeout(300)
+        assert len([t for t in warnings if "never-has-height" in t]) == 1
+
+
+class TestAChartSizedByItsRatio:
+    """A ratio is a height the figure works out from the width it was given.
+
+    Measured rather than asserted against the style attribute, because the
+    attribute proves a string reached the markup and says nothing about the
+    box the browser gave the chart.
+    """
+
+    def test_the_height_is_the_width_divided_by_the_ratio(self, sizing_page):
+        page, _ = sizing_page
+        assert page.evaluate(MEASURE, "sized-by-its-ratio") == {
+            "width": 400,
+            "height": 200,
+        }
+
+    def test_the_ratio_holds_when_the_width_changes(self, sizing_page):
+        """The point of the ratio: the chart keeps its shape at any width."""
+        page, _ = sizing_page
+        page.evaluate(
+            "() => { document.getElementById('sized-by-its-ratio')"
+            ".parentElement.style.width = '600px'; }"
+        )
+        page.wait_for_function(
+            "() => echarts.getInstanceByDom(document.querySelector"
+            "('#sized-by-its-ratio [data-mvp-chart-surface]')).getWidth() === 600",
+            timeout=5000,
+        )
+        assert page.evaluate(MEASURE, "sized-by-its-ratio")["height"] == 300
+
+    def test_a_ratio_is_a_way_out_of_the_wrapper_with_no_height(self, sizing_page):
+        """Same wrapper as the chart that cannot draw, and nothing to report."""
+        page, warnings = sizing_page
+        assert not any("sized-by-its-ratio" in text for text in warnings)
+
+
 class TestWithNoChartingLibrary:
     """The one failure the package reports, and where it reports it."""
 

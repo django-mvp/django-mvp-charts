@@ -17,9 +17,19 @@ here is a breaking change to anyone — but it replaces everything the package p
   The types a Django view produces — dates, times, `Decimal` values and `None` — are serialised by
   pyecharts, so nothing has to be converted first.
 - `<c-chart>`, the single component this package ships. It renders the figure a chart is drawn
-  into, its accessible name and text alternative, its height, and the chart's own options as JSON.
-  It names five attributes: `:chart`, `id`, `height`, `name` and `description`. It names nothing
-  about the chart.
+  into, its accessible name and text alternative, its size, and the chart's own options as JSON.
+  It names six attributes: `:chart`, `id`, `height`, `aspect-ratio`, `name` and `description`. It
+  names nothing about the chart.
+- `aspect-ratio` on `<c-chart>`, a third way to give a chart a box: the figure takes the width the
+  page gives it and works the height out from the ratio. Written as a number, `2`, or as the
+  fraction it comes from, `16/9`. A chart then holds its shape at every window width, and a chart
+  in a column with no height of its own still has one, without an outer element existing only to
+  supply it. `height` wins when both are given.
+- A console warning for a figure that has a width and no height — the one way a chart fails
+  silently, with correct options, a started ECharts instance, nothing thrown and a blank space
+  where the reader expected a chart. Said once per chart and naming the figure. A chart in a
+  closed panel or an unselected tab measures nothing on either axis, so it is not reported, and it
+  draws itself when the panel opens.
 - `{% chart_options %}`, which escapes the three character sequences that can end a `<script>`
   element early. pyecharts escapes none of them, so a label read out of a database and carrying
   `</script>` would otherwise close the element it sits in. Asserted against three hostile labels.
@@ -43,8 +53,8 @@ here is a breaking change to anyone — but it replaces everything the package p
   height, and a missing id — with the library poll, the load-grace window, the
   `IntersectionObserver`, the translated message catalogue and the custom-event contract between
   the two browser modules that supported them. What a project shows its readers when something is
-  broken is the project's decision. A missing library and a chart that throws while drawing are
-  reported in the browser console instead.
+  broken is the project's decision. Everything the package has to say now goes to the browser
+  console instead.
 - `mvp-chart-region:resize` and `mvp-chart-region:state`. The module that draws a chart is the
   module that watches its box, so there is no longer a contract between two of them.
 - `mvp_charts/locale/`. The package has no user-facing strings left to translate.
