@@ -28,7 +28,7 @@ Everything needed to reach a minimum usable release.
 
 ### R1 — A chart built in Python is placed with one tag
 
-*feature · advances G1, G2*
+*delivered in [#4](https://github.com/django-mvp/django-mvp-charts/issues/4) · advances G1, G2*
 
 Delivered. A view builds a pyecharts chart, puts it in the context, and `<c-chart>` places it. The
 component renders the figure, its accessible name and text alternative, its sizing, and the options
@@ -48,7 +48,7 @@ places.
 
 ### R2 — Documentation a reader can follow from an empty project
 
-*feature · advances G1*
+*delivered in [#20](https://github.com/django-mvp/django-mvp-charts/issues/20), [#21](https://github.com/django-mvp/django-mvp-charts/issues/21) · advances G1*
 
 The API is small enough to state completely, which makes the documentation's job the part that is
 not obvious: where a chart is built, what pyecharts is for, what this package does and does not

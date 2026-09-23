@@ -9,6 +9,13 @@
       works the same way, on the day pyecharts adds it.
     </c-text>
     {% comment %}
+      Every listing on this page is read back off the function that ran, in
+      demo/views.py, so it cannot describe a chart the page is not showing.
+    {% endcomment %}
+    <div class="mockup-code w-full text-sm">
+      <pre class="px-6"><code>{{ source.line }}</code></pre>
+    </div>
+    {% comment %}
       cotton:verbatim is required, not decoration: without it Cotton compiles
       the markup before show_code can capture it, and the source pane comes out
       empty.
@@ -25,28 +32,44 @@
   </c-section>
   <c-section title="Three more, built the same way" icon="overview">
     <c-text>
-      Each of these is a few lines in <code>demo/views.py</code> and one tag here.
-      They take their height from the grid cell around them rather than carrying one,
-      which is what the <code>height</code> attribute is for leaving out.
+      Each of these is one function in <code>demo/views.py</code> and one tag here, with
+      the function shown under its chart. They take their height from the grid cell
+      around them rather than carrying one, which is what the <code>height</code>
+      attribute is for leaving out.
     </c-text>
     <div class="grid gap-6 lg:grid-cols-3">
-      <div class="rounded-box border-base-300 border p-4" style="height: 300px">
-        <c-chart :chart="bar"
-                 id="orders-by-region"
-                 name="Orders by region"
-                 description="Orders placed in each of four sales regions: North 154, South 121, East 98, West 187." />
+      <div class="flex flex-col gap-4">
+        <div class="rounded-box border-base-300 border p-4" style="height: 300px">
+          <c-chart :chart="bar"
+                   id="orders-by-region"
+                   name="Orders by region"
+                   description="Orders placed in each of four sales regions: North 154, South 121, East 98, West 187." />
+        </div>
+        <div class="mockup-code w-full text-xs">
+          <pre class="px-6"><code>{{ source.bar }}</code></pre>
+        </div>
       </div>
-      <div class="rounded-box border-base-300 border p-4" style="height: 300px">
-        <c-chart :chart="pie"
-                 id="accounts-by-plan"
-                 name="Accounts by plan"
-                 description="Accounts on each plan: Free 620, Team 240, Enterprise 86." />
+      <div class="flex flex-col gap-4">
+        <div class="rounded-box border-base-300 border p-4" style="height: 300px">
+          <c-chart :chart="pie"
+                   id="accounts-by-plan"
+                   name="Accounts by plan"
+                   description="Accounts on each plan: Free 620, Team 240, Enterprise 86." />
+        </div>
+        <div class="mockup-code w-full text-xs">
+          <pre class="px-6"><code>{{ source.pie }}</code></pre>
+        </div>
       </div>
-      <div class="rounded-box border-base-300 border p-4" style="height: 300px">
-        <c-chart :chart="scatter"
-                 id="response-time"
-                 name="Response time against load"
-                 description="Median response time in milliseconds against concurrent requests, rising from 140 ms at 12 requests to 356 ms at 52." />
+      <div class="flex flex-col gap-4">
+        <div class="rounded-box border-base-300 border p-4" style="height: 300px">
+          <c-chart :chart="scatter"
+                   id="response-time"
+                   name="Response time against load"
+                   description="Median response time in milliseconds against concurrent requests, rising from 140 ms at 12 requests to 356 ms at 52." />
+        </div>
+        <div class="mockup-code w-full text-xs">
+          <pre class="px-6"><code>{{ source.scatter }}</code></pre>
+        </div>
       </div>
     </div>
   </c-section>
