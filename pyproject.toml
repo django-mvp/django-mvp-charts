@@ -1,6 +1,6 @@
 [project]
 name = "django-mvp-charts"
-version = "0.0.1"
+version = "0.0.2"
 description = "Charts for django-mvp projects: build them in Python with pyecharts, place them with one Cotton component"
 authors = [
     { name = "Samuel Jennings", email = "samuel.scott.jennings@gmail.com" },
