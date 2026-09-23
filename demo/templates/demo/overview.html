@@ -100,11 +100,6 @@ class RevenueView(TemplateView):
           <td>No</td>
           <td>What the chart shows, in words, read instead of the picture.</td>
         </tr>
-        <tr>
-          <td><code>placeholder</code></td>
-          <td>No</td>
-          <td>Written on its own, with no value: holds the figure with a spinner until the chart is drawn into it. Every chart on the <a href="{% url 'chart_types' %}" class="link">Chart types</a> page has one.</td>
-        </tr>
         </tbody>
       </table>
     </div>
@@ -150,6 +145,14 @@ class RevenueView(TemplateView):
                  description="Revenue by month over the first half of the year, rising from January to a June peak." />
       </div>
     </div>
+  </c-section>
+  <c-section title="While the chart is still on its way" icon="info">
+    <c-text>
+      A chart is drawn by the browser, so there is a moment before it appears. Every
+      figure spends that moment holding a spinner in its centre, and loses it the
+      instant the chart is on the surface. There is no attribute for this and nothing
+      to switch on. Throttle the network and reload to watch it on any chart here.
+    </c-text>
   </c-section>
   <c-section title="The library reaches the browser from your project" icon="info">
     <c-text>

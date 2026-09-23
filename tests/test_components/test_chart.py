@@ -128,17 +128,15 @@ class TestSizing:
 class TestThePlaceholder:
     """What stands in the figure until the chart is drawn into it."""
 
-    def test_a_placeholder_is_rendered_when_one_is_asked_for(self, render, line):
-        html = render('<c-chart :chart="chart" id="revenue" placeholder />', chart=line)
+    def test_every_figure_gets_one_with_nothing_asked_for(self, render, line):
+        """Every chart waits before it draws, so there is nothing to opt into."""
+        html = render(A_CHART, chart=line)
         assert "data-mvp-chart-placeholder" in html
 
     def test_it_is_hidden_from_anyone_listening_to_the_page(self, render, line):
         """The drawing surface carries the accessible name already, and a
         second announcement of the same figure is one too many."""
-        html = render(
-            '<c-chart :chart="chart" id="revenue" placeholder name="R" />',
-            chart=line,
-        )
+        html = render('<c-chart :chart="chart" id="revenue" name="R" />', chart=line)
         tag = re.search(r"<[a-z]+[^>]*data-mvp-chart-placeholder[^>]*>", html)
         assert tag is not None, "nothing in the figure is marked as the placeholder"
         assert 'aria-hidden="true"' in tag.group(0)
@@ -152,15 +150,10 @@ class TestThePlaceholder:
         they put the spinner in the middle of the figure is measured in the
         browser instead, where a stylesheet exists.
         """
-        html = render('<c-chart :chart="chart" id="revenue" placeholder />', chart=line)
+        html = render(A_CHART, chart=line)
         tag = re.search(r"<[a-z]+[^>]*data-mvp-chart-placeholder[^>]*>", html)
         assert "loading loading-spinner loading-lg" in tag.group(0)
         assert "card" not in html
-
-    def test_a_chart_asked_for_no_placeholder_has_none(self, render, line):
-        html = render('<c-chart :chart="chart" id="revenue" />', chart=line)
-        assert "data-mvp-chart-placeholder" not in html
-        assert "loading" not in html
 
 
 class TestTheOptionsPayload:

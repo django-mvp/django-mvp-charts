@@ -223,7 +223,7 @@ class TestThePlaceholder:
 
     @pytest.fixture
     def waiting_page(self, chromium, live_server, page):
-        """A figure holding its placeholder, because no library ever arrives."""
+        """A figure holding its spinner, because no library ever arrives."""
         page.goto(f"{live_server.url}/probe/placeholder/")
         page.wait_for_function("() => document.readyState === 'complete'", timeout=5000)
         return page
@@ -273,7 +273,7 @@ class TestThePlaceholder:
         )
 
     def test_it_is_gone_once_the_chart_is_drawn(self, drawn_page):
-        """Every chart on that page asks for one, and none of them still has it."""
+        """Every chart on that page starts with one, and none of them kept it."""
         assert drawn_page.locator("[data-mvp-chart-placeholder]").count() == 0
         assert drawn_page.locator("[data-mvp-chart]").count() > 0
 

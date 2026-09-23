@@ -18,7 +18,6 @@
         <c-chart :chart="line"
                  id="revenue-and-costs"
                  height="320px"
-                 placeholder
                  name="Revenue and costs"
                  description="Revenue and costs by month over the first half of the year. Revenue rises from 820 in January to 1330 in June; costs rise more slowly, from 620 to 845." />
       {% endcotton:verbatim %}
@@ -34,21 +33,18 @@
       <div class="rounded-box border-base-300 border p-4" style="height: 300px">
         <c-chart :chart="bar"
                  id="orders-by-region"
-                 placeholder
                  name="Orders by region"
                  description="Orders placed in each of four sales regions: North 154, South 121, East 98, West 187." />
       </div>
       <div class="rounded-box border-base-300 border p-4" style="height: 300px">
         <c-chart :chart="pie"
                  id="accounts-by-plan"
-                 placeholder
                  name="Accounts by plan"
                  description="Accounts on each plan: Free 620, Team 240, Enterprise 86." />
       </div>
       <div class="rounded-box border-base-300 border p-4" style="height: 300px">
         <c-chart :chart="scatter"
                  id="response-time"
-                 placeholder
                  name="Response time against load"
                  description="Median response time in milliseconds against concurrent requests, rising from 140 ms at 12 requests to 356 ms at 52." />
       </div>

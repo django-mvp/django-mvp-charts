@@ -18,19 +18,18 @@ here is a breaking change to anyone — but it replaces everything the package p
   pyecharts, so nothing has to be converted first.
 - `<c-chart>`, the single component this package ships. It renders the figure a chart is drawn
   into, its accessible name and text alternative, its size, and the chart's own options as JSON.
-  It names seven attributes: `:chart`, `id`, `height`, `aspect-ratio`, `name`, `description` and
-  `placeholder`. It names nothing about the chart.
+  It names six attributes: `:chart`, `id`, `height`, `aspect-ratio`, `name` and `description`. It
+  names nothing about the chart.
 - `aspect-ratio` on `<c-chart>`, a third way to give a chart a box: the figure takes the width the
   page gives it and works the height out from the ratio. Written as a number, `2`, or as the
   fraction it comes from, `16/9`. A chart then holds its shape at every window width, and a chart
   in a column with no height of its own still has one, without an outer element existing only to
   supply it. `height` wins when both are given.
-- `placeholder` on `<c-chart>`, written on its own with no value, which puts a spinner in the
-  middle of the figure until the chart is drawn into it. The browser module removes it once the
-  chart is on the surface, and leaves it where a chart never draws, because a figure that empties
-  itself and stays empty tells a reader less than one that never stopped waiting. It carries no
-  words, so the package still ships no message catalogue, and a chart that asks for no placeholder
-  renders exactly what it did before.
+- A spinner in the middle of every figure until the chart is drawn into it. There is no attribute
+  for it and nothing to opt into: every chart waits for the browser, so every figure says so. The
+  browser module takes it out once the chart is on the surface, and leaves it where a chart never
+  draws, because a figure that empties itself and stays empty tells a reader less than one that
+  never stopped waiting. It carries no words, so the package still ships no message catalogue.
 - A console warning for a figure that has a width and no height — the one way a chart fails
   silently, with correct options, a started ECharts instance, nothing thrown and a blank space
   where the reader expected a chart. Said once per chart and naming the figure. A chart in a

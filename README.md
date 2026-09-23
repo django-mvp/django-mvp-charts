@@ -26,7 +26,7 @@ Your template places it:
          description="Revenue by month over the first half of the year, rising from January to a June peak." />
 ```
 
-That is the whole API. One component, seven attributes, and no JavaScript on the page.
+That is the whole API. One component, six attributes, and no JavaScript on the page.
 
 ## Status
 
@@ -116,7 +116,7 @@ pyecharts' own [documentation](https://pyecharts.org/#/en-us/) is the reference 
 
 ## Placing the chart
 
-`<c-chart>` renders the figure, the accessible name, the text alternative and the options payload. It names seven attributes and nothing about the chart itself.
+`<c-chart>` renders the figure, the accessible name, the text alternative and the options payload. It names six attributes and nothing about the chart itself.
 
 | Attribute | Required | What it does |
 |---|---|---|
@@ -126,7 +126,6 @@ pyecharts' own [documentation](https://pyecharts.org/#/en-us/) is the reference 
 | `aspect-ratio` | No | The shape of the figure instead of its height. Ignored when `height` is also given. |
 | `name` | No | What a screen reader announces the chart as. |
 | `description` | No | What the chart shows, in words, read instead of the picture. |
-| `placeholder` | No | Written on its own, with no value. Puts a spinner in the middle of the figure until the chart is drawn into it. |
 
 `id` is never generated for you — an id this package invented would be stable only until someone added a second chart higher up the page, at which point every id below it would shift.
 
@@ -158,20 +157,13 @@ That suits a chart in a grid row, a dashboard tile or a flex child, where the la
 
 ### While the chart is still on its way
 
-A chart is drawn by the browser, after the charting library has loaded and run. Until then the figure is an empty box the size of the chart that is coming. Give it something to hold:
+A chart is drawn by the browser, after the charting library has loaded and run. Until then the figure would be an empty box the size of the chart that is coming, so it holds a spinner in its centre instead. The browser module takes the spinner out once the chart is on the surface.
 
-```html
-<c-chart :chart="revenue"
-         id="revenue"
-         height="320px"
-         placeholder />
-```
+There is no attribute for it and nothing to switch on. Every chart waits, so every figure says so. A chart is arriving rather than missing, which is what a spinner says and an empty box does not.
 
-That puts a spinner in the middle of the figure, and the browser module removes it once the chart is on the surface. A chart is arriving rather than missing, which is what a spinner says and an icon does not.
+There are no words with it either. A message this package wrote would need a translation catalogue it does not ship, and one you wrote would be a second thing to position and to keep away from a screen reader, which has the chart's `name` to announce already.
 
-There are no words with it and no attribute to give it any. A message this package wrote would need a translation catalogue it does not ship, and one the page wrote would be a second thing to position and to keep out of the way of a screen reader, which already has the chart's own `name` to announce. Leave `placeholder` out and the figure is as empty as it was before.
-
-A placeholder goes only when a chart replaces it, so a chart that never draws keeps it. That is deliberate: a figure that empties itself and stays empty tells a reader less than one that never stopped waiting. It is not a failure message, and this package still writes none — what went wrong is in the console.
+The spinner goes only when a chart replaces it, so a chart that never draws keeps it. That is deliberate: a figure that empties itself and stays empty tells a reader less than one that never stopped waiting. It is not a failure message, and this package still writes none — what went wrong is in the console.
 
 ## Keeping its shape
 
