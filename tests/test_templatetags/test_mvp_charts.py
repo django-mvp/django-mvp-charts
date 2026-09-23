@@ -118,6 +118,21 @@ class TestChartOptionsRejectsJavaScriptCallbacks:
         chart = Line().add_xaxis(["Jan"]).add_yaxis("Revenue", [12])
         assert json.loads(chart_options(chart)) == json.loads(chart.dump_options())
 
+    def test_a_label_carrying_the_sentinel_is_refused_without_being_blamed(self):
+        """pyecharts marks a callback with `--x_x--0_0--` and strips it again.
+
+        It strips the sequence wherever it appears, so a label holding it —
+        out of a database, and so not ours to trust — breaks the serialisation
+        the same way a callback does. Refusing is right. Announcing a callback
+        the chart does not have is not, because it sends the reader looking
+        for one.
+        """
+        chart = Line().add_xaxis(["--x_x--0_0--"]).add_yaxis("s", [1])
+        with pytest.raises(ValueError) as refusal:
+            chart_options(chart)
+        assert "carries a JavaScript callback" not in str(refusal.value)
+        assert "did not serialise as JSON" in str(refusal.value)
+
 
 class TestCallbackOptionName:
     """Reading the option off the two serialisations of one chart."""

@@ -70,13 +70,19 @@ def chart_options(chart: Base) -> str:
     plain: str = chart.dump_options()
     if plain != quoted:
         name = callback_option_name(plain, quoted)
-        option = f"`{name}`" if name else "one of its options"
+        cause = (
+            f"This chart carries a JavaScript callback on `{name}`."
+            if name
+            else (
+                "This chart's options did not serialise as JSON, which a "
+                "JavaScript callback in one of them would explain."
+            )
+        )
         raise ValueError(
-            f"This chart carries a JavaScript callback on {option}. The options "
-            "travel to the browser as JSON and a function cannot be written into "
-            "JSON, so a chart naming one is refused here rather than sent as a "
-            "document the page cannot parse. Remove it, or write it in your own "
-            "JavaScript against the chart instance that echarts.getInstanceByDom() "
-            "returns for the figure's drawing surface."
+            f"{cause} The options travel to the browser as JSON and a function "
+            "cannot be written into JSON, so this is refused here rather than "
+            "sent as a document the page cannot parse. Remove the callback, or "
+            "write it in your own JavaScript against the chart instance that "
+            "echarts.getInstanceByDom() returns for the figure's drawing surface."
         )
     return mark_safe(quoted.translate(SCRIPT_SAFE_ESCAPES))  # noqa: S308
