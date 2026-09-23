@@ -155,6 +155,16 @@ That suits a chart in a grid row, a dashboard tile or a flex child, where the la
 
 **A chart drawn into a canvas is invisible to anyone who cannot see it, and to anyone who cannot tell its colours apart.** Leaving out `name` and `description` is a real choice, not a shortcut: without them there is nothing else on the page for a screen reader to announce, or for someone who cannot make out the shape of the line to read instead. Give both whenever the chart is more than decoration.
 
+### While the chart is still on its way
+
+A chart is drawn by the browser, after the charting library has loaded and run. Until then the figure would be an empty box the size of the chart that is coming, so it holds a spinner in its centre instead. The browser module takes the spinner out once the chart is on the surface.
+
+There is no attribute for it and nothing to switch on. Every chart waits, so every figure says so. A chart is arriving rather than missing, which is what a spinner says and an empty box does not.
+
+There are no words with it either. A message this package wrote would need a translation catalogue it does not ship, and one you wrote would be a second thing to position and to keep away from a screen reader, which has the chart's `name` to announce already.
+
+The spinner goes only when a chart replaces it, so a chart that never draws keeps it. That is deliberate: a figure that empties itself and stays empty tells a reader less than one that never stopped waiting. It is not a failure message, and this package still writes none — what went wrong is in the console.
+
 ## Keeping its shape
 
 A page is not a fixed rectangle. The window is resized, a sidebar collapses, a tab reveals content that was hidden when the page loaded. Each chart watches its own figure and redraws at the new size, so it is never left at a size the page has stopped having.

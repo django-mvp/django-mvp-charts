@@ -43,8 +43,25 @@ class SizingProbe(MVPTemplateView):
         return context
 
 
+class PlaceholderProbe(MVPTemplateView):
+    """A chart holding its placeholder, because no library ever arrives.
+
+    The state a reader sees for as long as the library takes to load, held
+    still so it can be measured.
+    """
+
+    template_name = "probe/placeholder.html"
+    page_title = "Placeholder"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["chart"] = a_chart()
+        return context
+
+
 urlpatterns = [
     path("probe/no-library/", NoLibraryProbe.as_view(), name="probe_no_library"),
     path("probe/sizing/", SizingProbe.as_view(), name="probe_sizing"),
+    path("probe/placeholder/", PlaceholderProbe.as_view(), name="probe_placeholder"),
     path("", include("demo.urls")),
 ]

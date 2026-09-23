@@ -146,6 +146,14 @@ class RevenueView(TemplateView):
       </div>
     </div>
   </c-section>
+  <c-section title="While the chart is still on its way" icon="info">
+    <c-text>
+      A chart is drawn by the browser, so there is a moment before it appears. Every
+      figure spends that moment holding a spinner in its centre, and loses it the
+      instant the chart is on the surface. There is no attribute for this and nothing
+      to switch on. Throttle the network and reload to watch it on any chart here.
+    </c-text>
+  </c-section>
   <c-section title="The library reaches the browser from your project" icon="info">
     <c-text>
       The charting library is never shipped from here. This project loads it from a public

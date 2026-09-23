@@ -1,0 +1,16 @@
+{% extends "page_view.html" %}
+{% load static %}
+{% block extra_js %}
+  {% comment %}
+    The application shell, its stylesheet, and this package's module — but no
+    charting library. The shell is what gives the spinner a box and a position
+    to be measured in, and the missing library is what holds the figure in the
+    state this page exists to measure: the one before a chart is drawn.
+  {% endcomment %}
+  <script defer src="{% static 'mvp_charts/js/mvp-charts.js' %}"></script>
+{% endblock extra_js %}
+{% block page.content %}
+  <div style="width: 400px; height: 200px">
+    <c-chart :chart="chart" id="waiting" name="A chart still to be drawn" />
+  </div>
+{% endblock page.content %}

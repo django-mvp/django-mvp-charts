@@ -39,6 +39,20 @@
         class="relative w-full{% if not height and not aspect_ratio %} h-full{% endif %}"
         {% if height %}style="height: {{ height }}"{% elif aspect_ratio %}style="aspect-ratio: calc({{ aspect_ratio }})"{% endif %}
         data-mvp-chart>
+  {% comment %}
+    Every figure waits before it draws, so every figure says so, and the module
+    takes this out once the chart is on the surface. One element, with no box
+    around it to sit in the middle of: `inset-0` with automatic margins centres
+    an absolutely positioned element on both axes, and daisyUI gives the
+    spinner a definite width and a square ratio for those margins to divide up.
+
+    It is hidden from assistive technology because the surface below already
+    carries the figure's accessible name, and a second announcement of one
+    figure is one too many.
+  {% endcomment %}
+  <span class="loading loading-spinner loading-lg absolute inset-0 m-auto"
+        aria-hidden="true"
+        data-mvp-chart-placeholder></span>
   <div class="absolute inset-0"
        {% if name %}role="img" aria-label="{{ name }}"{% endif %}
        {% if description %}aria-describedby="{{ id }}-description"{% endif %}

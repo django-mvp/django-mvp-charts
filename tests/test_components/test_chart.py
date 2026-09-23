@@ -125,6 +125,37 @@ class TestSizing:
         assert "aspect-ratio" not in html
 
 
+class TestThePlaceholder:
+    """What stands in the figure until the chart is drawn into it."""
+
+    def test_every_figure_gets_one_with_nothing_asked_for(self, render, line):
+        """Every chart waits before it draws, so there is nothing to opt into."""
+        html = render(A_CHART, chart=line)
+        assert "data-mvp-chart-placeholder" in html
+
+    def test_it_is_hidden_from_anyone_listening_to_the_page(self, render, line):
+        """The drawing surface carries the accessible name already, and a
+        second announcement of the same figure is one too many."""
+        html = render('<c-chart :chart="chart" id="revenue" name="R" />', chart=line)
+        tag = re.search(r"<[a-z]+[^>]*data-mvp-chart-placeholder[^>]*>", html)
+        assert tag is not None, "nothing in the figure is marked as the placeholder"
+        assert 'aria-hidden="true"' in tag.group(0)
+
+    def test_it_is_a_spinner_and_nothing_around_it(self, render, line):
+        """A chart is arriving rather than missing, and a spinner says so.
+
+        The classes are asserted here because they are not decoration: they
+        are the whole of what daisyUI needs to animate, and this package
+        writes them itself rather than taking them from a component. That
+        they put the spinner in the middle of the figure is measured in the
+        browser instead, where a stylesheet exists.
+        """
+        html = render(A_CHART, chart=line)
+        tag = re.search(r"<[a-z]+[^>]*data-mvp-chart-placeholder[^>]*>", html)
+        assert "loading loading-spinner loading-lg" in tag.group(0)
+        assert "card" not in html
+
+
 class TestTheOptionsPayload:
     """What the chart built, carried to the browser and nothing else."""
 

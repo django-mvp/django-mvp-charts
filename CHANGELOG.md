@@ -25,6 +25,11 @@ here is a breaking change to anyone — but it replaces everything the package p
   fraction it comes from, `16/9`. A chart then holds its shape at every window width, and a chart
   in a column with no height of its own still has one, without an outer element existing only to
   supply it. `height` wins when both are given.
+- A spinner in the middle of every figure until the chart is drawn into it. There is no attribute
+  for it and nothing to opt into: every chart waits for the browser, so every figure says so. The
+  browser module takes it out once the chart is on the surface, and leaves it where a chart never
+  draws, because a figure that empties itself and stays empty tells a reader less than one that
+  never stopped waiting. It carries no words, so the package still ships no message catalogue.
 - A console warning for a figure that has a width and no height — the one way a chart fails
   silently, with correct options, a started ECharts instance, nothing thrown and a blank space
   where the reader expected a chart. Said once per chart and naming the figure. A chart in a
