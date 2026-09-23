@@ -1,0 +1,17 @@
+{% extends "page_view.html" %}
+{% load static %}
+{% block extra_js %}
+  {% comment %}
+    The application shell, its stylesheet, and this package's module — but no
+    charting library. The shell is what makes the placeholder's own sizing
+    classes mean anything, and the missing library is what holds the figure in
+    the state this page exists to measure: the one before a chart is drawn.
+  {% endcomment %}
+  <script defer src="{% static 'mvp_charts/js/mvp-charts.js' %}"></script>
+{% endblock extra_js %}
+{% block page.content %}
+  <div style="width: 400px; height: 200px">
+    <c-chart :chart="chart" id="waiting" name="A chart still to be drawn"
+             placeholder="Drawing the chart" placeholder-icon="chart" />
+  </div>
+{% endblock page.content %}

@@ -26,7 +26,7 @@ Your template places it:
          description="Revenue by month over the first half of the year, rising from January to a June peak." />
 ```
 
-That is the whole API. One component, six attributes, and no JavaScript on the page.
+That is the whole API. One component, eight attributes, and no JavaScript on the page.
 
 ## Status
 
@@ -116,7 +116,7 @@ pyecharts' own [documentation](https://pyecharts.org/#/en-us/) is the reference 
 
 ## Placing the chart
 
-`<c-chart>` renders the figure, the accessible name, the text alternative and the options payload. It names six attributes and nothing about the chart itself.
+`<c-chart>` renders the figure, the accessible name, the text alternative and the options payload. It names eight attributes and nothing about the chart itself.
 
 | Attribute | Required | What it does |
 |---|---|---|
@@ -126,6 +126,8 @@ pyecharts' own [documentation](https://pyecharts.org/#/en-us/) is the reference 
 | `aspect-ratio` | No | The shape of the figure instead of its height. Ignored when `height` is also given. |
 | `name` | No | What a screen reader announces the chart as. |
 | `description` | No | What the chart shows, in words, read instead of the picture. |
+| `placeholder` | No | What to show in the figure until the chart is drawn into it. |
+| `placeholder-icon` | No | An icon to show above those words. Only with `placeholder`. |
 
 `id` is never generated for you — an id this package invented would be stable only until someone added a second chart higher up the page, at which point every id below it would shift.
 
@@ -154,6 +156,24 @@ Write it as a number, `2`, or as the fraction it comes from, `16/9`. The chart t
 That suits a chart in a grid row, a dashboard tile or a flex child, where the layout already decides the box and there is no number to write on the tag.
 
 **A chart drawn into a canvas is invisible to anyone who cannot see it, and to anyone who cannot tell its colours apart.** Leaving out `name` and `description` is a real choice, not a shortcut: without them there is nothing else on the page for a screen reader to announce, or for someone who cannot make out the shape of the line to read instead. Give both whenever the chart is more than decoration.
+
+### While the chart is still on its way
+
+A chart is drawn by the browser, after the charting library has loaded and run. Until then the figure is an empty box the size of the chart that is coming. Give it something to hold:
+
+```html
+<c-chart :chart="revenue"
+         id="revenue"
+         height="320px"
+         placeholder="Drawing the chart"
+         placeholder-icon="chart" />
+```
+
+That fills the figure with django-mvp's placeholder card, and the browser module removes it once the chart is on the surface. `placeholder-icon` is a name from your own icon settings, so it draws whatever that name is bound to in your project.
+
+The words are yours. This package has none of its own to offer here and ships no message catalogue, which is also why leaving `placeholder` out leaves the figure as empty as it was before.
+
+A placeholder goes only when a chart replaces it, so a chart that never draws keeps it. That is deliberate: a figure that empties itself and stays empty tells a reader less than one that never stopped waiting. It is not a failure message, and this package still writes none — what went wrong is in the console.
 
 ## Keeping its shape
 

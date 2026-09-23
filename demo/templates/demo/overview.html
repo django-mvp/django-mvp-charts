@@ -100,6 +100,16 @@ class RevenueView(TemplateView):
           <td>No</td>
           <td>What the chart shows, in words, read instead of the picture.</td>
         </tr>
+        <tr>
+          <td><code>placeholder</code></td>
+          <td>No</td>
+          <td>What to show in the figure until the chart is drawn into it. The words are yours, because this package ships none. Every chart on the <a href="{% url 'chart_types' %}" class="link">Chart types</a> page has one.</td>
+        </tr>
+        <tr>
+          <td><code>placeholder-icon</code></td>
+          <td>No</td>
+          <td>An icon to show above those words, named from your own icon settings. Only with <code>placeholder</code>.</td>
+        </tr>
         </tbody>
       </table>
     </div>

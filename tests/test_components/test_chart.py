@@ -125,6 +125,57 @@ class TestSizing:
         assert "aspect-ratio" not in html
 
 
+class TestThePlaceholder:
+    """What stands in the figure until the chart is drawn into it."""
+
+    def test_a_placeholder_is_rendered_when_one_is_asked_for(self, render, line):
+        html = render(
+            '<c-chart :chart="chart" id="revenue" placeholder="Drawing the chart" />',
+            chart=line,
+        )
+        assert "Drawing the chart" in html
+        assert "data-mvp-chart-placeholder" in html
+
+    def test_it_is_hidden_from_anyone_listening_to_the_page(self, render, line):
+        """The drawing surface carries the accessible name already, and a
+        second announcement of the same figure is one too many."""
+        html = render(
+            '<c-chart :chart="chart" id="revenue" placeholder="Drawing" name="R" />',
+            chart=line,
+        )
+        tag = re.search(r"<[a-z]+[^>]*data-mvp-chart-placeholder[^>]*>", html)
+        assert tag is not None, "nothing in the figure is marked as the placeholder"
+        assert 'aria-hidden="true"' in tag.group(0)
+
+    def test_an_icon_is_carried_through_when_one_is_given(self, render, line):
+        """An icon name means nothing here — the project's own settings decide
+        what it draws — so this asserts one was drawn, not which one."""
+        without = render(
+            '<c-chart :chart="chart" id="revenue" placeholder="Drawing" />', chart=line
+        )
+        with_icon = render(
+            '<c-chart :chart="chart" id="revenue" placeholder="Drawing"'
+            ' placeholder-icon="chart" />',
+            chart=line,
+        )
+        assert not re.search(r"<(i|svg)[ >]", without)
+        assert re.search(r"<(i|svg)[ >]", with_icon)
+
+    def test_a_chart_asked_for_no_placeholder_has_none(self, render, line):
+        """Including the one the placeholder component would default to."""
+        html = render('<c-chart :chart="chart" id="revenue" />', chart=line)
+        assert "data-mvp-chart-placeholder" not in html
+        assert "Coming soon" not in html
+
+    def test_an_icon_alone_is_not_a_placeholder(self, render, line):
+        """The message is what there is to say, so it is what turns it on."""
+        html = render(
+            '<c-chart :chart="chart" id="revenue" placeholder-icon="chart" />',
+            chart=line,
+        )
+        assert "data-mvp-chart-placeholder" not in html
+
+
 class TestTheOptionsPayload:
     """What the chart built, carried to the browser and nothing else."""
 

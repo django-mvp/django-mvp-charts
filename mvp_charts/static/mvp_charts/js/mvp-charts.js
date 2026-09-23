@@ -6,6 +6,9 @@
  * into the page would be this package deciding what a project shows its
  * readers when something is broken, and that is the project's decision.
  *
+ * The one thing removed from the page here is a placeholder the page itself
+ * asked for, once the chart it was standing in for has been drawn.
+ *
  * No dependencies, and safe to evaluate twice.
  */
 (function () {
@@ -21,6 +24,13 @@
     var options = figure.querySelector("[data-mvp-chart-options]");
     var chart = window.echarts.init(surface);
     chart.setOption(JSON.parse(options.textContent));
+
+    // After the chart is on the surface, never before: a figure that goes
+    // empty and stays empty is worse than one that never stopped waiting.
+    var placeholder = figure.querySelector("[data-mvp-chart-placeholder]");
+    if (placeholder) {
+      placeholder.remove();
+    }
 
     if (window.ResizeObserver) {
       new window.ResizeObserver(function () {

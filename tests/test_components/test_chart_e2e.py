@@ -218,6 +218,46 @@ class TestAChartSizedByItsRatio:
         assert not any("sized-by-its-ratio" in text for text in warnings)
 
 
+class TestThePlaceholder:
+    """What stands in the figure until the chart is drawn into it."""
+
+    @pytest.fixture
+    def waiting_page(self, chromium, live_server, page):
+        """A figure holding its placeholder, because no library ever arrives."""
+        page.goto(f"{live_server.url}/probe/placeholder/")
+        page.wait_for_function("() => document.readyState === 'complete'", timeout=5000)
+        return page
+
+    def test_it_fills_the_figure_it_is_standing_in_for(self, waiting_page):
+        """Measured against the figure rather than read off a class list,
+        which proves a string is in a template and nothing about the box."""
+        boxes = waiting_page.evaluate(
+            "() => { const figure = document.getElementById('waiting');"
+            " const placeholder = figure"
+            ".querySelector('[data-mvp-chart-placeholder]').firstElementChild;"
+            " const f = figure.getBoundingClientRect();"
+            " const p = placeholder.getBoundingClientRect();"
+            " return { figure: [f.width, f.height], placeholder: [p.width, p.height] };"
+            " }"
+        )
+        assert boxes["figure"] == [400, 200]
+        assert boxes["placeholder"] == boxes["figure"]
+
+    def test_it_says_what_the_page_gave_it_to_say(self, waiting_page):
+        assert "Drawing the chart" in waiting_page.locator("#waiting").inner_text()
+
+    def test_it_stays_while_there_is_no_chart_to_replace_it(self, waiting_page):
+        """A figure that goes empty and stays empty is the worse of the two."""
+        assert (
+            waiting_page.locator("#waiting [data-mvp-chart-placeholder]").count() == 1
+        )
+
+    def test_it_is_gone_once_the_chart_is_drawn(self, drawn_page):
+        """Every chart on that page asks for one, and none of them still has it."""
+        assert drawn_page.locator("[data-mvp-chart-placeholder]").count() == 0
+        assert drawn_page.locator("[data-mvp-chart]").count() > 0
+
+
 class TestWithNoChartingLibrary:
     """The one failure the package reports, and where it reports it."""
 
