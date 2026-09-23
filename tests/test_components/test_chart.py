@@ -147,33 +147,22 @@ class TestThePlaceholder:
         assert tag is not None, "nothing in the figure is marked as the placeholder"
         assert 'aria-hidden="true"' in tag.group(0)
 
-    def test_an_icon_is_carried_through_when_one_is_given(self, render, line):
-        """An icon name means nothing here — the project's own settings decide
-        what it draws — so this asserts one was drawn, not which one."""
-        without = render(
+    def test_it_carries_a_spinner(self, render, line):
+        """A chart is arriving rather than missing, and a spinner says so.
+
+        The classes are asserted here because they are not decoration: they
+        are the whole of what daisyUI needs to animate, and this package
+        writes them itself rather than taking them from a component.
+        """
+        html = render(
             '<c-chart :chart="chart" id="revenue" placeholder="Drawing" />', chart=line
         )
-        with_icon = render(
-            '<c-chart :chart="chart" id="revenue" placeholder="Drawing"'
-            ' placeholder-icon="chart" />',
-            chart=line,
-        )
-        assert not re.search(r"<(i|svg)[ >]", without)
-        assert re.search(r"<(i|svg)[ >]", with_icon)
+        assert re.search(r'class="loading loading-spinner loading-lg"', html)
 
     def test_a_chart_asked_for_no_placeholder_has_none(self, render, line):
-        """Including the one the placeholder component would default to."""
         html = render('<c-chart :chart="chart" id="revenue" />', chart=line)
         assert "data-mvp-chart-placeholder" not in html
-        assert "Coming soon" not in html
-
-    def test_an_icon_alone_is_not_a_placeholder(self, render, line):
-        """The message is what there is to say, so it is what turns it on."""
-        html = render(
-            '<c-chart :chart="chart" id="revenue" placeholder-icon="chart" />',
-            chart=line,
-        )
-        assert "data-mvp-chart-placeholder" not in html
+        assert "loading" not in html
 
 
 class TestTheOptionsPayload:

@@ -26,7 +26,7 @@ Your template places it:
          description="Revenue by month over the first half of the year, rising from January to a June peak." />
 ```
 
-That is the whole API. One component, eight attributes, and no JavaScript on the page.
+That is the whole API. One component, seven attributes, and no JavaScript on the page.
 
 ## Status
 
@@ -116,7 +116,7 @@ pyecharts' own [documentation](https://pyecharts.org/#/en-us/) is the reference 
 
 ## Placing the chart
 
-`<c-chart>` renders the figure, the accessible name, the text alternative and the options payload. It names eight attributes and nothing about the chart itself.
+`<c-chart>` renders the figure, the accessible name, the text alternative and the options payload. It names seven attributes and nothing about the chart itself.
 
 | Attribute | Required | What it does |
 |---|---|---|
@@ -126,8 +126,7 @@ pyecharts' own [documentation](https://pyecharts.org/#/en-us/) is the reference 
 | `aspect-ratio` | No | The shape of the figure instead of its height. Ignored when `height` is also given. |
 | `name` | No | What a screen reader announces the chart as. |
 | `description` | No | What the chart shows, in words, read instead of the picture. |
-| `placeholder` | No | What to show in the figure until the chart is drawn into it. |
-| `placeholder-icon` | No | An icon to show above those words. Only with `placeholder`. |
+| `placeholder` | No | What to say in the figure, under a spinner, until the chart is drawn into it. |
 
 `id` is never generated for you — an id this package invented would be stable only until someone added a second chart higher up the page, at which point every id below it would shift.
 
@@ -165,11 +164,10 @@ A chart is drawn by the browser, after the charting library has loaded and run. 
 <c-chart :chart="revenue"
          id="revenue"
          height="320px"
-         placeholder="Drawing the chart"
-         placeholder-icon="chart" />
+         placeholder="Drawing the chart" />
 ```
 
-That fills the figure with django-mvp's placeholder card, and the browser module removes it once the chart is on the surface. `placeholder-icon` is a name from your own icon settings, so it draws whatever that name is bound to in your project.
+That fills the figure with a card carrying a spinner and those words, and the browser module removes it once the chart is on the surface. A chart is arriving rather than missing, which is what a spinner says and an icon does not.
 
 The words are yours. This package has none of its own to offer here and ships no message catalogue, which is also why leaving `placeholder` out leaves the figure as empty as it was before.
 

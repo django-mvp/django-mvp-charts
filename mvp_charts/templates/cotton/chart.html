@@ -22,13 +22,10 @@
 {#                 drawing surface's aria-label when given.      #}
 {#   description – text alternative for what the chart shows.    #}
 {#                 Optional; carried as a figcaption when given. #}
-{#   placeholder – what to show in the figure until the chart    #}
-{#                 is drawn into it. Optional, and the words are #}
-{#                 the page's: this package has none to offer    #}
-{#                 and ships no catalogue to translate.          #}
-{#   placeholder-icon – an icon to show above those words.       #}
-{#                 Optional, and only with placeholder. The name #}
-{#                 is resolved by the project's icon settings.   #}
+{#   placeholder – what to say in the figure until the chart is  #}
+{#                 drawn into it, under a spinner. Optional, and #}
+{#                 the words are the page's: this package has    #}
+{#                 none to offer and ships no catalogue.         #}
 {#                                                               #}
 {# Everything else about the chart — its type, its data, its     #}
 {# axes, its colours, its tooltip — is set on the chart object   #}
@@ -39,8 +36,7 @@
 {# loads that file and the charting library from its own base    #}
 {# template.                                                     #}
 {# ============================================================ #}
-<c-vars chart id="" name="" description="" height="" aspect-ratio=""
-        placeholder="" placeholder-icon="" />
+<c-vars chart id="" name="" description="" height="" aspect-ratio="" placeholder="" />
 {% load mvp_charts %}
 {# `calc()` is what makes a ratio written as `16/9` one number rather than two. #}
 <figure id="{{ id }}"
@@ -53,11 +49,21 @@
       once the chart has drawn. It is hidden from assistive technology because
       the surface below already carries the figure's accessible name, and a
       second announcement of one figure is one too many.
+
+      The card is django-mvp's placeholder shape written out rather than its
+      `placeholder.card` component, which takes an icon and has nowhere to put
+      anything else. A chart is arriving rather than missing, and a spinner is
+      what says so.
     {% endcomment %}
-    <div class="absolute inset-0" aria-hidden="true" data-mvp-chart-placeholder>
-      <c-placeholder.card class="h-full w-full"
-                          icon="{{ placeholder_icon }}"
-                          message="{{ placeholder }}" />
+    <div class="card bg-base-200 absolute inset-0 h-full w-full"
+         aria-hidden="true"
+         data-mvp-chart-placeholder>
+      <div class="card-body flex items-center justify-center">
+        <div class="text-center">
+          <span class="loading loading-spinner loading-lg"></span>
+          <p>{{ placeholder }}</p>
+        </div>
+      </div>
     </div>
   {% endif %}
   <div class="absolute inset-0"

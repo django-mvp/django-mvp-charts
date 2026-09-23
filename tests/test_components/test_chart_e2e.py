@@ -234,7 +234,7 @@ class TestThePlaceholder:
         boxes = waiting_page.evaluate(
             "() => { const figure = document.getElementById('waiting');"
             " const placeholder = figure"
-            ".querySelector('[data-mvp-chart-placeholder]').firstElementChild;"
+            ".querySelector('[data-mvp-chart-placeholder]');"
             " const f = figure.getBoundingClientRect();"
             " const p = placeholder.getBoundingClientRect();"
             " return { figure: [f.width, f.height], placeholder: [p.width, p.height] };"
@@ -242,6 +242,19 @@ class TestThePlaceholder:
         )
         assert boxes["figure"] == [400, 200]
         assert boxes["placeholder"] == boxes["figure"]
+
+    def test_the_spinner_is_drawn_rather_than_only_classed(self, waiting_page):
+        """`loading` is a class daisyUI has to have built for it to spin.
+
+        An element carrying a class the stylesheet never emitted is an empty
+        inline span with no box at all, and the markup looks identical either
+        way — which is why this measures instead of reading the class back.
+        """
+        box = waiting_page.evaluate(
+            "() => document.querySelector('#waiting .loading').getBoundingClientRect()"
+        )
+        assert box["width"] > 0
+        assert box["height"] > 0
 
     def test_it_says_what_the_page_gave_it_to_say(self, waiting_page):
         assert "Drawing the chart" in waiting_page.locator("#waiting").inner_text()
