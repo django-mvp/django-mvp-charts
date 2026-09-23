@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import include, path
 
 from demo.views import (
     ChartRegionNoLibraryView,
@@ -17,4 +17,6 @@ urlpatterns = [
         name="chart_region_no_library",
     ),
     path("line/", LineChartView.as_view(), name="line_chart"),
+    # The endpoint an open page holds to hear that something on disk changed.
+    path("__reload__/", include("django_browser_reload.urls")),
 ]

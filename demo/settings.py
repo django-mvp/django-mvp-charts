@@ -43,6 +43,10 @@ INSTALLED_APPS = [
     "crispy_tailwind",
     "flex_menu",
     "django_cotton",
+    # Reloads the browser on a change to a template, a stylesheet or Python.
+    # It arrives with the shared development bundle rather than a pin of its
+    # own, and its middleware removes itself from the chain unless DEBUG is on.
+    "django_browser_reload",
 ]
 
 SITE_ID = 1
@@ -58,6 +62,9 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # Last, because it rewrites the response body to insert its script tag and
+    # anything that encodes or compresses the body has to run after it.
+    "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
 ROOT_URLCONF = "demo.urls"
