@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- A chart carrying a pyecharts `JsCode` callback no longer reaches the browser as a document the
+  page cannot parse. Such a function is written into the options unquoted, which is not JSON, so
+  the parse failed, the figure went on waiting and the only trace was one line in the console. The
+  options are now refused where they are serialised, with an error naming the option the callback
+  sits on. `JsCode` is still not supported, which the README has always said — what changed is that
+  saying so no longer depends on someone having read it.
+
 ## [v0.1.0] - 2026-09-23
 
 One component, and the chart it draws is built in Python. Nothing has been released, so nothing
