@@ -1,79 +1,71 @@
 # django-mvp-charts
 
-Domain model for django-mvp-charts — charts as Cotton components for projects built on django-mvp.
+Domain model for django-mvp-charts — charts built in Python and placed on a page with one Cotton
+component, for projects built on django-mvp.
 
-The terms below are the ones to use in issues, commits, tests and component names. Several exist to
-keep this package's language distinct from the charting libraries it renders with, because those
-libraries use the same English words for different things and mixing the two vocabularies makes a
-bug report unreadable.
+The terms below are the ones to use in issues, commits and tests. Several exist to keep this
+package's language distinct from the libraries it sits between, because those libraries use the
+same English words for different things and mixing the vocabularies makes a bug report unreadable.
 
 ## Core concepts
 
-**Chart component**:
-The unit this package ships: one Cotton component that renders one chart, configured entirely
-through its attributes. `<c-echarts.line>` is a chart component.
-_Avoid_: widget, graph, plot, visualisation, chart type (which means something narrower — see
-below).
+**Chart object**:
+A pyecharts chart, built by the host project in Python and put in the template context. It carries
+the chart type, the data and every option. It is the thing this package renders, and this package
+never builds one, subclasses one or adds to one.
+_Avoid_: chart component (the component is the tag, not the chart), figure, widget, plot.
 
-**Backend**:
-A charting library this package can render with. ECharts is the first backend. A backend is chosen
-by the template author per chart, by picking a namespace, and is never swapped by configuration.
-_Avoid_: engine, renderer (ECharts uses *renderer* for its canvas-versus-SVG choice, which is a
-different decision entirely), driver, provider.
-
-**Namespace**:
-The first segment of a component tag, naming the backend: `echarts` in `<c-echarts.line>`. Cotton
-resolves it to a directory, so `mvp_charts/templates/cotton/echarts/`. The namespace is the
-backend rather than this package, which is what allows a second backend to be added alongside the
-first without touching it.
-_Avoid_: prefix, module, family.
+**Component**:
+`<c-chart>`, the single Cotton component this package ships. It renders the figure a chart is drawn
+into, the accessible name and text alternative, and the options payload. It names nothing about the
+chart.
+_Avoid_: namespace, chart type as a component name, tag family.
 
 **Chart type**:
-What is being drawn — line, bar, scatter, pie. The second segment of the tag. A chart type belongs
-to a backend: `echarts.line` and a hypothetical `plotly.line` are distinct components with
-distinct attributes, not two implementations of one thing.
+What is being drawn — line, bar, scatter, pie. A property of the chart object, decided by which
+pyecharts class the project instantiated, and never visible in the template.
 
 **Series**:
-One set of values drawn as a single visual run: one line, one set of bars. The word is the
-charting libraries' own and is used here in exactly their sense.
+One set of values drawn as a single visual run: one line, one set of bars. The word is pyecharts'
+and ECharts' own and is used here in exactly their sense.
 
 **Options**:
-The configuration object a backend consumes — for ECharts, the object passed to `setOption`. The
-components build it from their attributes and hand it over. Named attributes cover the common
-cases; anything else passes through unchanged.
+The configuration object ECharts consumes — the object passed to `setOption`. The chart object
+builds it and `dump_options()` serialises it. This package escapes it for a script element and
+carries it to the browser, and changes nothing else about it.
 _Avoid_: config, settings (which means Django settings), spec, schema.
 
 **Pass-through**:
-The rule that an option this package does not name is still reachable, forwarded to the backend
-untouched rather than being mirrored as a Python or template API. The alternative is a mapping of
+The rule that this package names, defaults, filters and renames no option. Anything a chart can be
+told is told to the chart object in Python. The alternative is a template-attribute mapping of
 someone else's option surface that is permanently one release behind it.
 
 **Host project**:
-The Django project that installs this package. It owns the theme, the base template, the data and
-how the charting library is delivered to the browser in production.
+The Django project that installs this package. It owns the theme, the base template, the data, the
+chart objects it builds, and how ECharts is delivered to the browser in production.
 _Avoid_: consumer, client, downstream, user.
 
 **Theme**:
 A daisyUI theme, supplied by django-mvp and selected by the host project. It styles the page a
-chart sits on and nothing inside the chart. Colours inside a chart come from the charting library
-or from the options the page passes it, and a chart does not change when the theme does.
+chart sits on and nothing inside the chart. Colours inside a chart come from the chart object, and
+a chart does not change when the theme does.
 _Avoid_: skin, palette (the palette is part of a theme, not a synonym for it), colour scheme
 (ECharts has a `theme` of its own, which is a different thing entirely and never a synonym for
 this one).
 
 **Delivery**:
-How the backend's JavaScript reaches the browser. Two supported answers: a CDN, used in development
-and in the demo project, and a bundle the host project builds, which is the production
-recommendation. This package never vendors or serves the library itself.
+How ECharts' JavaScript reaches the browser. Two supported answers: a CDN, used in development and
+in the demo project, and a bundle the host project builds, which is the production recommendation.
+This package never vendors or serves the library itself.
 _Avoid_: bundling (that names only one of the two), asset pipeline, static files.
 
 ## Terms deliberately not used
 
-**Agnostic**: overloaded to the point of being misread as "charts are portable between backends",
-which is the opposite of the design. Say which backend, or say *per-backend namespace*.
+**Backend**: there is one charting library and one Python API over it. The word implies a
+swappable one, which would mean an interface across libraries, which this package does not have.
 
 **Dashboard**: a thing built out of charts, not a thing this package ships. Naming it would invite
 requests for layout, filtering and refresh, none of which belong here.
 
-**Data source**: implies this package fetches or queries something. It does not; data arrives as an
-attribute.
+**Data source**: implies this package fetches or queries something. It does not; a finished chart
+arrives in the template context.

@@ -3,17 +3,20 @@
 import os
 
 import pytest
+from django import template as dj_template
+from django.template import Context
 from django.urls import reverse
+from django_cotton.compiler_regex import CottonCompiler
 
 
 @pytest.fixture(scope="session")
 def chromium():
     """A working chromium, or a decision about what its absence means.
 
-    Three of this package's guarantees exist only in a browser: whether the
-    charting library arrived, whether the wrapper resolved to a usable height,
-    and what size that wrapper is now. None can be asserted from rendered
-    markup, so they are measured in a real one.
+    Two of this package's guarantees exist only in a browser: that a chart is
+    actually drawn from the options the server sent, and that it follows the
+    size of its box. Neither can be asserted from rendered markup, so they are
+    measured in a real one.
 
     On a contributor's machine a missing browser is a setup step nobody has
     run yet, and skipping says so without blocking unrelated work. On CI it is
@@ -39,10 +42,38 @@ def chromium():
         pytest.skip(unavailable)
 
 
+@pytest.fixture(scope="session")
+def render():
+    """Compile a Cotton source string and render it.
+
+    No request is involved. The component reads nothing off one, which is what
+    lets it render anywhere a template does, including a page assembled
+    outside the request cycle.
+    """
+    compiler = CottonCompiler()
+
+    def render_source(source, **context):
+        return dj_template.Template(compiler.process(source)).render(Context(context))
+
+    return render_source
+
+
 @pytest.fixture
 def overview_page(client, db):
     """The demo project's overview page, rendered, as a string."""
     return client.get(reverse("overview")).content.decode()
+
+
+@pytest.fixture
+def chart_types_page(client, db):
+    """The demo project's chart types page, rendered, as a string."""
+    return client.get(reverse("chart_types")).content.decode()
+
+
+@pytest.fixture
+def chart_options_page(client, db):
+    """The demo project's options page, rendered, as a string."""
+    return client.get(reverse("chart_options")).content.decode()
 
 
 @pytest.fixture
@@ -69,9 +100,3 @@ def sidebar_navigation(overview_page):
         cursor = closed + len("</ul>")
         if depth == 0:
             return overview_page[start:cursor]
-
-
-@pytest.fixture
-def chart_region_page(client, db):
-    """The demo project's chart region page, rendered, as a string."""
-    return client.get(reverse("chart_region")).content.decode()

@@ -2,6 +2,11 @@
 
 **Status:** accepted
 **Supersedes:** [ADR 0001](0001-the-browser-module-is-one-file-loaded-once-per-page.md)
+**Amended by:** [ADR 0006](0006-the-chart-is-built-in-python-with-pyecharts.md). Both decisions
+below stand — the project still loads the module with its own `{% static %}` tag, and the id is
+still the author's to give. What changed is the surface they apply to: there is one component
+rather than a region and a chart type, the module is `mvp-charts.js`, and a missing attribute is no
+longer replaced by a message in the page.
 
 ## Decision
 

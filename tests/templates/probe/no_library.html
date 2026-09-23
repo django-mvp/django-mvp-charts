@@ -1,0 +1,24 @@
+{% comment %}
+  One chart on a page with no charting library.
+
+  Deliberately not extending the demo's base: the demo loads ECharts there,
+  and a page inheriting it would supply the library before the state under
+  test could occur.
+
+  The package's own module is loaded the way a project loads it, because it
+  is the module whose behaviour without a library is under test.
+{% endcomment %}
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>No charting library</title>
+    <script defer src="{% static 'mvp_charts/js/mvp-charts.js' %}"></script>
+  </head>
+  <body>
+    <p id="page-still-works">This paragraph is after the chart's script.</p>
+    <div style="height: 200px">
+      <c-chart :chart="chart" id="unrenderable" name="A chart with no library" />
+    </div>
+  </body>
+</html>
