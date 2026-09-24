@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.2.0] - 2026-09-24
+
 ### Added
 
 - Each figure dispatches an `mvp-chart:drawn` event once its chart is drawn, carrying the ECharts
