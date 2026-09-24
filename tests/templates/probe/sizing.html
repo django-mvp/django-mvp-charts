@@ -32,13 +32,24 @@
              name="Sized by its ratio" />
   </div>
   {% comment %}
-    A caption takes its height out of the figure's, so the chart is what
-    shrinks. The second is the no-height mistake again with a caption in the
-    figure: the caption gives the figure a height of its own, and the chart
-    still has none.
+    Captions. A size on the tag is the chart's, so the first two keep the
+    chart at exactly the height and shape asked for and the caption adds to
+    the figure. The third is sized by the page instead, so there the caption
+    has to take its room from the chart. The last is the no-height mistake
+    with a caption in the figure: the caption gives the figure a height of
+    its own, and the chart still has none.
   {% endcomment %}
   <div style="width: 400px">
     <c-chart :chart="chart" id="captioned" height="300px" name="Captioned"
+             caption="Usually 6 out of 10." />
+  </div>
+  <div style="width: 400px">
+    <c-chart :chart="chart" id="captioned-by-ratio" aspect-ratio="2"
+             name="Captioned, sized by its ratio"
+             caption="A caption long enough to wrap onto a second line and then a third, because the figure is only four hundred pixels wide." />
+  </div>
+  <div style="width: 400px; height: 300px">
+    <c-chart :chart="chart" id="captioned-filling" name="Captioned, filling its box"
              caption="Usually 6 out of 10." />
   </div>
   <div class="unresolved-wrapper">

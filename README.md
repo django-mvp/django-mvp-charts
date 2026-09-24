@@ -122,8 +122,8 @@ pyecharts' own [documentation](https://pyecharts.org/#/en-us/) is the reference 
 |---|---|---|
 | `:chart` | Yes | The pyecharts chart to draw. Written with a colon, because it is a Python value. |
 | `id` | Yes | The element id. The caption and the text alternative are tied to it, and it is how your own JavaScript finds the figure. |
-| `height` | No | A CSS height for the figure, caption included. |
-| `aspect-ratio` | No | The shape of the figure instead of its height. Ignored when `height` is also given. |
+| `height` | No | A CSS height for the chart. A caption adds to the figure below it. |
+| `aspect-ratio` | No | The shape of the chart instead of its height. Ignored when `height` is also given. |
 | `name` | No | What a screen reader announces the chart as. |
 | `caption` | No | A line printed under the chart, for everybody. Read out with the chart as well. |
 | `description` | No | What the chart shows, in words, read instead of the picture. Never shown. |
@@ -165,7 +165,7 @@ That suits a chart in a grid row, a dashboard tile or a flex child, where the la
          description="Scores from 1 to 10, peaking at 6, with most between 4 and 8." />
 ```
 
-The description replaces the picture for someone who cannot see it, so it carries what the chart shows. A screen reader reads the caption first and then the description. Only the caption takes room on the page: it sits inside the figure, under the chart, and the chart gives up the height it needs, so `height` and `aspect-ratio` still describe the whole figure.
+The description replaces the picture for someone who cannot see it, so it carries what the chart shows. A screen reader reads the caption first and then the description. Only the caption takes room on the page. It sits inside the figure, under the chart, and never changes the chart's size: `height` and `aspect-ratio` describe the chart, so a 16/9 chart stays 16/9 however many lines its caption runs to. A figure with neither fills the element around it, and there the chart takes whatever room the caption leaves, because the page has already decided the box.
 
 ### While the chart is still on its way
 

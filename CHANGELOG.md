@@ -14,18 +14,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   This is the supported way for a project's own script to set a JavaScript formatter, attach a
   handler or otherwise reach a drawn chart, without knowing how the figure is built inside.
 - A `caption` attribute on `<c-chart>`, rendered as the figure's visible `<figcaption>` under the
-  chart and read out with it by screen readers. It sits inside the figure, so `height` and
-  `aspect-ratio` still describe the whole figure and the chart gives up the room the caption takes.
+  chart and read out with it by screen readers. It adds to the figure below the chart and never
+  changes the chart's size.
 
 ### Changed
 
+- `height` and `aspect-ratio` size the chart rather than the figure, so a chart keeps the height or
+  shape asked for whatever its caption does. Without a caption the two are the same box and nothing
+  changes. A figure with neither still fills the element around it, and there the chart takes what
+  the caption leaves.
 - `description` is no longer a `<figcaption>`. A figure has one caption and it is now the visible
   one, so the text alternative renders as a hidden `<p id="<id>-description" class="sr-only">`,
   still pointed at by the drawing surface's `aria-describedby`. With both given, a screen reader
   reads the caption and then the description.
-- The browser module watches and measures the drawing surface rather than the figure, so a caption
-  that wraps takes its room from the chart, and a figure given height only by its caption is still
-  reported as a chart with no height.
+- The browser module watches and measures the drawing surface rather than the figure, so a chart
+  in a box the page sized redraws when a wrapping caption takes room from it, and a figure given
+  height only by its caption is still reported as a chart with no height.
 
 ### Fixed
 

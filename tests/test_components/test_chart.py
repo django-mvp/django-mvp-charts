@@ -98,6 +98,14 @@ def figure_children(html):
     return parser.tags
 
 
+def chart_box_tag(html):
+    """The opening tag of the box the chart is drawn in: the figure's first
+    child, holding the placeholder and the drawing surface."""
+    tag = re.search(r"<figure[^>]*>\s*(<div[^>]*>)", html)
+    assert tag is not None, "the figure does not open with the chart's box"
+    return tag.group(1)
+
+
 class TestTheCaption:
     """A caption printed under the chart, for everybody."""
 
@@ -135,11 +143,14 @@ class TestTheCaption:
 class TestSizing:
     """A height, a ratio, or the element around it. The package invents none."""
 
-    def test_a_height_on_the_tag_is_carried_by_the_figure(self, render, line):
+    def test_a_height_on_the_tag_is_the_charts_and_not_the_figures(self, render, line):
+        """The chart is the height asked for, and a caption adds to the figure
+        rather than taking from the chart."""
         html = render(
             '<c-chart :chart="chart" id="revenue" height="320px" />', chart=line
         )
-        assert 'style="height: 320px"' in html
+        assert 'style="height: 320px"' in chart_box_tag(html)
+        assert "style=" not in figure_tag(html)
 
     def test_without_one_the_figure_fills_the_element_around_it(self, render, line):
         html = render('<c-chart :chart="chart" id="revenue" />', chart=line)
@@ -152,11 +163,21 @@ class TestSizing:
         assert "min-height" not in html
         assert "aspect-" not in html
 
-    def test_a_ratio_on_the_tag_is_carried_by_the_figure(self, render, line):
+    def test_a_ratio_on_the_tag_is_the_charts_and_not_the_figures(self, render, line):
+        """The shape asked for is the chart's, however long its caption is."""
         html = render(
             '<c-chart :chart="chart" id="revenue" aspect-ratio="2" />', chart=line
         )
-        assert 'style="aspect-ratio: calc(2)"' in html
+        assert 'style="aspect-ratio: calc(2)"' in chart_box_tag(html)
+        assert "style=" not in figure_tag(html)
+
+    def test_a_sized_chart_does_not_give_way_to_its_caption(self, render, line):
+        """Growing to fill what is left is for a figure the page sizes."""
+        html = render(
+            '<c-chart :chart="chart" id="revenue" height="320px" caption="C" />',
+            chart=line,
+        )
+        assert "flex-1" not in chart_box_tag(html)
 
     def test_a_ratio_is_written_as_the_fraction_it_is(self, render, line):
         """`calc()` is what makes `16/9` a number rather than two of them."""

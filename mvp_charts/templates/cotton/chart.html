@@ -45,10 +45,12 @@
 <c-vars chart id="" name="" caption="" description="" height="" aspect-ratio="" />
 {% load mvp_charts %}
 {% comment %}
-  The size given on the tag is the whole figure's, caption included. The
-  figure is a column: the chart takes whatever the caption leaves, so a caption
-  that wraps to a second line takes its room from the chart rather than
-  pushing out of the box it was given.
+  The figure is a column: the chart's box, then the caption.
+
+  A size given on the tag is the chart's, so the chart is exactly the height
+  or the shape asked for and a caption adds to the figure below it. With no
+  size, the figure fills the element around it and the chart takes whatever
+  the caption leaves, because there the page has already decided the box.
 
   Both children carry `w-full` rather than trusting the column to stretch
   them, because a figure is not only ever styled from here: daisyUI centres
@@ -59,10 +61,10 @@
 {% endcomment %}
 <figure id="{{ id }}"
         class="flex flex-col w-full{% if not height and not aspect_ratio %} h-full{% endif %}"
-        {% if height %}style="height: {{ height }}"{% elif aspect_ratio %}style="aspect-ratio: calc({{ aspect_ratio }})"{% endif %}
         data-mvp-chart
         data-mvp-chart-renderer="{{ chart.renderer }}">
-  <div class="relative w-full flex-1 min-h-0">
+  <div class="relative w-full{% if not height and not aspect_ratio %} flex-1 min-h-0{% endif %}"
+       {% if height %}style="height: {{ height }}"{% elif aspect_ratio %}style="aspect-ratio: calc({{ aspect_ratio }})"{% endif %}>
     {% comment %}
       Every figure waits before it draws, so every figure says so, and the
       module takes this out once the chart is on the surface. One element, with
