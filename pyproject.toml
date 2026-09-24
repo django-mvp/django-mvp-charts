@@ -24,6 +24,7 @@ classifiers = [
     "Framework :: Django",
     "Framework :: Django :: 5.2",
     "Framework :: Django :: 6.0",
+    "Framework :: Django :: 6.1",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
@@ -60,7 +61,7 @@ include = ["mvp_charts", "README.md", "LICENSE"]
 dev = ["mvp-shared[dev,test]"]
 
 [tool.uv.sources]
-mvp-shared = { git = "https://github.com/django-mvp/shared.git", tag = "v0.5.0" }
+mvp-shared = { git = "https://github.com/django-mvp/shared.git", tag = "v0.6.0" }
 
 [build-system]
 requires = ["hatchling"]

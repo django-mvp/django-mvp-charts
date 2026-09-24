@@ -18,10 +18,9 @@ on:
 
 jobs:
   call-tests:
-    uses: django-mvp/shared/.github/workflows/tests.yml@v0.5.0
+    uses: django-mvp/shared/.github/workflows/tests.yml@v0.6.0
     with:
       coverage-package: mvp_charts
-      django-versions: '["5.2", "6.0"]'
       # Several of this package's guarantees — a region's box matching its
       # wrapper, a library that arrives late, a wrapper with no resolved
       # height — can only be measured in a real browser. Without chromium

@@ -19,7 +19,7 @@ on:
 
 jobs:
   call-build:
-    uses: django-mvp/shared/.github/workflows/build.yml@v0.5.0
+    uses: django-mvp/shared/.github/workflows/build.yml@v0.6.0
     with:
       source-dir: mvp_charts
     secrets: inherit
