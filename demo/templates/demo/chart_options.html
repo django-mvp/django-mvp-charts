@@ -49,4 +49,31 @@
                description="Amount invoiced in January and March, 1420.50 and 1683.75. February has no invoice, so the line has a gap." />
     </div>
   </c-section>
+  <c-section title="Drawn as SVG, and finished by the page's own script" icon="chart">
+    <c-text>
+      The renderer is chosen where the chart is built, like everything else about it,
+      so this chart is drawn as SVG and stays sharp when you zoom in or print. Its
+      tooltip is worded by a JavaScript function, which cannot travel in the options.
+      The page sets it instead, from the event each figure dispatches once its chart is
+      drawn. Hover a point to see it.
+    </c-text>
+    <div class="mockup-code w-full text-sm">
+      <pre class="px-6"><code>{{ source.signups }}</code></pre>
+    </div>
+    {% comment %}
+      The listener is one partial, included once to run and once, escaped, to be
+      read, so the listing cannot describe a script the page is not running.
+    {% endcomment %}
+    <div class="mockup-code w-full text-sm">
+      <pre class="px-6"><code>{% filter force_escape %}{% include "demo/signups_formatter.html" %}{% endfilter %}</code></pre>
+    </div>
+    {% include "demo/signups_formatter.html" %}
+    <div class="rounded-box border-base-300 border p-4">
+      <c-chart :chart="signups"
+               id="signups"
+               height="280px"
+               name="Sign-ups by week"
+               description="Weekly sign-ups over six weeks, rising from 40 in week 1 to 84 in week 6." />
+    </div>
+  </c-section>
 {% endblock page.content %}

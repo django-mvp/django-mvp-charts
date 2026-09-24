@@ -99,6 +99,17 @@ def invoiced():
     )
 
 
+def signups():
+    """Built for SVG, which is chosen here like any other option. The
+    tooltip's wording is set by the page's own script once the chart is
+    drawn, because a JavaScript function cannot travel in the options."""
+    return (
+        Line(init_opts=opts.InitOpts(renderer="svg"))
+        .add_xaxis(["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6"])
+        .add_yaxis("Sign-ups", [40, 52, 49, 61, 70, 84])
+    )
+
+
 class OverviewView(MVPTemplateView):
     """What this package is, and how a chart gets onto a page."""
 
@@ -150,8 +161,10 @@ class ChartOptionsView(MVPTemplateView):
         context = super().get_context_data(**kwargs)
         context["styled"] = conversion_rate()
         context["awkward"] = invoiced()
+        context["signups"] = signups()
         context["source"] = {
             "styled": source_of(conversion_rate),
             "awkward": source_of(invoiced),
+            "signups": source_of(signups),
         }
         return context

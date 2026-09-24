@@ -370,3 +370,26 @@ class TestTheDrawnEvent:
             "() => window.drawnCharts['drawn-as-svg'].length"
         )
         assert counts == 1
+
+
+class TestTheDemosChartReachedFromThePage:
+    """The worked example on the Options page does what the page says."""
+
+    @pytest.fixture
+    def options_page(self, chromium, live_server, page):
+        page.goto(f"{live_server.url}/options/")
+        page.wait_for_function(CHARTS_DRAWN, timeout=10000)
+        return page
+
+    def test_it_is_drawn_as_svg(self, options_page):
+        assert options_page.locator("#signups svg").count() == 1
+        assert options_page.locator("#signups canvas").count() == 0
+
+    def test_its_tooltip_is_the_function_the_page_set(self, options_page):
+        text = options_page.evaluate(
+            "() => { const chart = echarts.getInstanceByDom(document.querySelector"
+            "('#signups [data-mvp-chart-surface]'));"
+            " return chart.getOption().tooltip[0].formatter"
+            "({ name: 'Week 1', value: 40 }); }"
+        )
+        assert text == "Week 1: 40 sign-ups"

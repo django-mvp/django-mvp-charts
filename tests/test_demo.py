@@ -19,7 +19,7 @@ from django.template.loader import get_template
 from django.urls import reverse
 from django.utils.html import escape
 
-from demo.views import ChartTypesView, conversion_rate, invoiced, source_of
+from demo.views import ChartTypesView, conversion_rate, invoiced, signups, source_of
 
 
 def payloads(page):
@@ -242,6 +242,23 @@ class TestChartOptionsPage:
             ["2026-02-01", None],
             ["2026-03-01", 1683.75],
         ]
+
+
+class TestAChartReachedFromThePage:
+    """The Options page's third chart: built for SVG in Python, and given a
+    JavaScript formatter by the page's own script once it is drawn."""
+
+    def test_the_listing_is_the_builder_that_ran(self, chart_options_page):
+        assert escape(source_of(signups)) in chart_options_page
+
+    def test_the_listener_runs_on_the_page_it_is_shown_on(self, chart_options_page):
+        """One partial, included once to run and once to be read.
+
+        Written twice, the listing would be free to drift from the script.
+        """
+        listener = get_template("demo/signups_formatter.html").template.source.strip()
+        assert listener in chart_options_page
+        assert escape(listener) in chart_options_page
 
 
 class TestDocumentedExample:
