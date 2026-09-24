@@ -8,7 +8,7 @@ on:
       - 'mvp_charts/**'
       - 'tests/**'
       - 'pyproject.toml'
-      - 'poetry.lock'
+      - 'uv.lock'
       - '.github/workflows/tests.yml'
   # No paths filter on pull_request: these checks are ruleset-required, and a
   # path-filtered required check never reports on out-of-scope PRs, blocking merge.
@@ -18,14 +18,10 @@ on:
 
 jobs:
   call-tests:
-    uses: django-mvp/shared/.github/workflows/tests.yml@v0.4.1
+    uses: django-mvp/shared/.github/workflows/tests.yml@v0.5.0
     with:
       coverage-package: mvp_charts
       django-versions: '["5.2", "6.0"]'
-      # Test and lint tooling lives in the single (non-optional) dev group via
-      # the mvp-shared bundle, so the default `--with test` would fail. Empty
-      # args install main + dev + docs, which covers pytest.
-      poetry-install-args: ''
       # Several of this package's guarantees — a region's box matching its
       # wrapper, a library that arrives late, a wrapper with no resolved
       # height — can only be measured in a real browser. Without chromium
