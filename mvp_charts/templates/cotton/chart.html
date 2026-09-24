@@ -31,6 +31,12 @@
 {# this package wrote. mvp-charts.js reads them, and the project #}
 {# loads that file and the charting library from its own base    #}
 {# template.                                                     #}
+{#                                                               #}
+{# The renderer is the one thing about the chart that does not   #}
+{# travel in its options: ECharts takes it when the chart is     #}
+{# created, so pyecharts keeps it apart as an init option. The   #}
+{# figure carries what the chart named, and the module passes it #}
+{# on. It is still the chart's choice, not an attribute here.    #}
 {# ============================================================ #}
 <c-vars chart id="" name="" description="" height="" aspect-ratio="" />
 {% load mvp_charts %}
@@ -38,7 +44,8 @@
 <figure id="{{ id }}"
         class="relative w-full{% if not height and not aspect_ratio %} h-full{% endif %}"
         {% if height %}style="height: {{ height }}"{% elif aspect_ratio %}style="aspect-ratio: calc({{ aspect_ratio }})"{% endif %}
-        data-mvp-chart>
+        data-mvp-chart
+        data-mvp-chart-renderer="{{ chart.renderer }}">
   {% comment %}
     Every figure waits before it draws, so every figure says so, and the module
     takes this out once the chart is on the surface. One element, with no box

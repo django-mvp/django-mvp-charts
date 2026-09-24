@@ -159,7 +159,7 @@ class RevenueView(TemplateView):
       The charting library is never shipped from here. This project loads it from a public
       CDN, which suits a demonstration and keeps local development free of a Node
       toolchain. An application is expected to bundle it instead, importing only the
-      chart types it draws.
+      chart types it draws and the renderer they are built with.
     </c-text>
   </c-section>
 {% endblock page.content %}

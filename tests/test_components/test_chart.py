@@ -234,3 +234,30 @@ class TestDataCannotBecomeMarkup:
         assert "</script>" not in body.lower()
         assert "<" not in body
         assert payload(html)["xAxis"][0]["data"] == [hostile]
+
+
+def figure_tag(html):
+    """The opening `<figure>` tag, which is where the renderer is written."""
+    tag = re.search(r"<figure[^>]*>", html)
+    assert tag is not None, "no figure in the rendered output"
+    return tag.group(0)
+
+
+class TestTheRenderer:
+    """The renderer is the chart's to name, and the figure carries it across.
+
+    pyecharts holds it on the chart as an init option rather than in the
+    options it dumps, because ECharts takes it when the chart is created and
+    not afterwards. So it does not travel in the payload, and without this a
+    chart asking for SVG was drawn to a canvas regardless.
+    """
+
+    def test_a_chart_built_for_svg_says_so_on_its_figure(self, render):
+        chart = Line(init_opts=opts.InitOpts(renderer="svg")).add_xaxis(["a"])
+        html = render('<c-chart :chart="chart" id="c" />', chart=chart)
+        assert 'data-mvp-chart-renderer="svg"' in figure_tag(html)
+
+    def test_a_chart_that_names_none_carries_pyecharts_default(self, render, line):
+        """pyecharts' own default, stated rather than left for ECharts to guess."""
+        html = render(A_CHART, chart=line)
+        assert 'data-mvp-chart-renderer="canvas"' in figure_tag(html)

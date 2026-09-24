@@ -307,3 +307,66 @@ class TestWithNoChartingLibrary:
         page, _ = no_library_page
         assert page.locator("#unrenderable canvas").count() == 0
         assert page.locator("#unrenderable").inner_text().strip() == ""
+
+
+@pytest.fixture
+def renderer_page(chromium, live_server, page):
+    """The probe page of one SVG chart and one canvas chart, both drawn."""
+    page.goto(f"{live_server.url}/probe/renderer/")
+    page.wait_for_function(CHARTS_DRAWN, timeout=10000)
+    return page
+
+
+class TestTheRendererTheChartNamed:
+    """A chart is drawn with the renderer it was built with.
+
+    Counted by element rather than read off the instance: a chart drawn with
+    SVG is real elements in the page and a canvas chart is one bitmap, and
+    that difference is the reason a project asks for one over the other.
+    """
+
+    def test_a_chart_built_for_svg_is_drawn_as_svg(self, renderer_page):
+        figure = renderer_page.locator("#drawn-as-svg")
+        assert figure.locator("svg").count() == 1
+        assert figure.locator("canvas").count() == 0
+
+    def test_a_chart_that_named_none_is_still_drawn_to_a_canvas(self, renderer_page):
+        figure = renderer_page.locator("#drawn-to-canvas")
+        assert figure.locator("canvas").count() >= 1
+        assert figure.locator("svg").count() == 0
+
+
+class TestTheDrawnEvent:
+    """A project reaches a drawn chart without knowing the figure's insides."""
+
+    def test_each_figure_announces_its_chart_once(self, renderer_page):
+        counts = renderer_page.evaluate(
+            "() => Object.fromEntries(Object.entries(window.drawnCharts)"
+            ".map(([id, charts]) => [id, charts.length]))"
+        )
+        assert counts == {"drawn-as-svg": 1, "drawn-to-canvas": 1}
+
+    def test_it_carries_the_instance_echarts_holds(self, renderer_page):
+        """The chart itself, not a copy or a description of it."""
+        same = renderer_page.evaluate(
+            "() => window.drawnCharts['drawn-as-svg'][0] === echarts.getInstanceByDom("
+            "document.querySelector('#drawn-as-svg [data-mvp-chart-surface]'))"
+        )
+        assert same is True
+
+    def test_the_chart_is_ready_to_be_changed_when_it_arrives(self, renderer_page):
+        """What the event is for: an option set from the page's own script."""
+        title = renderer_page.evaluate(
+            "() => { const chart = window.drawnCharts['drawn-to-canvas'][0];"
+            " chart.setOption({ title: { text: 'Set from the page' } });"
+            " return chart.getOption().title[0].text; }"
+        )
+        assert title == "Set from the page"
+
+    def test_drawing_again_does_not_announce_again(self, renderer_page):
+        """`mvpCharts.draw()` is safe to call twice, and so is listening."""
+        renderer_page.evaluate("() => window.mvpCharts.draw()")
+        counts = renderer_page.evaluate(
+            "() => window.drawnCharts['drawn-as-svg'].length"
+        )
+        assert counts == 1

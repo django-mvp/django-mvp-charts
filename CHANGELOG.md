@@ -7,7 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Each figure dispatches an `mvp-chart:drawn` event once its chart is drawn, carrying the ECharts
+  instance as `event.detail.chart`. It bubbles, so one listener on the document hears every chart.
+  This is the supported way for a project's own script to set a JavaScript formatter, attach a
+  handler or otherwise reach a drawn chart, without knowing how the figure is built inside.
+
 ### Fixed
+
+- A chart is drawn with the renderer it was built with. pyecharts keeps the renderer as an init
+  option rather than in the options it dumps, so it never reached the browser, and a chart built
+  with `InitOpts(renderer="svg")` was drawn to a canvas anyway. A project bundling only
+  `SVGRenderer` can now build its charts for SVG and have them drawn that way.
 
 - A chart carrying a pyecharts `JsCode` callback no longer reaches the browser as a document the
   page cannot parse. Such a function is written into the options unquoted, which is not JSON, so

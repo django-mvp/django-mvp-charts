@@ -9,6 +9,9 @@
  * The one thing removed from the page here is a placeholder the page itself
  * asked for, once the chart it was standing in for has been drawn.
  *
+ * Each figure announces its chart with an `mvp-chart:drawn` event carrying
+ * the ECharts instance, which is how a project's own script reaches it.
+ *
  * No dependencies, and safe to evaluate twice.
  */
 (function () {
@@ -22,7 +25,12 @@
 
     var surface = figure.querySelector("[data-mvp-chart-surface]");
     var options = figure.querySelector("[data-mvp-chart-options]");
-    var chart = window.echarts.init(surface);
+    // The renderer the chart was built with. Whatever it names has to be
+    // registered in the page's ECharts, which a full build always is and a
+    // bundle is only if it imported it.
+    var chart = window.echarts.init(surface, null, {
+      renderer: figure.dataset.mvpChartRenderer,
+    });
     chart.setOption(JSON.parse(options.textContent));
 
     // After the chart is on the surface, never before: a figure that goes
@@ -38,6 +46,17 @@
         reportIfFlat(figure);
       }).observe(figure);
     }
+
+    // Last, so a listener is handed a chart that is drawn, uncovered and
+    // already following its box. Once per figure, because a figure is only
+    // ever drawn once. It bubbles, so one listener on the document hears
+    // every chart on the page.
+    figure.dispatchEvent(
+      new window.CustomEvent("mvp-chart:drawn", {
+        bubbles: true,
+        detail: { chart: chart },
+      })
+    );
   }
 
   /*
