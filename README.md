@@ -197,7 +197,9 @@ This package does not supply that tag, and there is no component here that rende
 
 ## What does not cross to the browser
 
-pyecharts' `JsCode`, which wraps a JavaScript function so it can be written inside a Python option, does not survive this route and is not supported. `dump_options()` emits such a function unquoted, which is no longer JSON and could only be delivered by evaluating server-rendered code in the page. The quoted variant is valid JSON, but the function arrives as a string and ECharts ignores it without a word — a formatter that silently does nothing is worse than one that is not offered.
+pyecharts' `JsCode`, which wraps a JavaScript function so it can be written inside a Python option, does not survive this route and is not supported. A chart carrying one is refused where its options are serialised, with an error naming the option it sits on, rather than reaching the browser as a document the page cannot parse.
+
+Neither way of serialising such a function is offered as support. `dump_options()` emits it unquoted, which is no longer JSON and could only be delivered by evaluating server-rendered code in the page. The quoted variant is valid JSON, but the function arrives as a string and ECharts ignores it without a word — a formatter that silently does nothing is worse than one that is not offered.
 
 Where you need a JavaScript formatter, write it in your own JavaScript against the chart instance, which `echarts.getInstanceByDom()` will hand you from the figure's drawing surface.
 

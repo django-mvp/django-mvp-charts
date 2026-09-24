@@ -65,9 +65,11 @@ rather than a slot already cut for it.
 **`JsCode` does not cross.** `dump_options()` emits a JsCode function unquoted, which is not JSON
 and could only be delivered by evaluating server-rendered code in the page.
 `dump_options_with_quotes()` is valid JSON, but the function arrives as a string and ECharts ignores
-it silently. Neither is offered: a formatter that does nothing without saying so is worse than one
-that was never advertised. A project needing one writes it against the chart instance in its own
-JavaScript.
+it silently. Neither is offered as support: a formatter that does nothing without saying so is worse
+than one that was never advertised. A chart carrying one is refused where its options are
+serialised, with an error naming the option, so the refusal is read where the chart is built rather
+than in a browser console. A project needing a formatter writes it against the chart instance in its
+own JavaScript.
 
 **The `</script>` escape stays.** pyecharts escapes none of the three sequences that can end a
 script element early, so a label read out of a database reaches `dump_options()`'s output verbatim.
