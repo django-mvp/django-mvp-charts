@@ -1,6 +1,7 @@
 from django.urls import include, path
 from django.views.generic import TemplateView
 from mvp.views import MVPTemplateView
+from pyecharts import options as opts
 from pyecharts.charts import Line
 
 # The demo project's routes, behind a urlconf of the suite's own so a route
@@ -59,9 +60,27 @@ class PlaceholderProbe(MVPTemplateView):
         return context
 
 
+class RendererProbe(MVPTemplateView):
+    """Two charts that differ only in the renderer they were built with."""
+
+    template_name = "probe/renderer.html"
+    page_title = "Renderer"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["svg_chart"] = (
+            Line(init_opts=opts.InitOpts(renderer="svg"))
+            .add_xaxis(["a", "b"])
+            .add_yaxis("s", [1, 2])
+        )
+        context["canvas_chart"] = a_chart()
+        return context
+
+
 urlpatterns = [
     path("probe/no-library/", NoLibraryProbe.as_view(), name="probe_no_library"),
     path("probe/sizing/", SizingProbe.as_view(), name="probe_sizing"),
     path("probe/placeholder/", PlaceholderProbe.as_view(), name="probe_placeholder"),
+    path("probe/renderer/", RendererProbe.as_view(), name="probe_renderer"),
     path("", include("demo.urls")),
 ]

@@ -1,0 +1,22 @@
+{% extends "page_view.html" %}
+{% block page.content %}
+  {% comment %}
+    Two charts that differ only in the renderer they were built with, and a
+    listener registered the way a project would register one: in the page,
+    on the document, before the module has drawn anything. Each event is kept
+    by the id of the figure it came from, so a test can count them and
+    compare what they carried against the instance ECharts itself holds.
+  {% endcomment %}
+  <script>
+    window.drawnCharts = {};
+    document.addEventListener("mvp-chart:drawn", (event) => {
+      (window.drawnCharts[event.target.id] ||= []).push(event.detail.chart);
+    });
+  </script>
+  <div style="height: 300px">
+    <c-chart :chart="svg_chart" id="drawn-as-svg" name="Built for SVG" />
+  </div>
+  <div style="height: 300px">
+    <c-chart :chart="canvas_chart" id="drawn-to-canvas" name="Built for canvas" />
+  </div>
+{% endblock page.content %}

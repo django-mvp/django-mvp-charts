@@ -82,7 +82,8 @@ def chart_options(chart: Base) -> str:
             f"{cause} The options travel to the browser as JSON and a function "
             "cannot be written into JSON, so this is refused here rather than "
             "sent as a document the page cannot parse. Remove the callback, or "
-            "write it in your own JavaScript against the chart instance that "
-            "echarts.getInstanceByDom() returns for the figure's drawing surface."
+            "set it from your own JavaScript on the chart instance, which the "
+            "figure's mvp-chart:drawn event carries and "
+            "echarts.getInstanceByDom() returns for its drawing surface."
         )
     return mark_safe(quoted.translate(SCRIPT_SAFE_ESCAPES))  # noqa: S308

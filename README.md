@@ -181,6 +181,25 @@ Three things go to the browser console, and nowhere else.
 
 Nothing is written into the page. What a project shows its readers when something is broken is the project's decision — an empty box with your own words around it, a fallback table, or nothing at all — and a message this package drew into the page would take that decision away.
 
+## Reaching the chart from your own JavaScript
+
+Once a chart is drawn, its figure dispatches an `mvp-chart:drawn` event carrying the ECharts instance. The event bubbles, so one listener on the document hears every chart on the page, and `event.target` is the figure, so the `id` you gave the tag says which chart it is:
+
+```html
+<script>
+  document.addEventListener("mvp-chart:drawn", (event) => {
+    if (event.target.id !== "revenue") return;
+    const chart = event.detail.chart;
+    chart.setOption({ tooltip: { formatter: (p) => `${p.name}: ${p.value}` } });
+    chart.on("click", (p) => { /* … */ });
+  });
+</script>
+```
+
+That is the way in for anything the chart object cannot say from Python: a JavaScript formatter, a click handler, a chart redrawn when something else on the page changes. `setOption` merges into what the chart already has, so the options the server built stay as they were.
+
+Each figure announces its chart once, when it is drawn and already sized to its box. A listener has to be in place before that happens: an inline script anywhere in the page is, and so is a script of your own loaded before `mvp-charts.js`. A script that only runs once the page has finished loading can miss the event, and can still reach a chart that has been drawn with `echarts.getInstanceByDom()` on the figure's `[data-mvp-chart-surface]` element.
+
 ## Getting ECharts to the browser
 
 The module reads one thing: `window.echarts`. Anything that puts the library there works, and nothing in this package records or asks which route you chose.
@@ -193,6 +212,14 @@ This package does not supply that tag, and there is no component here that rende
 
 **In production**, build a bundle and expose the library as `window.echarts`. Drop the script tag and change nothing else. ECharts ships per-chart-type and per-component entry points, so a page importing a line chart and a tooltip pays for a fraction of a full build, which is why the recommendation is to bundle rather than to keep loading the whole thing.
 
+A bundle has to register the renderer its charts are drawn with as well as their chart types. The renderer is the chart's to name, where it is built:
+
+```python
+Line(init_opts=opts.InitOpts(renderer="svg"))
+```
+
+A chart that names none is drawn to a canvas, because that is pyecharts' default, so a bundle carrying only `SVGRenderer` needs every chart built with the line above. SVG keeps a chart sharp when the page is zoomed and when it is printed. A canvas is a bitmap and stays one. The renderer is the only init option carried to the browser: the figure's box decides the size, so `width` and `height` there change nothing.
+
 `mvp_charts.versions.ECHARTS_SUPPORTED_VERSIONS` states what this package is known to render against: `>=6.0,<7.0`. The library is not a dependency of this package, so that is not enforced at install time. It is what the package claims, and a bundle outside the range is untested rather than blocked.
 
 ## What does not cross to the browser
@@ -201,7 +228,7 @@ pyecharts' `JsCode`, which wraps a JavaScript function so it can be written insi
 
 Neither way of serialising such a function is offered as support. `dump_options()` emits it unquoted, which is no longer JSON and could only be delivered by evaluating server-rendered code in the page. The quoted variant is valid JSON, but the function arrives as a string and ECharts ignores it without a word — a formatter that silently does nothing is worse than one that is not offered.
 
-Where you need a JavaScript formatter, write it in your own JavaScript against the chart instance, which `echarts.getInstanceByDom()` will hand you from the figure's drawing surface.
+Where you need a JavaScript formatter, write it in your own JavaScript and set it on the chart once it is drawn, as shown under [Reaching the chart from your own JavaScript](#reaching-the-chart-from-your-own-javascript).
 
 ## Scope & philosophy
 

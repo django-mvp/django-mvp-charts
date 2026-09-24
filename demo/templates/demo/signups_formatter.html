@@ -1,0 +1,8 @@
+<script>
+  document.addEventListener("mvp-chart:drawn", (event) => {
+    if (event.target.id !== "signups") return;
+    event.detail.chart.setOption({
+      tooltip: { formatter: (p) => `${p.name}: ${p.value} sign-ups` },
+    });
+  });
+</script>
