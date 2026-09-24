@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The package is built with hatchling instead of poetry-core, and developed with uv instead of
+  Poetry. The wheel contains the same files as before. The source distribution does too, plus the
+  repository's `.gitignore`, which hatchling includes so that a build from it leaves out the same
+  files.
 - `height` and `aspect-ratio` size the chart rather than the figure, so a chart keeps the height or
   shape asked for whatever its caption does. Without a caption the two are the same box and nothing
   changes. A figure with neither still fills the element around it, and there the chart takes what
