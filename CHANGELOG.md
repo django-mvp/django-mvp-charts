@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Django 6.1 is supported, and tested on every change alongside 5.2 and 6.0.
+
 ## [v0.2.0] - 2026-09-24
 
 ### Added
