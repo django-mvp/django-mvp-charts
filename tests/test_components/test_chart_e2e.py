@@ -393,3 +393,77 @@ class TestTheDemosChartReachedFromThePage:
             "({ name: 'Week 1', value: 40 }); }"
         )
         assert text == "Week 1: 40 sign-ups"
+
+
+BOXES = """
+(id) => {
+  const box = (el) => { const r = el.getBoundingClientRect();
+    return { top: r.top, bottom: r.bottom, height: r.height }; };
+  const figure = document.getElementById(id);
+  return {
+    figure: box(figure),
+    caption: box(figure.querySelector('figcaption')),
+    chart: echarts.getInstanceByDom(
+      figure.querySelector('[data-mvp-chart-surface]')).getHeight(),
+  };
+}
+"""
+
+
+class TestACaptionedFigure:
+    """A caption is part of the figure, and never changes the chart's size."""
+
+    def test_a_height_is_the_charts_and_the_caption_adds_to_it(self, sizing_page):
+        page, _ = sizing_page
+        boxes = page.evaluate(BOXES, "captioned")
+        assert boxes["chart"] == 300
+        assert boxes["caption"]["height"] > 0
+        assert boxes["caption"]["bottom"] <= boxes["figure"]["bottom"]
+        assert boxes["figure"]["height"] > 300
+
+    def test_a_ratio_is_the_charts_however_long_the_caption(self, sizing_page):
+        """The reason the size belongs to the chart: a caption running to
+        three lines would otherwise squash a 2:1 chart into something else."""
+        page, _ = sizing_page
+        assert page.evaluate(MEASURE, "captioned-by-ratio") == {
+            "width": 400,
+            "height": 200,
+        }
+
+    def test_in_a_box_the_page_sized_the_chart_takes_what_is_left(self, sizing_page):
+        page, _ = sizing_page
+        boxes = page.evaluate(BOXES, "captioned-filling")
+        assert boxes["figure"]["height"] == 300
+        assert 0 < boxes["chart"] < 300
+        assert boxes["caption"]["bottom"] <= boxes["figure"]["bottom"]
+
+    def test_there_a_caption_that_grows_takes_its_room_from_the_chart(
+        self, sizing_page
+    ):
+        """The figure keeps its height, so only the drawing surface changes
+        size. A chart watching the figure would never hear about it."""
+        page, _ = sizing_page
+        before = page.evaluate(BOXES, "captioned-filling")["chart"]
+        page.evaluate(
+            "() => { document.querySelector('#captioned-filling figcaption')"
+            ".textContent = 'A caption long enough to wrap onto a second line"
+            " and then a third, because the figure is only four hundred pixels"
+            " wide.'; }"
+        )
+        page.wait_for_function(
+            "(was) => echarts.getInstanceByDom(document.querySelector"
+            "('#captioned-filling [data-mvp-chart-surface]')).getHeight() < was",
+            arg=before,
+            timeout=5000,
+        )
+        assert page.evaluate(BOXES, "captioned-filling")["chart"] < before
+
+    def test_a_caption_does_not_hide_a_chart_with_no_height(self, sizing_page):
+        """The figure has the caption's height, and the chart still has none,
+        which is the mistake the warning exists for."""
+        page, warnings = sizing_page
+        assert page.evaluate(MEASURE, "captioned-with-no-height")["height"] == 0
+        assert any(
+            "captioned-with-no-height" in text and "no height" in text
+            for text in warnings
+        )

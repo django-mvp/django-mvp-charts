@@ -10,6 +10,7 @@ import json
 import re
 from datetime import date
 from decimal import Decimal
+from html.parser import HTMLParser
 
 import pytest
 from pyecharts import options as opts
@@ -49,11 +50,17 @@ class TestTheFigure:
         assert 'role="img"' in html
         assert 'aria-label="Revenue"' in html
 
-    def test_the_description_is_a_caption_the_surface_points_at(self, render, line):
+    def test_the_description_is_hidden_text_the_surface_points_at(self, render, line):
+        """Read instead of the picture, and never the figure's caption.
+
+        A figure has one caption and it is the one a reader can see, so the
+        text alternative sits in an element of its own, visible only to
+        assistive technology.
+        """
         html = render(A_CHART, chart=line)
         assert 'aria-describedby="revenue-description"' in html
-        assert '<figcaption id="revenue-description"' in html
-        assert "By month." in html
+        assert '<p id="revenue-description" class="sr-only">By month.</p>' in html
+        assert "figcaption" not in html
 
     def test_a_chart_given_no_name_renders_without_the_attribute(self, render, line):
         """Not with an empty one, which a screen reader announces as nameless."""
@@ -69,14 +76,81 @@ class TestTheFigure:
         assert "aria-describedby" not in html
 
 
+def figure_children(html):
+    """The figure's direct children, as tag names in document order."""
+
+    class Children(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.depth, self.tags = 0, []
+
+        def handle_starttag(self, tag, attrs):
+            if self.depth == 1:
+                self.tags.append(tag)
+            if tag not in {"br", "img", "input", "meta", "link"}:
+                self.depth += 1
+
+        def handle_endtag(self, tag):
+            self.depth -= 1
+
+    parser = Children()
+    parser.feed(html[html.index("<figure") :])
+    return parser.tags
+
+
+def chart_box_tag(html):
+    """The opening tag of the box the chart is drawn in: the figure's first
+    child, holding the placeholder and the drawing surface."""
+    tag = re.search(r"<figure[^>]*>\s*(<div[^>]*>)", html)
+    assert tag is not None, "the figure does not open with the chart's box"
+    return tag.group(1)
+
+
+class TestTheCaption:
+    """A caption printed under the chart, for everybody."""
+
+    CAPTIONED = '<c-chart :chart="chart" id="scores" caption="Usually 6 out of 10." />'
+
+    def test_it_is_the_figures_caption_and_it_is_visible(self, render, line):
+        html = render(self.CAPTIONED, chart=line)
+        tag = re.search(r"<figcaption[^>]*>", html)
+        assert tag is not None
+        assert 'id="scores-caption"' in tag.group(0)
+        assert "sr-only" not in tag.group(0)
+        assert "Usually 6 out of 10." in html
+
+    def test_it_is_the_last_thing_in_the_figure(self, render, line):
+        """HTML allows a figcaption only as the first or last child, and a
+        caption under a chart is the last."""
+        assert figure_children(render(self.CAPTIONED, chart=line))[-1] == "figcaption"
+
+    def test_the_surface_points_at_it(self, render, line):
+        """Read out with the chart as well as printed under it."""
+        html = render(self.CAPTIONED, chart=line)
+        assert 'aria-describedby="scores-caption"' in html
+
+    def test_with_a_description_both_are_read_caption_first(self, render, line):
+        html = render(
+            '<c-chart :chart="chart" id="scores" caption="Usually 6 out of 10."'
+            ' description="Scores from 1 to 10, peaking at 6." />',
+            chart=line,
+        )
+        assert 'aria-describedby="scores-caption scores-description"' in html
+        assert html.count("<figcaption") == 1
+        assert '<p id="scores-description" class="sr-only">' in html
+
+
 class TestSizing:
     """A height, a ratio, or the element around it. The package invents none."""
 
-    def test_a_height_on_the_tag_is_carried_by_the_figure(self, render, line):
+    def test_a_height_on_the_tag_is_the_charts_and_not_the_figures(self, render, line):
+        """The chart is the height asked for, and a caption adds to the figure
+        rather than taking from the chart."""
         html = render(
             '<c-chart :chart="chart" id="revenue" height="320px" />', chart=line
         )
-        assert 'style="height: 320px"' in html
+        assert 'style="height: 320px"' in chart_box_tag(html)
+        assert "style=" not in figure_tag(html)
 
     def test_without_one_the_figure_fills_the_element_around_it(self, render, line):
         html = render('<c-chart :chart="chart" id="revenue" />', chart=line)
@@ -89,11 +163,21 @@ class TestSizing:
         assert "min-height" not in html
         assert "aspect-" not in html
 
-    def test_a_ratio_on_the_tag_is_carried_by_the_figure(self, render, line):
+    def test_a_ratio_on_the_tag_is_the_charts_and_not_the_figures(self, render, line):
+        """The shape asked for is the chart's, however long its caption is."""
         html = render(
             '<c-chart :chart="chart" id="revenue" aspect-ratio="2" />', chart=line
         )
-        assert 'style="aspect-ratio: calc(2)"' in html
+        assert 'style="aspect-ratio: calc(2)"' in chart_box_tag(html)
+        assert "style=" not in figure_tag(html)
+
+    def test_a_sized_chart_does_not_give_way_to_its_caption(self, render, line):
+        """Growing to fill what is left is for a figure the page sizes."""
+        html = render(
+            '<c-chart :chart="chart" id="revenue" height="320px" caption="C" />',
+            chart=line,
+        )
+        assert "flex-1" not in chart_box_tag(html)
 
     def test_a_ratio_is_written_as_the_fraction_it_is(self, render, line):
         """`calc()` is what makes `16/9` a number rather than two of them."""

@@ -26,7 +26,7 @@ Your template places it:
          description="Revenue by month over the first half of the year, rising from January to a June peak." />
 ```
 
-That is the whole API. One component, six attributes, and no JavaScript on the page.
+That is the whole API. One component, seven attributes, and no JavaScript on the page.
 
 ## Status
 
@@ -116,16 +116,17 @@ pyecharts' own [documentation](https://pyecharts.org/#/en-us/) is the reference 
 
 ## Placing the chart
 
-`<c-chart>` renders the figure, the accessible name, the text alternative and the options payload. It names six attributes and nothing about the chart itself.
+`<c-chart>` renders the figure, its caption, the accessible name, the text alternative and the options payload. It names seven attributes and nothing about the chart itself.
 
 | Attribute | Required | What it does |
 |---|---|---|
 | `:chart` | Yes | The pyecharts chart to draw. Written with a colon, because it is a Python value. |
-| `id` | Yes | The element id. The caption is tied to it, and it is how your own JavaScript finds the figure. |
-| `height` | No | A CSS height for the figure. |
-| `aspect-ratio` | No | The shape of the figure instead of its height. Ignored when `height` is also given. |
+| `id` | Yes | The element id. The caption and the text alternative are tied to it, and it is how your own JavaScript finds the figure. |
+| `height` | No | A CSS height for the chart. A caption adds to the figure below it. |
+| `aspect-ratio` | No | The shape of the chart instead of its height. Ignored when `height` is also given. |
 | `name` | No | What a screen reader announces the chart as. |
-| `description` | No | What the chart shows, in words, read instead of the picture. |
+| `caption` | No | A line printed under the chart, for everybody. Read out with the chart as well. |
+| `description` | No | What the chart shows, in words, read instead of the picture. Never shown. |
 
 `id` is never generated for you — an id this package invented would be stable only until someone added a second chart higher up the page, at which point every id below it would shift.
 
@@ -154,6 +155,17 @@ Write it as a number, `2`, or as the fraction it comes from, `16/9`. The chart t
 That suits a chart in a grid row, a dashboard tile or a flex child, where the layout already decides the box and there is no number to write on the tag.
 
 **A chart drawn into a canvas is invisible to anyone who cannot see it, and to anyone who cannot tell its colours apart.** Leaving out `name` and `description` is a real choice, not a shortcut: without them there is nothing else on the page for a screen reader to announce, or for someone who cannot make out the shape of the line to read instead. Give both whenever the chart is more than decoration.
+
+**A caption and a description are different texts, and a figure can carry both.** The caption is printed under the chart and assumes the reader can see it — the denominator, the unit, the date the figures were taken, or the one reading the chart cannot state on its own:
+
+```html
+<c-chart :chart="scores" id="scores" height="320px"
+         name="Scores"
+         caption="Usually 6 out of 10."
+         description="Scores from 1 to 10, peaking at 6, with most between 4 and 8." />
+```
+
+The description replaces the picture for someone who cannot see it, so it carries what the chart shows. A screen reader reads the caption first and then the description. Only the caption takes room on the page. It sits inside the figure, under the chart, and never changes the chart's size: `height` and `aspect-ratio` describe the chart, so a 16/9 chart stays 16/9 however many lines its caption runs to. A figure with neither fills the element around it, and there the chart takes whatever room the caption leaves, because the page has already decided the box.
 
 ### While the chart is still on its way
 

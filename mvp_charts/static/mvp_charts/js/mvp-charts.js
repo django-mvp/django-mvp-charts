@@ -40,11 +40,13 @@
       placeholder.remove();
     }
 
+    // The surface rather than the figure: a caption that wraps to another
+    // line takes its room from the chart while the figure keeps its size.
     if (window.ResizeObserver) {
       new window.ResizeObserver(function () {
         chart.resize();
-        reportIfFlat(figure);
-      }).observe(figure);
+        reportIfFlat(figure, surface);
+      }).observe(surface);
     }
 
     // Last, so a listener is handed a chart that is drawn, uncovered and
@@ -72,12 +74,16 @@
    * unselected tab measures 0x0 — both zero — which is not a mistake and not
    * reported. It is also self-correcting: the panel opening fires the
    * observer again with a real box, and the chart draws.
+   *
+   * It measures the surface, not the figure. A caption gives the figure a
+   * height of its own, so a figure can be tall enough to read while the chart
+   * inside it has none.
    */
-  function reportIfFlat(figure) {
+  function reportIfFlat(figure, surface) {
     if (figure.dataset.mvpChartFlatReported) {
       return;
     }
-    var box = figure.getBoundingClientRect();
+    var box = surface.getBoundingClientRect();
     if (box.width <= 0 || box.height >= 1) {
       return;
     }

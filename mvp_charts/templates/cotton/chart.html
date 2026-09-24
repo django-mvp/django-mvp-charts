@@ -20,8 +20,12 @@
 {#                 element around it instead.                    #}
 {#   name        – accessible name. Optional; carried as the     #}
 {#                 drawing surface's aria-label when given.      #}
+{#   caption     – text printed under the chart, for everybody.  #}
+{#                 Optional; the figure's figcaption when given, #}
+{#                 and read out with the chart as well.          #}
 {#   description – text alternative for what the chart shows.    #}
-{#                 Optional; carried as a figcaption when given. #}
+{#                 Optional; hidden text the surface points at,  #}
+{#                 read after the caption when both are given.   #}
 {#                                                               #}
 {# Everything else about the chart — its type, its data, its     #}
 {# axes, its colours, its tooltip — is set on the chart object   #}
@@ -38,34 +42,60 @@
 {# figure carries what the chart named, and the module passes it #}
 {# on. It is still the chart's choice, not an attribute here.    #}
 {# ============================================================ #}
-<c-vars chart id="" name="" description="" height="" aspect-ratio="" />
+<c-vars chart id="" name="" caption="" description="" height="" aspect-ratio="" />
 {% load mvp_charts %}
-{# `calc()` is what makes a ratio written as `16/9` one number rather than two. #}
+{% comment %}
+  The figure is a column: the chart's box, then the caption.
+
+  A size given on the tag is the chart's, so the chart is exactly the height
+  or the shape asked for and a caption adds to the figure below it. With no
+  size, the figure fills the element around it and the chart takes whatever
+  the caption leaves, because there the page has already decided the box.
+
+  Both children carry `w-full` rather than trusting the column to stretch
+  them, because a figure is not only ever styled from here: daisyUI centres
+  the children of a figure inside a card, which leaves a child with no width
+  of its own at a width of nothing.
+
+  `calc()` is what makes a ratio written as `16/9` one number rather than two.
+{% endcomment %}
 <figure id="{{ id }}"
-        class="relative w-full{% if not height and not aspect_ratio %} h-full{% endif %}"
-        {% if height %}style="height: {{ height }}"{% elif aspect_ratio %}style="aspect-ratio: calc({{ aspect_ratio }})"{% endif %}
+        class="flex flex-col w-full{% if not height and not aspect_ratio %} h-full{% endif %}"
         data-mvp-chart
         data-mvp-chart-renderer="{{ chart.renderer }}">
-  {% comment %}
-    Every figure waits before it draws, so every figure says so, and the module
-    takes this out once the chart is on the surface. One element, with no box
-    around it to sit in the middle of: `inset-0` with automatic margins centres
-    an absolutely positioned element on both axes, and daisyUI gives the
-    spinner a definite width and a square ratio for those margins to divide up.
+  <div class="relative w-full{% if not height and not aspect_ratio %} flex-1 min-h-0{% endif %}"
+       {% if height %}style="height: {{ height }}"{% elif aspect_ratio %}style="aspect-ratio: calc({{ aspect_ratio }})"{% endif %}>
+    {% comment %}
+      Every figure waits before it draws, so every figure says so, and the
+      module takes this out once the chart is on the surface. One element, with
+      no box around it to sit in the middle of: `inset-0` with automatic margins
+      centres an absolutely positioned element on both axes, and daisyUI gives
+      the spinner a definite width and a square ratio for those margins to
+      divide up.
 
-    It is hidden from assistive technology because the surface below already
-    carries the figure's accessible name, and a second announcement of one
-    figure is one too many.
-  {% endcomment %}
-  <span class="loading loading-spinner loading-lg absolute inset-0 m-auto"
-        aria-hidden="true"
-        data-mvp-chart-placeholder></span>
-  <div class="absolute inset-0"
-       {% if name %}role="img" aria-label="{{ name }}"{% endif %}
-       {% if description %}aria-describedby="{{ id }}-description"{% endif %}
-       data-mvp-chart-surface></div>
+      It is hidden from assistive technology because the surface below already
+      carries the figure's accessible name, and a second announcement of one
+      figure is one too many.
+    {% endcomment %}
+    <span class="loading loading-spinner loading-lg absolute inset-0 m-auto"
+          aria-hidden="true"
+          data-mvp-chart-placeholder></span>
+    <div class="absolute inset-0"
+         {% if name %}role="img" aria-label="{{ name }}"{% endif %}
+         {% if caption and description %}aria-describedby="{{ id }}-caption {{ id }}-description"
+         {% elif caption %}aria-describedby="{{ id }}-caption"
+         {% elif description %}aria-describedby="{{ id }}-description"{% endif %}
+         data-mvp-chart-surface></div>
+  </div>
   {% if description %}
-    <figcaption id="{{ id }}-description" class="sr-only">{{ description }}</figcaption>
+    <p id="{{ id }}-description" class="sr-only">{{ description }}</p>
   {% endif %}
   <script type="application/json" data-mvp-chart-options>{% chart_options chart %}</script>
+  {% comment %}
+    Last, because HTML allows a figure's caption only as its first or its last
+    child, and a caption under a chart is the last.
+  {% endcomment %}
+  {% if caption %}
+    <figcaption id="{{ id }}-caption" class="mt-2 w-full text-sm">{{ caption }}</figcaption>
+  {% endif %}
 </figure>

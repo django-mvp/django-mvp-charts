@@ -78,17 +78,17 @@ class RevenueView(TemplateView):
         <tr>
           <td><code>id</code></td>
           <td>Yes</td>
-          <td>The element id. The caption is tied to it, and it is how your own JavaScript finds the figure.</td>
+          <td>The element id. The caption and the text alternative are tied to it, and it is how your own JavaScript finds the figure.</td>
         </tr>
         <tr>
           <td><code>height</code></td>
           <td>No</td>
-          <td>A CSS height. Leave it out and the figure fills the element around it instead.</td>
+          <td>A CSS height for the chart; a caption adds to the figure below it. Leave it out and the figure fills the element around it instead.</td>
         </tr>
         <tr>
           <td><code>aspect-ratio</code></td>
           <td>No</td>
-          <td>The shape of the figure instead of its height: <code>2</code>, or <code>16/9</code>. It takes the width it is given and works the height out. Ignored when <code>height</code> is also set.</td>
+          <td>The shape of the chart instead of its height: <code>2</code>, or <code>16/9</code>. It takes the width it is given and works the height out. Ignored when <code>height</code> is also set.</td>
         </tr>
         <tr>
           <td><code>name</code></td>
@@ -96,9 +96,14 @@ class RevenueView(TemplateView):
           <td>What a screen reader announces the chart as.</td>
         </tr>
         <tr>
+          <td><code>caption</code></td>
+          <td>No</td>
+          <td>A line printed under the chart, for everybody. Read out with the chart as well.</td>
+        </tr>
+        <tr>
           <td><code>description</code></td>
           <td>No</td>
-          <td>What the chart shows, in words, read instead of the picture.</td>
+          <td>What the chart shows, in words, read instead of the picture. Never shown.</td>
         </tr>
         </tbody>
       </table>
