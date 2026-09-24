@@ -31,4 +31,18 @@
     <c-chart :chart="chart" id="sized-by-its-ratio" aspect-ratio="2"
              name="Sized by its ratio" />
   </div>
+  {% comment %}
+    A caption takes its height out of the figure's, so the chart is what
+    shrinks. The second is the no-height mistake again with a caption in the
+    figure: the caption gives the figure a height of its own, and the chart
+    still has none.
+  {% endcomment %}
+  <div style="width: 400px">
+    <c-chart :chart="chart" id="captioned" height="300px" name="Captioned"
+             caption="Usually 6 out of 10." />
+  </div>
+  <div class="unresolved-wrapper">
+    <c-chart :chart="chart" id="captioned-with-no-height" name="Captioned, no height"
+             caption="A caption with nothing to caption." />
+  </div>
 {% endblock page.content %}

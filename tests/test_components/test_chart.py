@@ -10,6 +10,7 @@ import json
 import re
 from datetime import date
 from decimal import Decimal
+from html.parser import HTMLParser
 
 import pytest
 from pyecharts import options as opts
@@ -49,11 +50,17 @@ class TestTheFigure:
         assert 'role="img"' in html
         assert 'aria-label="Revenue"' in html
 
-    def test_the_description_is_a_caption_the_surface_points_at(self, render, line):
+    def test_the_description_is_hidden_text_the_surface_points_at(self, render, line):
+        """Read instead of the picture, and never the figure's caption.
+
+        A figure has one caption and it is the one a reader can see, so the
+        text alternative sits in an element of its own, visible only to
+        assistive technology.
+        """
         html = render(A_CHART, chart=line)
         assert 'aria-describedby="revenue-description"' in html
-        assert '<figcaption id="revenue-description"' in html
-        assert "By month." in html
+        assert '<p id="revenue-description" class="sr-only">By month.</p>' in html
+        assert "figcaption" not in html
 
     def test_a_chart_given_no_name_renders_without_the_attribute(self, render, line):
         """Not with an empty one, which a screen reader announces as nameless."""
@@ -67,6 +74,62 @@ class TestTheFigure:
         assert "<figure" in html
         assert "figcaption" not in html
         assert "aria-describedby" not in html
+
+
+def figure_children(html):
+    """The figure's direct children, as tag names in document order."""
+
+    class Children(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.depth, self.tags = 0, []
+
+        def handle_starttag(self, tag, attrs):
+            if self.depth == 1:
+                self.tags.append(tag)
+            if tag not in {"br", "img", "input", "meta", "link"}:
+                self.depth += 1
+
+        def handle_endtag(self, tag):
+            self.depth -= 1
+
+    parser = Children()
+    parser.feed(html[html.index("<figure") :])
+    return parser.tags
+
+
+class TestTheCaption:
+    """A caption printed under the chart, for everybody."""
+
+    CAPTIONED = '<c-chart :chart="chart" id="scores" caption="Usually 6 out of 10." />'
+
+    def test_it_is_the_figures_caption_and_it_is_visible(self, render, line):
+        html = render(self.CAPTIONED, chart=line)
+        tag = re.search(r"<figcaption[^>]*>", html)
+        assert tag is not None
+        assert 'id="scores-caption"' in tag.group(0)
+        assert "sr-only" not in tag.group(0)
+        assert "Usually 6 out of 10." in html
+
+    def test_it_is_the_last_thing_in_the_figure(self, render, line):
+        """HTML allows a figcaption only as the first or last child, and a
+        caption under a chart is the last."""
+        assert figure_children(render(self.CAPTIONED, chart=line))[-1] == "figcaption"
+
+    def test_the_surface_points_at_it(self, render, line):
+        """Read out with the chart as well as printed under it."""
+        html = render(self.CAPTIONED, chart=line)
+        assert 'aria-describedby="scores-caption"' in html
+
+    def test_with_a_description_both_are_read_caption_first(self, render, line):
+        html = render(
+            '<c-chart :chart="chart" id="scores" caption="Usually 6 out of 10."'
+            ' description="Scores from 1 to 10, peaking at 6." />',
+            chart=line,
+        )
+        assert 'aria-describedby="scores-caption scores-description"' in html
+        assert html.count("<figcaption") == 1
+        assert '<p id="scores-description" class="sr-only">' in html
 
 
 class TestSizing:

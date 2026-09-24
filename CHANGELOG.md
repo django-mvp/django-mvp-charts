@@ -13,6 +13,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   instance as `event.detail.chart`. It bubbles, so one listener on the document hears every chart.
   This is the supported way for a project's own script to set a JavaScript formatter, attach a
   handler or otherwise reach a drawn chart, without knowing how the figure is built inside.
+- A `caption` attribute on `<c-chart>`, rendered as the figure's visible `<figcaption>` under the
+  chart and read out with it by screen readers. It sits inside the figure, so `height` and
+  `aspect-ratio` still describe the whole figure and the chart gives up the room the caption takes.
+
+### Changed
+
+- `description` is no longer a `<figcaption>`. A figure has one caption and it is now the visible
+  one, so the text alternative renders as a hidden `<p id="<id>-description" class="sr-only">`,
+  still pointed at by the drawing surface's `aria-describedby`. With both given, a screen reader
+  reads the caption and then the description.
+- The browser module watches and measures the drawing surface rather than the figure, so a caption
+  that wraps takes its room from the chart, and a figure given height only by its caption is still
+  reported as a chart with no height.
 
 ### Fixed
 
