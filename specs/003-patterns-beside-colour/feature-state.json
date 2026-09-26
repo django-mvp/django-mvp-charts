@@ -55,6 +55,11 @@
         "ARCH-001 (low): stories stated sequential, same branch.",
         "SPEC-003 (low): SC-004 byte-identity attributed to FR-005, not to the aria assertion."
       ]
+    },
+    "review": {
+      "approved_by": "review",
+      "at": "2026-09-26T06:37:55Z",
+      "self_resolved": []
     }
   },
   "stories": [
@@ -193,7 +198,7 @@
       "max": 2
     },
     "review_cycles": {
-      "used": 1,
+      "used": 0,
       "max": 1
     },
     "design_review_cycles": {
