@@ -121,23 +121,58 @@
       "tasks": [
         {
           "id": "T005",
-          "status": "todo",
-          "attempts": 0
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests": [
+              "tests/test_components/test_chart_e2e.py::TestDecalPatterns"
+            ],
+            "commands": [
+              "uv run pytest tests/test_components/test_chart_e2e.py::TestDecalPatterns -q (4 passed, US1 unchanged)",
+              "uv run pre-commit run --all-files"
+            ]
+          }
         },
         {
           "id": "T006",
-          "status": "todo",
-          "attempts": 0
+          "status": "done",
+          "attempts": 2,
+          "evidence": {
+            "tests": [
+              "tests/test_components/test_chart_e2e.py::TestDecalPatterns"
+            ],
+            "commands": [
+              "uv run pytest tests/test_components/test_chart_e2e.py::TestDecalPatterns -q (15 passed)"
+            ]
+          }
         },
         {
           "id": "T007",
-          "status": "todo",
-          "attempts": 0
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests": [
+              "tests/test_demo.py::TestTheReadmeShowsThePatternedChart"
+            ],
+            "commands": [
+              "uv run pytest tests/test_demo.py -q (38 passed)",
+              "uv run pre-commit run --all-files"
+            ]
+          }
         },
         {
           "id": "T008",
-          "status": "todo",
-          "attempts": 0
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests": [
+              "tests/test_components/test_chart_e2e.py::TestDecalPatterns"
+            ],
+            "commands": [
+              "seven mutations of tests/urls.py, each restored, each run against TestDecalPatterns; six went red in the matching test, the itemStyle.decal scatter mutation stayed green (recorded in progress.md)",
+              "kit verify --repo . --base origin/main: conformance, docs, uv:lint, uv:typecheck, uv:test, uv:build all passed"
+            ]
+          }
         }
       ]
     }
