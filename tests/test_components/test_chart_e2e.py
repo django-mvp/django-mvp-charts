@@ -467,3 +467,85 @@ class TestACaptionedFigure:
             "captioned-with-no-height" in text and "no height" in text
             for text in warnings
         )
+
+
+# What ECharts drew, not what it was sent. A pattern is a fill object carrying
+# an `image`. A bar keeps its solid fill and gets the pattern as an overlay
+# element of its own, reached from the bar through its data; a legend icon is
+# reached through ZRender's display list.
+READ_PATTERNS = """
+(elementId) => {
+  const surface = document
+    .getElementById(elementId)
+    .querySelector('[data-mvp-chart-surface]');
+  const chart = echarts.getInstanceByDom(surface);
+  const tile = (element) => {
+    const fill = element && element.style && element.style.fill;
+    return fill && fill.image ? fill.image.toDataURL() : null;
+  };
+  const overlay = (bar) => tile(bar && bar._decalEl);
+  const model = chart.getModel();
+  const series = model.getSeriesByType('bar').map((seriesModel) => {
+    const data = seriesModel.getData();
+    const bars = [];
+    for (let i = 0; i < data.count(); i++) {
+      bars.push(overlay(data.getItemGraphicEl(i)));
+    }
+    return { name: seriesModel.name, bars };
+  });
+  const drawn = chart.getZr().storage.getDisplayList();
+  const surfaceElement = surface;
+  return {
+    series,
+    patterned: drawn.map(tile).filter(Boolean),
+    label: surfaceElement.getAttribute('aria-label'),
+    describedby: surfaceElement.getAttribute('aria-describedby'),
+    descriptionText: (
+      document.getElementById(surfaceElement.getAttribute('aria-describedby')) || {}
+    ).textContent,
+  };
+}
+"""
+
+
+@pytest.fixture
+def patterns_page(chromium, live_server, page):
+    """The probe page of patterned charts, with every chart on it drawn."""
+    page.goto(f"{live_server.url}/probe/patterns/")
+    page.wait_for_function(CHARTS_DRAWN, timeout=10000)
+    return page
+
+
+class TestDecalPatterns:
+    """A chart built with the documented call is drawn with patterns.
+
+    Read off the elements ECharts drew, never off the options it was sent:
+    the statement the guidance makes is about what a reader sees.
+    """
+
+    def test_every_bar_of_each_series_carries_a_pattern(self, patterns_page):
+        drawn = patterns_page.evaluate(READ_PATTERNS, "patterned-bar")
+        assert [series["name"] for series in drawn["series"]] == ["Online", "In store"]
+        for series in drawn["series"]:
+            assert len(series["bars"]) == 4
+            assert all(series["bars"]), f"{series['name']} has an unpatterned bar"
+
+    def test_the_two_series_are_drawn_with_different_patterns(self, patterns_page):
+        online, in_store = patterns_page.evaluate(READ_PATTERNS, "patterned-bar")[
+            "series"
+        ]
+        assert len(set(online["bars"])) == 1
+        assert len(set(in_store["bars"])) == 1
+        assert online["bars"][0] != in_store["bars"][0]
+
+    def test_each_legend_icon_carries_its_series_pattern(self, patterns_page):
+        drawn = patterns_page.evaluate(READ_PATTERNS, "patterned-bar")
+        online, in_store = (series["bars"][0] for series in drawn["series"])
+        assert drawn["patterned"].count(online) == 4 + 1
+        assert drawn["patterned"].count(in_store) == 4 + 1
+
+    def test_the_surface_keeps_the_tags_name_and_description(self, patterns_page):
+        drawn = patterns_page.evaluate(READ_PATTERNS, "patterned-bar")
+        assert drawn["label"] == "Orders by channel"
+        assert drawn["describedby"] == "patterned-bar-description"
+        assert drawn["descriptionText"].strip().startswith("Orders by region")

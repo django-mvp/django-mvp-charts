@@ -1,0 +1,14 @@
+{% extends "page_view.html" %}
+{% block page.content %}
+  {% comment %}
+    One chart per mark kind the patterns guidance makes a statement about,
+    each built with the same documented call and each given a name, so a test
+    can read what ECharts drew for it.
+  {% endcomment %}
+  <div style="height: 320px">
+    <c-chart :chart="patterned_bar"
+             id="patterned-bar"
+             name="Orders by channel"
+             description="Orders by region, online against in store." />
+  </div>
+{% endblock page.content %}

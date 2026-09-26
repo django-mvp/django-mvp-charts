@@ -2,7 +2,7 @@ from django.urls import include, path
 from django.views.generic import TemplateView
 from mvp.views import MVPTemplateView
 from pyecharts import options as opts
-from pyecharts.charts import Line
+from pyecharts.charts import Bar, Line
 
 # The demo project's routes, behind a urlconf of the suite's own so a route
 # that exists only to exercise a component has somewhere to go.
@@ -77,10 +77,36 @@ class RendererProbe(MVPTemplateView):
         return context
 
 
+class PatternsProbe(MVPTemplateView):
+    """Charts built with the documented call that turns decal patterns on."""
+
+    template_name = "probe/patterns.html"
+    page_title = "Patterns"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["patterned_bar"] = (
+            Bar(
+                init_opts=opts.InitOpts(
+                    aria_opts={
+                        "enabled": True,
+                        "label": {"enabled": False},
+                        "decal": {"show": True},
+                    }
+                )
+            )
+            .add_xaxis(["North", "South", "East", "West"])
+            .add_yaxis("Online", [154, 121, 98, 187])
+            .add_yaxis("In store", [132, 140, 76, 96])
+        )
+        return context
+
+
 urlpatterns = [
     path("probe/no-library/", NoLibraryProbe.as_view(), name="probe_no_library"),
     path("probe/sizing/", SizingProbe.as_view(), name="probe_sizing"),
     path("probe/placeholder/", PlaceholderProbe.as_view(), name="probe_placeholder"),
     path("probe/renderer/", RendererProbe.as_view(), name="probe_renderer"),
+    path("probe/patterns/", PatternsProbe.as_view(), name="probe_patterns"),
     path("", include("demo.urls")),
 ]

@@ -16,3 +16,18 @@ Did: `TestPatternsBesideColour` in tests/test_demo.py (written first; failed on 
 Verified: `uv run pytest tests/test_demo.py -q` → 34 passed; `uv run pre-commit run --all-files` → all passed.
 Next: T002 probe page and browser tests.
 Watch: the description text names which channel leads in which region; change it with the data.
+
+## 2026-09-26T08:55 · Implementer US1 · T002
+
+Did: `PatternsProbe` on `probe/patterns/` (tests/urls.py, tests/templates/probe/patterns.html) with the
+patterned two-series bar `patterned-bar`; `TestDecalPatterns` in tests/test_components/test_chart_e2e.py.
+Reads drawn elements only: each bar's overlay element (`_decalEl`, ECharts draws the pattern as a separate
+element over the solid bar) and ZRender's display list for legend icons.
+Verified: `uv run pytest tests/test_components/test_chart_e2e.py::TestDecalPatterns -q` → 4 passed.
+The first run was red only because my read looked at the bar's own fill; the bar keeps a solid fill.
+No production change was needed, so mutation checks against the probe (each restored afterwards):
+- `"decal": {}` (drop `show`) → 3 failed: every-bar-carries-a-pattern, different-patterns, legend-icon.
+- `"decal": {"show": True, "decals": {"symbol": "rect"}}` (single object) → 2 failed: different-patterns, legend-icon.
+- drop `"label": {"enabled": False}` → 1 failed: keeps-the-tags-name-and-description.
+Next: T003 README.
+Watch: the bar overlay is `_decalEl`, an ECharts internal; a release that renames it fails these tests loudly.
