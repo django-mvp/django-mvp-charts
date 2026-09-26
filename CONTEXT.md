@@ -59,6 +59,18 @@ in the demo project, and a bundle the host project builds, which is the producti
 This package never vendors or serves the library itself.
 _Avoid_: bundling (that names only one of the two), asset pipeline, static files.
 
+**Decal pattern**:
+A pattern ECharts draws on a series (stripes, dots, dashes) so it can be told from the others by
+more than its colour. pyecharts leaves it off. It is switched on where the chart is built, through
+the `aria` option, and this package neither adds nor removes it.
+_Avoid_: texture, hatching, fill pattern, accessibility mode.
+
+**Generated description**:
+The sentence ECharts writes about a chart when its `aria` option is on and its label is not turned
+off. It replaces the `aria-label` the component writes from `name`, so it is left off wherever the
+tag's `name` and `description` are the chart's text alternative.
+_Avoid_: auto description, aria label (the tag's `name` becomes the aria-label; this is a different text).
+
 ## Terms deliberately not used
 
 **Backend**: there is one charting library and one Python API over it. The word implies a

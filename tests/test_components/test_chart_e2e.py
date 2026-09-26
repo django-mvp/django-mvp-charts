@@ -467,3 +467,246 @@ class TestACaptionedFigure:
             "captioned-with-no-height" in text and "no height" in text
             for text in warnings
         )
+
+
+# What ECharts drew, not what it was sent. A pattern is a fill object carrying
+# an `image`. A bar keeps its solid fill and gets the pattern as an overlay
+# element of its own, reached from the bar through its data; a legend icon is
+# reached through ZRender's display list.
+READ_PATTERNS = """
+(elementId) => {
+  const surface = document
+    .getElementById(elementId)
+    .querySelector('[data-mvp-chart-surface]');
+  const chart = echarts.getInstanceByDom(surface);
+  const tile = (element) => {
+    const fill = element && element.style && element.style.fill;
+    return fill && fill.image ? fill.image.toDataURL() : null;
+  };
+  const overlay = (bar) => tile(bar && bar._decalEl);
+  const model = chart.getModel();
+  const series = model.getSeriesByType('bar').map((seriesModel) => {
+    const data = seriesModel.getData();
+    const bars = [];
+    for (let i = 0; i < data.count(); i++) {
+      bars.push(overlay(data.getItemGraphicEl(i)));
+    }
+    return { name: seriesModel.name, bars };
+  });
+  const drawn = chart.getZr().storage.getDisplayList();
+  const surfaceElement = surface;
+  return {
+    series,
+    patterned: drawn.map(tile).filter(Boolean),
+    label: surfaceElement.getAttribute('aria-label'),
+    describedby: surfaceElement.getAttribute('aria-describedby'),
+    descriptionText: (
+      document.getElementById(surfaceElement.getAttribute('aria-describedby')) || {}
+    ).textContent,
+  };
+}
+"""
+
+
+# The same read for the marks other than bars. Each mark is asked for its own
+# pattern, wherever ECharts put it: a fill of its own, or an overlay element.
+READ_MARKS = """
+(elementId) => {
+  const surface = document
+    .getElementById(elementId)
+    .querySelector('[data-mvp-chart-surface]');
+  const chart = echarts.getInstanceByDom(surface);
+  const model = chart.getModel();
+  const tile = (element) => {
+    const fill = element && element.style && element.style.fill;
+    return fill && fill.image ? fill.image.toDataURL() : null;
+  };
+  const pattern = (element) => tile(element) || tile(element && element._decalEl);
+  const patternOf = (element) => {
+    if (!element) return null;
+    if (element.childCount) {
+      for (let i = 0; i < element.childCount(); i++) {
+        const found = patternOf(element.childAt(i));
+        if (found) return found;
+      }
+    }
+    return pattern(element);
+  };
+  const slices = model.getSeriesByType('pie').flatMap((seriesModel) => {
+    const data = seriesModel.getData();
+    return Array.from({ length: data.count() }, (_, i) =>
+      patternOf(data.getItemGraphicEl(i)));
+  });
+  const areas = model.getSeriesByType('line').map((seriesModel) => {
+    const area = chart.getViewOfSeriesModel(seriesModel)._polygon;
+    return {
+      name: seriesModel.name,
+      drawn: Boolean(area),
+      pattern: pattern(area),
+      opacity: area ? area.style.opacity : null,
+    };
+  });
+  const symbols = model.getSeriesByType('scatter').map((seriesModel) => {
+    const data = seriesModel.getData();
+    const marks = [];
+    for (let i = 0; i < data.count(); i++) {
+      const el = data.getItemGraphicEl(i);
+      if (el) marks.push(patternOf(el));
+    }
+    return { name: seriesModel.name, marks };
+  });
+  const legend = chart
+    .getZr()
+    .storage.getDisplayList()
+    .map(tile)
+    .filter(Boolean);
+  return {
+    slices,
+    areas,
+    symbols,
+    legend,
+    label: surface.getAttribute('aria-label'),
+  };
+}
+"""
+
+# A pattern tile read from its pixels. Its colour is the most opaque pixel it
+# paints, since the edge of a circle is blended with the transparent pixels
+# around it. Its shape is which pixels are more than half opaque, colour set
+# aside, so two tiles that differ only in colour have the same shape.
+READ_TILE = """
+(dataUrl) => new Promise((resolve) => {
+  const image = new Image();
+  image.onload = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = image.width;
+    canvas.height = image.height;
+    const context = canvas.getContext('2d');
+    context.drawImage(image, 0, 0);
+    const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+    let best = null;
+    let shape = '';
+    for (let i = 0; i < pixels.length; i += 4) {
+      if (pixels[i + 3] > 0 && (!best || pixels[i + 3] > best[3])) {
+        best = [pixels[i], pixels[i + 1], pixels[i + 2], pixels[i + 3]];
+      }
+      shape += pixels[i + 3] > 127 ? '1' : '0';
+    }
+    resolve({ colour: best && best.slice(0, 3), shape });
+  };
+  image.src = dataUrl;
+})
+"""
+
+
+@pytest.fixture
+def patterns_page(chromium, live_server, page):
+    """The probe page of patterned charts, with every chart on it drawn."""
+    page.goto(f"{live_server.url}/probe/patterns/")
+    page.wait_for_function(CHARTS_DRAWN, timeout=10000)
+    return page
+
+
+class TestDecalPatterns:
+    """A chart built with the documented call is drawn with patterns.
+
+    Read off the elements ECharts drew, never off the options it was sent:
+    the statement the guidance makes is about what a reader sees.
+    """
+
+    def test_every_bar_of_each_series_carries_a_pattern(self, patterns_page):
+        drawn = patterns_page.evaluate(READ_PATTERNS, "patterned-bar")
+        assert [series["name"] for series in drawn["series"]] == ["Online", "In store"]
+        for series in drawn["series"]:
+            assert len(series["bars"]) == 4
+            assert all(series["bars"]), f"{series['name']} has an unpatterned bar"
+
+    def test_the_two_series_are_drawn_with_different_patterns(self, patterns_page):
+        online, in_store = patterns_page.evaluate(READ_PATTERNS, "patterned-bar")[
+            "series"
+        ]
+        assert len(set(online["bars"])) == 1
+        assert len(set(in_store["bars"])) == 1
+        assert online["bars"][0] != in_store["bars"][0]
+
+    def test_each_legend_icon_carries_its_series_pattern(self, patterns_page):
+        drawn = patterns_page.evaluate(READ_PATTERNS, "patterned-bar")
+        online, in_store = (series["bars"][0] for series in drawn["series"])
+        assert drawn["patterned"].count(online) == 4 + 1
+        assert drawn["patterned"].count(in_store) == 4 + 1
+
+    def test_the_surface_keeps_the_tags_name_and_description(self, patterns_page):
+        drawn = patterns_page.evaluate(READ_PATTERNS, "patterned-bar")
+        assert drawn["label"] == "Orders by channel"
+        assert drawn["describedby"] == "patterned-bar-description"
+        assert drawn["descriptionText"].strip().startswith("Orders by region")
+
+    def test_every_pie_slice_carries_a_pattern(self, patterns_page):
+        slices = patterns_page.evaluate(READ_MARKS, "patterned-pie")["slices"]
+        assert len(slices) == 3
+        assert all(slices)
+
+    def test_a_pie_slice_is_not_drawn_with_its_neighbours_pattern(self, patterns_page):
+        slices = patterns_page.evaluate(READ_MARKS, "patterned-pie")["slices"]
+        assert len(set(slices)) == 3
+
+    def test_the_area_under_a_plain_line_carries_a_pattern(self, patterns_page):
+        areas = patterns_page.evaluate(READ_MARKS, "patterned-line")["areas"]
+        assert [area["name"] for area in areas] == ["Online", "In store"]
+        for area in areas:
+            assert area["drawn"], f"{area['name']} has no area"
+            assert area["pattern"], f"{area['name']} area is unpatterned"
+
+    def test_the_area_under_a_plain_line_is_drawn_at_zero_opacity(self, patterns_page):
+        areas = patterns_page.evaluate(READ_MARKS, "patterned-line")["areas"]
+        assert [area["opacity"] for area in areas] == [0, 0]
+
+    def test_the_area_under_a_shaded_line_carries_a_pattern(self, patterns_page):
+        areas = patterns_page.evaluate(READ_MARKS, "patterned-area")["areas"]
+        assert len(areas) == 2
+        for area in areas:
+            assert area["drawn"], f"{area['name']} has no area"
+            assert area["pattern"], f"{area['name']} area is unpatterned"
+
+    def test_the_area_under_a_shaded_line_is_visible(self, patterns_page):
+        areas = patterns_page.evaluate(READ_MARKS, "patterned-area")["areas"]
+        assert all(area["opacity"] > 0 for area in areas)
+
+    def test_no_scatter_symbol_carries_a_pattern(self, patterns_page):
+        symbols = patterns_page.evaluate(READ_MARKS, "patterned-scatter")["symbols"]
+        assert [series["name"] for series in symbols] == ["Online", "In store"]
+        for series in symbols:
+            assert series["marks"], f"{series['name']} drew no symbols to read"
+            assert not any(series["marks"]), f"{series['name']} has a patterned symbol"
+
+    def test_the_scatter_legend_icons_do_carry_a_pattern(self, patterns_page):
+        """The read finds a pattern on scatter's legend, so its finding none on
+        the symbols is the chart's doing and not the read's."""
+        legend = patterns_page.evaluate(READ_MARKS, "patterned-scatter")["legend"]
+        assert len(legend) == 2
+        assert legend[0] != legend[1]
+
+    def test_the_surface_is_labelled_by_echarts_and_not_by_the_tag(self, patterns_page):
+        label = patterns_page.evaluate(READ_MARKS, "described-by-echarts")["label"]
+        assert label
+        assert label != "Orders"
+
+    def test_each_series_draws_its_pattern_in_the_colour_its_entry_names(
+        self, patterns_page
+    ):
+        drawn = patterns_page.evaluate(READ_PATTERNS, "coloured-patterns")
+        online, in_store = (series["bars"][0] for series in drawn["series"])
+        assert patterns_page.evaluate(READ_TILE, online)["colour"] == [192, 57, 43]
+        assert patterns_page.evaluate(READ_TILE, in_store)["colour"] == [30, 132, 73]
+
+    def test_the_two_series_are_drawn_with_tiles_of_different_shape(
+        self, patterns_page
+    ):
+        """Different in shape and not only in colour, which is what an entry's
+        own `symbol` is for."""
+        drawn = patterns_page.evaluate(READ_PATTERNS, "coloured-patterns")
+        online, in_store = (series["bars"][0] for series in drawn["series"])
+        assert online != in_store
+        online_tile = patterns_page.evaluate(READ_TILE, online)
+        in_store_tile = patterns_page.evaluate(READ_TILE, in_store)
+        assert online_tile["shape"] != in_store_tile["shape"]

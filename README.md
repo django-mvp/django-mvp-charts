@@ -154,7 +154,7 @@ Write it as a number, `2`, or as the fraction it comes from, `16/9`. The chart t
 
 That suits a chart in a grid row, a dashboard tile or a flex child, where the layout already decides the box and there is no number to write on the tag.
 
-**A chart drawn into a canvas is invisible to anyone who cannot see it, and to anyone who cannot tell its colours apart.** Leaving out `name` and `description` is a real choice, not a shortcut: without them there is nothing else on the page for a screen reader to announce, or for someone who cannot make out the shape of the line to read instead. Give both whenever the chart is more than decoration.
+**A chart drawn into a canvas is invisible to anyone who cannot see it, and to anyone who cannot tell its colours apart.** Leaving out `name` and `description` is a real choice, not a shortcut: without them there is nothing else on the page for a screen reader to announce, or for someone who cannot make out the shape of the line to read instead. Give both whenever the chart is more than decoration. For a reader who cannot tell the colours apart, [patterns as well as colour](#patterns-as-well-as-colour) shows how to add a second cue to the series themselves.
 
 **A caption and a description are different texts, and a figure can carry both.** The caption is printed under the chart and assumes the reader can see it — the denominator, the unit, the date the figures were taken, or the one reading the chart cannot state on its own:
 
@@ -176,6 +176,74 @@ There is no attribute for it and nothing to switch on. Every chart waits, so eve
 There are no words with it either. A message this package wrote would need a translation catalogue it does not ship, and one you wrote would be a second thing to position and to keep away from a screen reader, which has the chart's `name` to announce already.
 
 The spinner goes only when a chart replaces it, so a chart that never draws keeps it. That is deliberate: a figure that empties itself and stays empty tells a reader less than one that never stopped waiting. It is not a failure message, and this package still writes none — what went wrong is in the console.
+
+## Patterns as well as colour
+
+ECharts can draw each series with a decal pattern (stripes, dots, dashes) as well as a colour, so a reader who cannot tell two colours apart can still follow the chart. pyecharts leaves them off, and nothing in this package switches them on: like every other option, they are set where the chart is built.
+
+They earn their place when series are told apart by colour alone, such as the bars of a grouped bar chart or the slices of a pie. They add nothing to a chart with a single series, or to one where each series is already labelled on the chart itself.
+
+```python
+def orders_by_channel():
+    """Two series told apart by a pattern as well as a colour. The generated
+    description is left off so the tag's name and description stay the chart's
+    text alternative."""
+    return (
+        Bar(
+            init_opts=opts.InitOpts(
+                aria_opts={
+                    "enabled": True,
+                    "label": {"enabled": False},
+                    "decal": {"show": True},
+                }
+            )
+        )
+        .add_xaxis(["North", "South", "East", "West"])
+        .add_yaxis("Online", [154, 121, 98, 187])
+        .add_yaxis("In store", [132, 140, 76, 96])
+    )
+```
+
+`aria_opts` is an argument to the chart's constructor, not to `set_global_opts`. The demo's Options page draws this chart beside the function that built it.
+
+The name and description on the tag stay the chart's text alternative. `"label": {"enabled": False}` is what keeps that true: with ECharts' `aria` option on and that line left out, ECharts writes a description of its own and puts it where the tag's `name` would have gone.
+
+The dictionary is passed as it is, rather than built with pyecharts' `AriaDecalOpts`, because `AriaDecalOpts` always writes a single pattern and ECharts then draws every series with it. Leaving it out lets ECharts give each series its own.
+
+### Which marks carry a pattern
+
+- **Bars and pie slices** carry a pattern.
+- **A line** carries one only on the area under it, and pyecharts draws that area at zero opacity, so a plain line shows nothing. Shade the area with `areastyle_opts=opts.AreaStyleOpts(opacity=0.5)` on the series and the pattern shows.
+- **Scatter points** never carry one.
+- **The legend's icons** follow their series, so a legend icon for a scatter series is patterned even though its points are not.
+
+Where there is no pattern, a chart needs a cue that is not colour, set where the chart is built. On a plain line that is `linestyle_opts=opts.LineStyleOpts(type_="solid")`, `"dashed"` or `"dotted"`, one per series. On scatter points it is the series' `symbol`, such as `"circle"`, `"rect"` or `"triangle"`.
+
+### Setting the pattern colour
+
+The default pattern is dark and translucent, so it barely shows on a dark fill or a dark page. Give `decal` a `decals` list to set its colour: one entry per series, in order, each with its own `color` and its own `symbol`.
+
+```python
+aria_opts={
+    "enabled": True,
+    "label": {"enabled": False},
+    "decal": {
+        "show": True,
+        "decals": [
+            {"color": "#c0392b", "symbol": "rect"},
+            {"color": "#1e8449", "symbol": "circle"},
+        ],
+    },
+}
+```
+
+Each entry needs a `symbol` because a `decals` list replaces ECharts' built-in patterns rather than recolouring them. Entries that set only a `color` draw every series with the same square tile, differing in colour alone. A single object in place of a list applies to every series, which is the same trap as `AriaDecalOpts`.
+
+### ECharts' generated description
+
+Left on, ECharts writes a description of the chart itself, and it takes the place of the tag's `name` as the chart's label. That happens when `aria_opts` enables `aria` without `"label": {"enabled": False}`. The package does not step in, because the chart object asked for it. Leave the generated description off, as in the examples above, so the name and description you gave the tag are what a reader hears.
+
+ECharts' [`aria.decal` documentation](https://echarts.apache.org/en/option.html#aria.decal) covers the rest of what a pattern can be set to.
 
 ## Keeping its shape
 

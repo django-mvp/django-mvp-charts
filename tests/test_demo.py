@@ -8,6 +8,7 @@ the sidebar. None of that raises, so none of it shows up anywhere except in a
 browser.
 """
 
+import ast
 import json
 import re
 from pathlib import Path
@@ -19,7 +20,15 @@ from django.template.loader import get_template
 from django.urls import reverse
 from django.utils.html import escape
 
-from demo.views import ChartTypesView, conversion_rate, invoiced, signups, source_of
+from demo.views import (
+    ChartTypesView,
+    conversion_rate,
+    invoiced,
+    orders_by_channel,
+    signups,
+    source_of,
+)
+from tests.urls import COLOURED_PATTERNS
 
 
 def payloads(page):
@@ -261,6 +270,60 @@ class TestAChartReachedFromThePage:
         assert escape(listener) in chart_options_page
 
 
+class TestPatternsBesideColour:
+    """The Options page's patterned chart, and that nothing else turns them on."""
+
+    @staticmethod
+    def patterned(page):
+        return [
+            options
+            for options in payloads(page)
+            if options.get("aria", {}).get("enabled") is True
+        ]
+
+    def test_the_listing_is_the_builder_that_ran(self, chart_options_page):
+        assert escape(source_of(orders_by_channel)) in chart_options_page
+
+    def test_the_chart_turns_patterns_on_and_the_generated_description_off(
+        self, chart_options_page
+    ):
+        (options,) = self.patterned(chart_options_page)
+        assert options["aria"]["label"]["enabled"] is False
+        assert options["aria"]["decal"]["show"] is True
+
+    def test_the_chart_leaves_ECharts_choice_of_pattern_per_series_alone(
+        self, chart_options_page
+    ):
+        """A single `decals` object would give every series the same pattern."""
+        (options,) = self.patterned(chart_options_page)
+        assert "decals" not in options["aria"]["decal"]
+
+    def test_the_chart_has_two_series(self, chart_options_page):
+        (options,) = self.patterned(chart_options_page)
+        assert [series["name"] for series in options["series"]] == [
+            "Online",
+            "In store",
+        ]
+
+    def test_its_placement_carries_a_name_and_a_description(self, chart_options_page):
+        assert 'role="img" aria-label="Orders by channel"' in chart_options_page
+        assert re.search(
+            r'<p id="orders-by-channel-description"[^>]*>\s*\S', chart_options_page
+        )
+
+    def test_every_other_chart_arrives_with_nothing_turned_on(
+        self, overview_page, chart_types_page, chart_options_page
+    ):
+        others = [
+            options
+            for page in (overview_page, chart_types_page, chart_options_page)
+            for options in payloads(page)
+            if options not in self.patterned(page)
+        ]
+        assert others
+        assert all(options["aria"] == {"enabled": False} for options in others)
+
+
 class TestDocumentedExample:
     """The README's example is the markup the demo actually renders.
 
@@ -291,6 +354,55 @@ class TestDocumentedExample:
         example = self.readme_example('id="revenue"')
         assert example, "the README no longer carries the placement example"
         assert example in self.overview_template()
+
+
+class TestTheReadmeShowsThePatternedChart:
+    """The README's Python is the builder the Options page runs.
+
+    Anchored on the `def` line rather than on `aria_opts`, because the section
+    holds more than one Python block and another of them mentions `aria_opts`.
+    """
+
+    @staticmethod
+    def readme():
+        return (Path(settings.BASE_DIR) / "README.md").read_text()
+
+    def test_the_python_block_is_the_builder_the_demo_runs(self):
+        blocks = [
+            block
+            for block in re.findall(r"```python\n(.*?)\n```", self.readme(), re.S)
+            if "def orders_by_channel" in block
+        ]
+        assert len(blocks) == 1, "the README does not show orders_by_channel once"
+        assert " ".join(blocks[0].split()) == " ".join(
+            source_of(orders_by_channel).split()
+        )
+
+    def test_the_colour_example_is_the_call_the_browser_tests_measure(self):
+        """The fragment is not a builder, so it is matched to the probe chart
+        whose pattern colours the browser tests read back."""
+        (fragment,) = [
+            block
+            for block in re.findall(r"```python\n(.*?)\n```", self.readme(), re.S)
+            if block.startswith("aria_opts=")
+        ]
+        assert (
+            ast.literal_eval(fragment.removeprefix("aria_opts=")) == COLOURED_PATTERNS
+        )
+
+    def test_the_section_follows_placing_the_chart(self):
+        headings = re.findall(r"^## (.*)$", self.readme(), re.M)
+        assert headings.index("Patterns as well as colour") > headings.index(
+            "Placing the chart"
+        )
+
+    def test_the_accessibility_paragraph_links_to_it(self):
+        paragraph = next(
+            line
+            for line in self.readme().splitlines()
+            if "cannot tell its colours apart" in line
+        )
+        assert "(#patterns-as-well-as-colour)" in paragraph
 
 
 class TestTheDemoLoadsTheLibraryItself:

@@ -1,0 +1,222 @@
+{
+  "feature": "003-patterns-beside-colour",
+  "branch": "003-patterns-beside-colour",
+  "repo": "django-mvp/django-mvp-charts",
+  "state": "PR_READY",
+  "state_history": [
+    {
+      "state": "PLAN",
+      "at": "2026-09-26T06:11:18Z",
+      "note": "Implementation session opened from the queue; spec already on main."
+    },
+    {
+      "state": "DESIGN_REVIEW",
+      "at": "2026-09-26T06:12:13Z",
+      "note": "Plan complete, draft PR #59 open; design reviewer dispatched"
+    },
+    {
+      "state": "IMPLEMENT",
+      "at": "2026-09-26T06:17:25Z",
+      "note": "Design review approved, four findings applied; US1 dispatched"
+    },
+    {
+      "state": "CONVERGE",
+      "at": "2026-09-26T06:35:36Z",
+      "note": "Both stories done and accepted; simplify pass merged the tile readers"
+    },
+    {
+      "state": "REVIEW",
+      "at": "2026-09-26T06:36:24Z",
+      "note": "Converged; reviewer dispatched (correctness and spec lens)"
+    },
+    {
+      "state": "PR_READY",
+      "at": "2026-09-26T06:39:13Z",
+      "note": "Review approved, no findings; PR #59 open and ready, awaiting walkthrough"
+    }
+  ],
+  "gates": {
+    "spec": {
+      "approved_by": "SamuelJennings",
+      "at": "2026-09-26T05:40:36Z",
+      "self_resolved": [
+        "Specification pull request #56, merge commit 2f24b4a1c43ad2fd349b34fcc23a0a88c139456e"
+      ]
+    },
+    "plan": {
+      "approved_by": "notified",
+      "at": "2026-09-26T06:17:15Z"
+    },
+    "merge": {
+      "approved_by": null,
+      "at": null
+    },
+    "design_review": {
+      "approved_by": "design-review",
+      "at": "2026-09-26T06:17:15Z",
+      "self_resolved": [
+        "SPEC-001 (medium): measured the decals-list colour example; a list replaces the built-in patterns, so the README example gives each entry a symbol and T005/T006 test it.",
+        "SPEC-002 (medium): README-to-demo test anchors on def orders_by_channel.",
+        "ARCH-001 (low): stories stated sequential, same branch.",
+        "SPEC-003 (low): SC-004 byte-identity attributed to FR-005, not to the aria assertion."
+      ]
+    },
+    "review": {
+      "approved_by": "review",
+      "at": "2026-09-26T06:37:55Z",
+      "self_resolved": []
+    }
+  },
+  "stories": [
+    {
+      "id": "US1",
+      "priority": "P1",
+      "issue": 57,
+      "worktree": null,
+      "status": "done",
+      "replans": 0,
+      "tasks": [
+        {
+          "id": "T001",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests": [
+              "tests/test_demo.py"
+            ],
+            "commands": [
+              "uv run pytest tests/test_demo.py -q (34 passed)",
+              "uv run pre-commit run --all-files"
+            ]
+          }
+        },
+        {
+          "id": "T002",
+          "status": "done",
+          "attempts": 2,
+          "evidence": {
+            "tests": [
+              "tests/test_components/test_chart_e2e.py"
+            ],
+            "commands": [
+              "uv run pytest tests/test_components/test_chart_e2e.py::TestDecalPatterns -q (4 passed)",
+              "mutation runs against tests/urls.py, each restored: drop decal.show (3 failed), single decals object (2 failed), drop label.enabled false (1 failed)"
+            ]
+          }
+        },
+        {
+          "id": "T003",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests": [
+              "tests/test_demo.py"
+            ],
+            "commands": [
+              "uv run pytest tests/test_demo.py -q (37 passed)",
+              "uv run pre-commit run --all-files"
+            ]
+          }
+        },
+        {
+          "id": "T004",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests": [],
+            "commands": [
+              "uv run pre-commit run --all-files"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "US2",
+      "priority": "P2",
+      "issue": 58,
+      "worktree": null,
+      "status": "done",
+      "replans": 0,
+      "tasks": [
+        {
+          "id": "T005",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests": [
+              "tests/test_components/test_chart_e2e.py::TestDecalPatterns"
+            ],
+            "commands": [
+              "uv run pytest tests/test_components/test_chart_e2e.py::TestDecalPatterns -q (4 passed, US1 unchanged)",
+              "uv run pre-commit run --all-files"
+            ]
+          }
+        },
+        {
+          "id": "T006",
+          "status": "done",
+          "attempts": 2,
+          "evidence": {
+            "tests": [
+              "tests/test_components/test_chart_e2e.py::TestDecalPatterns"
+            ],
+            "commands": [
+              "uv run pytest tests/test_components/test_chart_e2e.py::TestDecalPatterns -q (15 passed)"
+            ]
+          }
+        },
+        {
+          "id": "T007",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests": [
+              "tests/test_demo.py::TestTheReadmeShowsThePatternedChart"
+            ],
+            "commands": [
+              "uv run pytest tests/test_demo.py -q (38 passed)",
+              "uv run pre-commit run --all-files"
+            ]
+          }
+        },
+        {
+          "id": "T008",
+          "status": "done",
+          "attempts": 1,
+          "evidence": {
+            "tests": [
+              "tests/test_components/test_chart_e2e.py::TestDecalPatterns"
+            ],
+            "commands": [
+              "seven mutations of tests/urls.py, each restored, each run against TestDecalPatterns; six went red in the matching test, the itemStyle.decal scatter mutation stayed green (recorded in progress.md)",
+              "kit verify --repo . --base origin/main: conformance, docs, uv:lint, uv:typecheck, uv:test, uv:build all passed"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "budgets": {
+    "converge_cycles": {
+      "used": 1,
+      "max": 2
+    },
+    "review_cycles": {
+      "used": 0,
+      "max": 1
+    },
+    "design_review_cycles": {
+      "used": 1,
+      "max": 1
+    },
+    "tokens": {
+      "used": 0,
+      "max": 120
+    }
+  },
+  "pr": {
+    "number": 59,
+    "draft": false
+  }
+}
