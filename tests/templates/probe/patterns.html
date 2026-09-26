@@ -11,4 +11,34 @@
              name="Orders by channel"
              description="Orders by region, online against in store." />
   </div>
+  <div style="height: 320px">
+    <c-chart :chart="patterned_pie"
+             id="patterned-pie"
+             name="Plans" />
+  </div>
+  <div style="height: 320px">
+    <c-chart :chart="patterned_line"
+             id="patterned-line"
+             name="Orders by day" />
+  </div>
+  <div style="height: 320px">
+    <c-chart :chart="patterned_area"
+             id="patterned-area"
+             name="Orders by day, shaded" />
+  </div>
+  <div style="height: 320px">
+    <c-chart :chart="patterned_scatter"
+             id="patterned-scatter"
+             name="Orders by size" />
+  </div>
+  <div style="height: 320px">
+    <c-chart :chart="described_by_echarts"
+             id="described-by-echarts"
+             name="Orders" />
+  </div>
+  <div style="height: 320px">
+    <c-chart :chart="coloured_patterns"
+             id="coloured-patterns"
+             name="Orders by channel, coloured" />
+  </div>
 {% endblock page.content %}
