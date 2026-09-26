@@ -7,3 +7,12 @@ pyecharts 2.1.0 emits for `aria` and what ECharts 6.1.0 draws from it (research 
 research.md, tasks.md; appended D1–D3 to decisions.md.
 Next: design review, then US1.
 Watch: the README's Python block must stay byte-for-byte the demo builder's source.
+
+## 2026-09-26T08:40 · Implementer US1 · T001
+
+Did: `TestPatternsBesideColour` in tests/test_demo.py (written first; failed on the missing
+`orders_by_channel` import), then `orders_by_channel()` in demo/views.py, added to
+`ChartOptionsView`, and a fourth section on the Options page.
+Verified: `uv run pytest tests/test_demo.py -q` → 34 passed; `uv run pre-commit run --all-files` → all passed.
+Next: T002 probe page and browser tests.
+Watch: the description text names which channel leads in which region; change it with the data.

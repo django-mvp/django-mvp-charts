@@ -19,7 +19,14 @@ from django.template.loader import get_template
 from django.urls import reverse
 from django.utils.html import escape
 
-from demo.views import ChartTypesView, conversion_rate, invoiced, signups, source_of
+from demo.views import (
+    ChartTypesView,
+    conversion_rate,
+    invoiced,
+    orders_by_channel,
+    signups,
+    source_of,
+)
 
 
 def payloads(page):
@@ -259,6 +266,60 @@ class TestAChartReachedFromThePage:
         listener = get_template("demo/signups_formatter.html").template.source.strip()
         assert listener in chart_options_page
         assert escape(listener) in chart_options_page
+
+
+class TestPatternsBesideColour:
+    """The Options page's patterned chart, and that nothing else turns them on."""
+
+    @staticmethod
+    def patterned(page):
+        return [
+            options
+            for options in payloads(page)
+            if options.get("aria", {}).get("enabled") is True
+        ]
+
+    def test_the_listing_is_the_builder_that_ran(self, chart_options_page):
+        assert escape(source_of(orders_by_channel)) in chart_options_page
+
+    def test_the_chart_turns_patterns_on_and_the_generated_description_off(
+        self, chart_options_page
+    ):
+        (options,) = self.patterned(chart_options_page)
+        assert options["aria"]["label"]["enabled"] is False
+        assert options["aria"]["decal"]["show"] is True
+
+    def test_the_chart_leaves_ECharts_choice_of_pattern_per_series_alone(
+        self, chart_options_page
+    ):
+        """A single `decals` object would give every series the same pattern."""
+        (options,) = self.patterned(chart_options_page)
+        assert "decals" not in options["aria"]["decal"]
+
+    def test_the_chart_has_two_series(self, chart_options_page):
+        (options,) = self.patterned(chart_options_page)
+        assert [series["name"] for series in options["series"]] == [
+            "Online",
+            "In store",
+        ]
+
+    def test_its_placement_carries_a_name_and_a_description(self, chart_options_page):
+        assert 'role="img" aria-label="Orders by channel"' in chart_options_page
+        assert re.search(
+            r'<p id="orders-by-channel-description"[^>]*>\s*\S', chart_options_page
+        )
+
+    def test_every_other_chart_arrives_with_nothing_turned_on(
+        self, overview_page, chart_types_page, chart_options_page
+    ):
+        others = [
+            options
+            for page in (overview_page, chart_types_page, chart_options_page)
+            for options in payloads(page)
+            if options not in self.patterned(page)
+        ]
+        assert others
+        assert all(options["aria"] == {"enabled": False} for options in others)
 
 
 class TestDocumentedExample:

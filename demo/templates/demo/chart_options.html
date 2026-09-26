@@ -77,4 +77,25 @@
                description="Weekly sign-ups over six weeks, rising from 40 in week 1 to 84 in week 6." />
     </div>
   </c-section>
+  <c-section title="Patterns as well as colour" icon="chart">
+    <c-text>
+      ECharts can draw each series with a pattern as well as a colour, so a reader who
+      cannot tell the colours apart can still follow the chart. pyecharts leaves the
+      patterns off. This chart turns them on where it is built, with ECharts' generated
+      description off, so the name and description on the tag stay the chart's text
+      alternative.
+    </c-text>
+    <div class="mockup-code w-full text-sm">
+      <pre class="px-6"><code>{{ source.orders_by_channel }}</code></pre>
+    </div>
+    {% show_code %}
+      {% cotton:verbatim %}
+        <c-chart :chart="orders_by_channel"
+                 id="orders-by-channel"
+                 height="320px"
+                 name="Orders by channel"
+                 description="Orders by region, online against in store. Online leads in North, East and West, and In store leads in South." />
+      {% endcotton:verbatim %}
+    {% endshow_code %}
+  </c-section>
 {% endblock page.content %}

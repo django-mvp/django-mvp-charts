@@ -110,6 +110,26 @@ def signups():
     )
 
 
+def orders_by_channel():
+    """Two series told apart by a pattern as well as a colour. The generated
+    description is left off so the tag's name and description stay the chart's
+    text alternative."""
+    return (
+        Bar(
+            init_opts=opts.InitOpts(
+                aria_opts={
+                    "enabled": True,
+                    "label": {"enabled": False},
+                    "decal": {"show": True},
+                }
+            )
+        )
+        .add_xaxis(["North", "South", "East", "West"])
+        .add_yaxis("Online", [154, 121, 98, 187])
+        .add_yaxis("In store", [132, 140, 76, 96])
+    )
+
+
 class OverviewView(MVPTemplateView):
     """What this package is, and how a chart gets onto a page."""
 
@@ -162,9 +182,11 @@ class ChartOptionsView(MVPTemplateView):
         context["styled"] = conversion_rate()
         context["awkward"] = invoiced()
         context["signups"] = signups()
+        context["orders_by_channel"] = orders_by_channel()
         context["source"] = {
             "styled": source_of(conversion_rate),
             "awkward": source_of(invoiced),
             "signups": source_of(signups),
+            "orders_by_channel": source_of(orders_by_channel),
         }
         return context
