@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Django 6.1 is supported, and tested on every change alongside 5.2 and 6.0.
+- The README has a "Patterns as well as colour" section on drawing each series with a decal pattern
+  as well as a colour, with the name and description on the tag left as the chart's text
+  alternative. The demo's Options page has a chart built that way beside the function that built it.
 
 ## [v0.2.0] - 2026-09-24
 

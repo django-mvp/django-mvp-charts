@@ -41,3 +41,11 @@ paragraph in "Giving the chart a box". The block test anchors on `def orders_by_
 Verified: `uv run pytest tests/test_demo.py -q` → 37 passed; pre-commit all passed.
 Next: T004 CONTEXT.md and CHANGELOG.md.
 Watch: US2 adds its statements to the same section; the section ends with the ECharts link, so US2's items go before it.
+
+## 2026-09-26T09:12 · Implementer US1 · T004
+
+Did: CONTEXT.md gains **Decal pattern** and **Generated description** in the file's entry shape;
+CHANGELOG.md `[Unreleased]` gains one entry under `### Added` (the file has no documentation heading).
+Verified: pre-commit all passed. Nothing under docs/ describes what this story touched (docs/ holds the
+roadmap, ADRs and a brainstorm), so no page needed updating.
+Next: full verify, report.
