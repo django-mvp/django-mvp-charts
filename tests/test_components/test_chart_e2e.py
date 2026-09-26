@@ -604,6 +604,27 @@ def patterns_page(chromium, live_server, page):
     return page
 
 
+# The shape of a pattern tile, colour set aside: which of its pixels are more
+# than half opaque. Two tiles that differ only in colour have the same shape.
+READ_TILE_SHAPE = """
+(dataUrl) => new Promise((resolve) => {
+  const image = new Image();
+  image.onload = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = image.width;
+    canvas.height = image.height;
+    const context = canvas.getContext('2d');
+    context.drawImage(image, 0, 0);
+    const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+    let shape = '';
+    for (let i = 3; i < pixels.length; i += 4) shape += pixels[i] > 127 ? '1' : '0';
+    resolve(shape);
+  };
+  image.src = dataUrl;
+})
+"""
+
+
 class TestDecalPatterns:
     """A chart built with the documented call is drawn with patterns.
 
@@ -696,7 +717,14 @@ class TestDecalPatterns:
         assert patterns_page.evaluate(READ_TILE_COLOUR, online) == [192, 57, 43]
         assert patterns_page.evaluate(READ_TILE_COLOUR, in_store) == [30, 132, 73]
 
-    def test_the_two_series_are_drawn_with_different_tiles(self, patterns_page):
+    def test_the_two_series_are_drawn_with_tiles_of_different_shape(
+        self, patterns_page
+    ):
+        """Different in shape and not only in colour, which is what an entry's
+        own `symbol` is for."""
         drawn = patterns_page.evaluate(READ_PATTERNS, "coloured-patterns")
         online, in_store = (series["bars"][0] for series in drawn["series"])
         assert online != in_store
+        assert patterns_page.evaluate(
+            READ_TILE_SHAPE, online
+        ) != patterns_page.evaluate(READ_TILE_SHAPE, in_store)
