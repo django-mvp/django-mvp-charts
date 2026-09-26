@@ -59,22 +59,55 @@
         {
           "id": "T001",
           "status": "done",
-          "attempts": 1
+          "attempts": 1,
+          "evidence": {
+            "tests": [
+              "tests/test_demo.py"
+            ],
+            "commands": [
+              "uv run pytest tests/test_demo.py -q (34 passed)",
+              "uv run pre-commit run --all-files"
+            ]
+          }
         },
         {
           "id": "T002",
           "status": "done",
-          "attempts": 2
+          "attempts": 2,
+          "evidence": {
+            "tests": [
+              "tests/test_components/test_chart_e2e.py"
+            ],
+            "commands": [
+              "uv run pytest tests/test_components/test_chart_e2e.py::TestDecalPatterns -q (4 passed)",
+              "mutation runs against tests/urls.py, each restored: drop decal.show (3 failed), single decals object (2 failed), drop label.enabled false (1 failed)"
+            ]
+          }
         },
         {
           "id": "T003",
           "status": "done",
-          "attempts": 1
+          "attempts": 1,
+          "evidence": {
+            "tests": [
+              "tests/test_demo.py"
+            ],
+            "commands": [
+              "uv run pytest tests/test_demo.py -q (37 passed)",
+              "uv run pre-commit run --all-files"
+            ]
+          }
         },
         {
           "id": "T004",
           "status": "done",
-          "attempts": 1
+          "attempts": 1,
+          "evidence": {
+            "tests": [],
+            "commands": [
+              "uv run pre-commit run --all-files"
+            ]
+          }
         }
       ]
     },
