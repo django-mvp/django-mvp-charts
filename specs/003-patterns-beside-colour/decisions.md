@@ -64,3 +64,9 @@ Verdict approve; no critical or high finding.
 - SPEC-003 (low): plan.md no longer claims the `aria` assertion proves SC-004's byte-identity.
 
 **ADR:** none — plan edits local to this feature.
+
+## D5 — the coloured-tile test compares shape, not data URLs
+
+**Decision:** two coloured-pattern tiles are compared by which pixels are more than half opaque, and their colours by the most opaque pixel.
+**Why:** tiles that differ only in colour have different data URLs, so a URL comparison stayed green when the `decals` entries lost their `symbol`, the exact mistake the README warns about. The most opaque pixel avoids a circle's blended edge.
+**Revisit if:** ECharts changes how tiles are rasterised.
