@@ -570,10 +570,11 @@ READ_MARKS = """
 }
 """
 
-# The colour of a pattern tile, read from its pixels: the most opaque pixel the
-# tile paints, since the edge of a circle is blended with the transparent
-# pixels around it.
-READ_TILE_COLOUR = """
+# A pattern tile read from its pixels. Its colour is the most opaque pixel it
+# paints, since the edge of a circle is blended with the transparent pixels
+# around it. Its shape is which pixels are more than half opaque, colour set
+# aside, so two tiles that differ only in colour have the same shape.
+READ_TILE = """
 (dataUrl) => new Promise((resolve) => {
   const image = new Image();
   image.onload = () => {
@@ -584,12 +585,14 @@ READ_TILE_COLOUR = """
     context.drawImage(image, 0, 0);
     const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
     let best = null;
+    let shape = '';
     for (let i = 0; i < pixels.length; i += 4) {
       if (pixels[i + 3] > 0 && (!best || pixels[i + 3] > best[3])) {
         best = [pixels[i], pixels[i + 1], pixels[i + 2], pixels[i + 3]];
       }
+      shape += pixels[i + 3] > 127 ? '1' : '0';
     }
-    resolve(best && best.slice(0, 3));
+    resolve({ colour: best && best.slice(0, 3), shape });
   };
   image.src = dataUrl;
 })
@@ -602,27 +605,6 @@ def patterns_page(chromium, live_server, page):
     page.goto(f"{live_server.url}/probe/patterns/")
     page.wait_for_function(CHARTS_DRAWN, timeout=10000)
     return page
-
-
-# The shape of a pattern tile, colour set aside: which of its pixels are more
-# than half opaque. Two tiles that differ only in colour have the same shape.
-READ_TILE_SHAPE = """
-(dataUrl) => new Promise((resolve) => {
-  const image = new Image();
-  image.onload = () => {
-    const canvas = document.createElement('canvas');
-    canvas.width = image.width;
-    canvas.height = image.height;
-    const context = canvas.getContext('2d');
-    context.drawImage(image, 0, 0);
-    const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
-    let shape = '';
-    for (let i = 3; i < pixels.length; i += 4) shape += pixels[i] > 127 ? '1' : '0';
-    resolve(shape);
-  };
-  image.src = dataUrl;
-})
-"""
 
 
 class TestDecalPatterns:
@@ -714,8 +696,8 @@ class TestDecalPatterns:
     ):
         drawn = patterns_page.evaluate(READ_PATTERNS, "coloured-patterns")
         online, in_store = (series["bars"][0] for series in drawn["series"])
-        assert patterns_page.evaluate(READ_TILE_COLOUR, online) == [192, 57, 43]
-        assert patterns_page.evaluate(READ_TILE_COLOUR, in_store) == [30, 132, 73]
+        assert patterns_page.evaluate(READ_TILE, online)["colour"] == [192, 57, 43]
+        assert patterns_page.evaluate(READ_TILE, in_store)["colour"] == [30, 132, 73]
 
     def test_the_two_series_are_drawn_with_tiles_of_different_shape(
         self, patterns_page
@@ -725,6 +707,6 @@ class TestDecalPatterns:
         drawn = patterns_page.evaluate(READ_PATTERNS, "coloured-patterns")
         online, in_store = (series["bars"][0] for series in drawn["series"])
         assert online != in_store
-        assert patterns_page.evaluate(
-            READ_TILE_SHAPE, online
-        ) != patterns_page.evaluate(READ_TILE_SHAPE, in_store)
+        online_tile = patterns_page.evaluate(READ_TILE, online)
+        in_store_tile = patterns_page.evaluate(READ_TILE, in_store)
+        assert online_tile["shape"] != in_store_tile["shape"]
