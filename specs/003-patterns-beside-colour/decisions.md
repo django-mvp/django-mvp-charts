@@ -70,3 +70,5 @@ Verdict approve; no critical or high finding.
 **Decision:** two coloured-pattern tiles are compared by which pixels are more than half opaque, and their colours by the most opaque pixel.
 **Why:** tiles that differ only in colour have different data URLs, so a URL comparison stayed green when the `decals` entries lost their `symbol`, the exact mistake the README warns about. The most opaque pixel avoids a circle's blended edge.
 **Revisit if:** ECharts changes how tiles are rasterised.
+
+**ADR:** none — a testing choice local to this feature.
