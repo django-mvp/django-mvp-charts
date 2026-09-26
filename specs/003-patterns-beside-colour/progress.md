@@ -31,3 +31,13 @@ No production change was needed, so mutation checks against the probe (each rest
 - drop `"label": {"enabled": False}` → 1 failed: keeps-the-tags-name-and-description.
 Next: T003 README.
 Watch: the bar overlay is `_decalEl`, an ECharts internal; a release that renames it fails these tests loudly.
+
+## 2026-09-26T09:05 · Implementer US1 · T003
+
+Did: `TestTheReadmeShowsThePatternedChart` in tests/test_demo.py (written first; 3 red: no block, no section,
+no link), then README `## Patterns as well as colour` between "While the chart is still on its way" and
+"Keeping its shape", carrying `orders_by_channel`'s source verbatim, and a link from the accessibility
+paragraph in "Giving the chart a box". The block test anchors on `def orders_by_channel`.
+Verified: `uv run pytest tests/test_demo.py -q` → 37 passed; pre-commit all passed.
+Next: T004 CONTEXT.md and CHANGELOG.md.
+Watch: US2 adds its statements to the same section; the section ends with the ECharts link, so US2's items go before it.

@@ -354,6 +354,43 @@ class TestDocumentedExample:
         assert example in self.overview_template()
 
 
+class TestTheReadmeShowsThePatternedChart:
+    """The README's Python is the builder the Options page runs.
+
+    Anchored on the `def` line rather than on `aria_opts`, because the section
+    holds more than one Python block and another of them mentions `aria_opts`.
+    """
+
+    @staticmethod
+    def readme():
+        return (Path(settings.BASE_DIR) / "README.md").read_text()
+
+    def test_the_python_block_is_the_builder_the_demo_runs(self):
+        blocks = [
+            block
+            for block in re.findall(r"```python\n(.*?)\n```", self.readme(), re.S)
+            if "def orders_by_channel" in block
+        ]
+        assert len(blocks) == 1, "the README does not show orders_by_channel once"
+        assert " ".join(blocks[0].split()) == " ".join(
+            source_of(orders_by_channel).split()
+        )
+
+    def test_the_section_follows_placing_the_chart(self):
+        headings = re.findall(r"^## (.*)$", self.readme(), re.M)
+        assert headings.index("Patterns as well as colour") > headings.index(
+            "Placing the chart"
+        )
+
+    def test_the_accessibility_paragraph_links_to_it(self):
+        paragraph = next(
+            line
+            for line in self.readme().splitlines()
+            if "cannot tell its colours apart" in line
+        )
+        assert "(#patterns-as-well-as-colour)" in paragraph
+
+
 class TestTheDemoLoadsTheLibraryItself:
     """The project places the delivery; no component reaches off-site for it."""
 
