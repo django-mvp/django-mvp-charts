@@ -2,7 +2,7 @@
   "feature": "003-patterns-beside-colour",
   "branch": "003-patterns-beside-colour",
   "repo": "django-mvp/django-mvp-charts",
-  "state": "PR_READY",
+  "state": "MERGED",
   "state_history": [
     {
       "state": "PLAN",
@@ -33,6 +33,11 @@
       "state": "PR_READY",
       "at": "2026-09-26T06:39:13Z",
       "note": "Review approved, no findings; PR #59 open and ready, awaiting walkthrough"
+    },
+    {
+      "state": "MERGED",
+      "at": "2026-09-26T07:12:05Z",
+      "note": "PR #59 merged; approved by SamuelJennings"
     }
   ],
   "gates": {
@@ -48,8 +53,8 @@
       "at": "2026-09-26T06:17:15Z"
     },
     "merge": {
-      "approved_by": null,
-      "at": null
+      "approved_by": "SamuelJennings",
+      "at": "2026-09-26T07:11:56Z"
     },
     "design_review": {
       "approved_by": "design-review",
@@ -211,7 +216,7 @@
       "max": 1
     },
     "tokens": {
-      "used": 0,
+      "used": 8.07,
       "max": 120
     }
   },
