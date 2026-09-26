@@ -97,12 +97,12 @@ COLOURED_PATTERNS = {
 }
 
 
-def a_line(area=None):
+def a_line(**series_options):
     chart = Line(init_opts=opts.InitOpts(aria_opts=PATTERNS_ON)).add_xaxis(
         ["Mon", "Tue", "Wed", "Thu"]
     )
     for name, values in (("Online", [12, 18, 15, 22]), ("In store", [9, 11, 14, 10])):
-        chart.add_yaxis(name, values, areastyle_opts=area)
+        chart.add_yaxis(name, values, **series_options)
     return chart
 
 
@@ -132,7 +132,9 @@ class PatternsProbe(MVPTemplateView):
             init_opts=opts.InitOpts(aria_opts=PATTERNS_ON)
         ).add("", [("Free", 60), ("Team", 30), ("Business", 10)])
         context["patterned_line"] = a_line()
-        context["patterned_area"] = a_line(opts.AreaStyleOpts(opacity=0.5))
+        context["patterned_area"] = a_line(
+            areastyle_opts=opts.AreaStyleOpts(opacity=0.5)
+        )
         context["patterned_scatter"] = (
             Scatter(init_opts=opts.InitOpts(aria_opts=PATTERNS_ON))
             .add_xaxis([1, 2, 3, 4])
