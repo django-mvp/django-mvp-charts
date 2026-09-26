@@ -3,6 +3,9 @@
 Two stories, run in priority order. Each is independently testable and leaves the suite green.
 Documentation ships in the story whose statements it makes.
 
+**The stories are sequential, not parallel.** US2 extends the probe page, `TestDecalPatterns` and the
+README section US1 creates, so it is dispatched only after US1 is accepted, on the same branch.
+
 Test-first throughout (Article I): the assertions in each task are written and failing before the
 change that satisfies them. Nothing under `mvp_charts/` changes in any task (FR-005).
 
@@ -36,9 +39,11 @@ Delivers FR-001 … FR-006, SC-001, SC-002, SC-004. Issue #57.
   worth it; the Python; why not `AriaDecalOpts`; the ECharts link). The paragraph in "Giving the
   chart a box" that mentions readers who "cannot tell its colours apart" links to the new section.
   The Python block is `orders_by_channel`'s source verbatim. `tests/test_demo.py`, extend
-  `TestDocumentedExample`: the README's `python` block containing `aria_opts` equals
-  `source_of(orders_by_channel)` whitespace-normalised (AS1-3). Write that test first.
-- **T004** — `CONTEXT.md`: **Decal pattern** and **Generated description**, in the file's
+  `TestDocumentedExample`: the README's `python` block containing `def orders_by_channel` equals
+  `source_of(orders_by_channel)` whitespace-normalised (AS1-3). Anchor on the `def` line, not on
+  `aria_opts`: US2 adds a second `python` block in the same section that also contains `aria_opts`.
+  Write that test first.
+- **T004** — `CONTEXT.md`: **Decal pattern** (FR-006) and **Generated description** (spec Key Entities), in the file's
   existing shape (definition, _Avoid_ line where one helps). `CHANGELOG.md` `[Unreleased]`: one
   entry under the heading the file already uses for documentation, naming the new README section
   and the demo chart.
@@ -51,15 +56,21 @@ Delivers FR-007 … FR-011, SC-003. Issue #58.
   slices (`patterned-pie`), a two-series plain line (`patterned-line`), the same line with
   `areastyle_opts=opts.AreaStyleOpts(opacity=0.5)` on each series (`patterned-area`), a two-series
   scatter (`patterned-scatter`), and a bar with `aria_opts={"enabled": True, "decal": {"show":
-  True}}` — generated description left on (`described-by-echarts`), each with a `name`.
+  True}}` — generated description left on (`described-by-echarts`), and a two-series bar whose
+  `decal` carries the README's colour example, a two-entry `decals` list giving each entry its own
+  `symbol` and `color` (`coloured-patterns`), each with a `name`.
 - **T006** — `TestDecalPatterns`, one test per README statement, each asserting presence and absence
   separately so it fails when the statement is made false: pie slices carry a pattern; a plain
   line's area element carries a pattern and is drawn at opacity 0; the shaded line's area carries a
   pattern at opacity above 0; no scatter symbol carries a pattern; the `described-by-echarts`
-  surface's `aria-label` is not its tag's `name`.
+  surface's `aria-label` is not its tag's `name`; the `coloured-patterns` series each draw their
+  pattern in the colour their entry names (read from the pattern tile's pixels, as research R1 did)
+  and the two tiles differ.
 - **T007** — `README.md`, the same section: plan items 4–7 (which marks carry a pattern; the cue on
   a plain line and on scatter points; the default colour and the `decals` list that sets it, with a
-  short example; the generated description replacing the name, and the recommendation). Every
+  short example that is a fragment (no `def` line) and is exactly the `coloured-patterns` probe's
+  `aria_opts`, saying that a list replaces ECharts' built-in patterns so each entry needs its own
+  `symbol` as well as its `color`; the generated description replacing the name, and the recommendation). Every
   mark statement it makes is one T006 asserts, and it says nothing T006 does not assert.
 - **T008** — Mutation check of T006, as in T002: for each mark test, make the probe contradict the
   statement (shade the plain line, drop the area from the shaded one, turn the patterns off on the

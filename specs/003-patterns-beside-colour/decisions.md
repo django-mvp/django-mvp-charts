@@ -50,3 +50,17 @@ instance's data visuals and ZRender's display list. Both are ECharts internals; 
 changes them fails the tests, which is the loud failure the specification asks for.
 
 **ADR:** none — a testing choice local to this feature, applying ADR 0002.
+
+## D4 — design review: four findings, all applied as plan edits
+
+Verdict approve; no critical or high finding.
+
+- SPEC-001 (medium): the colour example was unmeasured. Measured it (research R1): a `decals` list
+  replaces ECharts' built-in patterns, so entries that set only a colour draw every series with the
+  same tile. The README example now gives each entry a `symbol` as well, and T005/T006 add a probe
+  chart and a test for it.
+- SPEC-002 (medium): the README↔demo test anchors on `def orders_by_channel`, not `aria_opts`.
+- ARCH-001 (low): tasks.md says US2 runs after US1, on the same branch.
+- SPEC-003 (low): plan.md no longer claims the `aria` assertion proves SC-004's byte-identity.
+
+**ADR:** none — plan edits local to this feature.

@@ -84,8 +84,11 @@ The section carries, in this order:
    dotted), and a scatter series' `symbol`. Both set where the chart is built.
 6. Colour (FR-009): the default pattern is dark and translucent, which barely shows on a dark fill
    or a dark page. Its colour is set by giving `decal` a `decals` list, one object per series in
-   order, each with its own `color`. A single object rather than a list applies to every series,
-   which is the `AriaDecalOpts` trap again.
+   order, each with its own `color` **and its own `symbol`**: a list replaces ECharts' built-in
+   patterns rather than recolouring them, so entries that set only a colour draw every series with
+   the same square tile (research R1). A single object rather than a list applies to every series,
+   which is the `AriaDecalOpts` trap again. The example is a fragment (the `aria_opts` dictionary
+   only, no `def` line) and is measured in chromium by T006.
 7. The generated description (FR-010): turned on, it replaces the name given on the tag, because the
    chart object asked ECharts to write one; the package does not step in. Recommend leaving it off.
 8. A link to ECharts' `aria.decal` documentation for the rest.
@@ -109,12 +112,14 @@ builder that ran; the chart's payload carries `aria.enabled` true, `aria.label.e
 `description`. **README ↔ demo** — the README's `python` block containing `aria_opts` is the
 builder's body, whitespace-normalised, following `TestDocumentedExample`'s pattern (AS1-3).
 **Nothing turned on by default** — a chart built without the option arrives with the `aria` object
-pyecharts wrote, `{"enabled": false}`, which pins SC-004 and AS1-5 on rendered output.
+pyecharts wrote, `{"enabled": false}`, which pins AS1-5 on rendered output. SC-004's byte-identity
+follows from FR-005: nothing under `mvp_charts/` changes.
 
 **In chromium (`tests/test_components/test_chart_e2e.py`)** — against a probe page on the suite's
 own urlconf (`probe/patterns/`, following `RendererProbe`) carrying a chart per mark kind, each built
 with the documented call: a two-series bar, a pie, a two-series plain line, the same line with
-`areastyle_opts(opacity=0.5)`, a two-series scatter; plus one bar with the generated description
+`areastyle_opts(opacity=0.5)`, a two-series scatter, a two-series bar coloured with the README's
+`decals` list; plus one bar with the generated description
 left on. Every assertion reads what ECharts drew — ZRender's display list and the instance's data
 visuals — never the options that were sent:
 
@@ -122,7 +127,8 @@ visuals — never the options that were sent:
   icon carries its series' pattern; the surface's `aria-label` is the tag's `name` and its
   `aria-describedby` still names the description.
 - US2: pie slices carry a pattern; a plain line's area element carries one but is drawn at opacity
-  0, and the shaded line's area is drawn above 0; scatter symbols carry none; the bar with the
+  0, and the shaded line's area is drawn above 0; scatter symbols carry none; the coloured bar's two series draw in the colours their
+  `decals` entries name, with different tiles; the bar with the
   generated description on has an `aria-label` that is not the tag's `name`.
 
 Each is written to fail if the statement is made false (SC-003): presence and absence are asserted

@@ -35,5 +35,13 @@ noted):
 `aria-label` stayed as written. ECharts' own default for `label.enabled` under `aria.enabled` is
 true, so leaving `label` out turns the generated description on.
 
+**Setting the colour replaces the patterns.** Measured the same way: `"decal": {"show": true,
+"decals": [{"color": "rgba(255, 255, 255, 0.5)"}, {"color": "rgba(255, 0, 0, 0.5)"}]}` drew each
+series in its own colour (pixels read back from each series' pattern tile: `255,255,255,128` and
+`255,0,0,128`), but both series fell back to the same 10×10 square tile. A `decals` list replaces
+ECharts' built-in set rather than recolouring it, so every entry has to carry its own shape
+(`symbol`, and optionally `dashArrayX`/`dashArrayY`/`rotation`) as well as its colour, or the series
+are told apart by colour again.
+
 **Default colour.** pyecharts' `AriaDecalOpts` default and ECharts' built-in patterns are both
 `rgba(0, 0, 0, 0.2)`: dark and translucent.
