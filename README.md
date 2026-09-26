@@ -210,6 +210,39 @@ The name and description on the tag stay the chart's text alternative. `"label":
 
 The dictionary is passed as it is, rather than built with pyecharts' `AriaDecalOpts`, because `AriaDecalOpts` always writes a single pattern and ECharts then draws every series with it. Leaving it out lets ECharts give each series its own.
 
+### Which marks carry a pattern
+
+- **Bars and pie slices** carry a pattern.
+- **A line** carries one only on the area under it, and pyecharts draws that area at zero opacity, so a plain line shows nothing. Shade the area with `areastyle_opts=opts.AreaStyleOpts(opacity=0.5)` on the series and the pattern shows.
+- **Scatter points** never carry one.
+- **The legend's icons** follow their series, so a legend icon for a scatter series is patterned even though its points are not.
+
+Where there is no pattern, a chart needs a cue that is not colour, set where the chart is built. On a plain line that is `linestyle_opts=opts.LineStyleOpts(type_="solid")`, `"dashed"` or `"dotted"`, one per series. On scatter points it is the series' `symbol`, such as `"circle"`, `"rect"` or `"triangle"`.
+
+### Setting the pattern colour
+
+The default pattern is dark and translucent, so it barely shows on a dark fill or a dark page. Give `decal` a `decals` list to set its colour: one entry per series, in order, each with its own `color` and its own `symbol`.
+
+```python
+aria_opts={
+    "enabled": True,
+    "label": {"enabled": False},
+    "decal": {
+        "show": True,
+        "decals": [
+            {"color": "#c0392b", "symbol": "rect"},
+            {"color": "#1e8449", "symbol": "circle"},
+        ],
+    },
+}
+```
+
+Each entry needs a `symbol` because a `decals` list replaces ECharts' built-in patterns rather than recolouring them. Entries that set only a `color` draw every series with the same square tile, differing in colour alone. A single object in place of a list applies to every series, which is the same trap as `AriaDecalOpts`.
+
+### ECharts' generated description
+
+Left on, ECharts writes a description of the chart itself, and it takes the place of the tag's `name` as the chart's label. That happens when `aria_opts` enables `aria` without `"label": {"enabled": False}`. The package does not step in, because the chart object asked for it. Leave the generated description off, as in the examples above, so the name and description you gave the tag are what a reader hears.
+
 ECharts' [`aria.decal` documentation](https://echarts.apache.org/en/option.html#aria.decal) covers the rest of what a pattern can be set to.
 
 ## Keeping its shape

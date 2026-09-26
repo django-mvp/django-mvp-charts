@@ -8,6 +8,7 @@ the sidebar. None of that raises, so none of it shows up anywhere except in a
 browser.
 """
 
+import ast
 import json
 import re
 from pathlib import Path
@@ -27,6 +28,7 @@ from demo.views import (
     signups,
     source_of,
 )
+from tests.urls import COLOURED_PATTERNS
 
 
 def payloads(page):
@@ -374,6 +376,18 @@ class TestTheReadmeShowsThePatternedChart:
         assert len(blocks) == 1, "the README does not show orders_by_channel once"
         assert " ".join(blocks[0].split()) == " ".join(
             source_of(orders_by_channel).split()
+        )
+
+    def test_the_colour_example_is_the_call_the_browser_tests_measure(self):
+        """The fragment is not a builder, so it is matched to the probe chart
+        whose pattern colours the browser tests read back."""
+        (fragment,) = [
+            block
+            for block in re.findall(r"```python\n(.*?)\n```", self.readme(), re.S)
+            if block.startswith("aria_opts=")
+        ]
+        assert (
+            ast.literal_eval(fragment.removeprefix("aria_opts=")) == COLOURED_PATTERNS
         )
 
     def test_the_section_follows_placing_the_chart(self):
