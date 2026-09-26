@@ -2,7 +2,7 @@
   "feature": "003-patterns-beside-colour",
   "branch": "003-patterns-beside-colour",
   "repo": "django-mvp/django-mvp-charts",
-  "state": "IMPLEMENT",
+  "state": "CONVERGE",
   "state_history": [
     {
       "state": "PLAN",
@@ -18,6 +18,11 @@
       "state": "IMPLEMENT",
       "at": "2026-09-26T06:17:25Z",
       "note": "Design review approved, four findings applied; US1 dispatched"
+    },
+    {
+      "state": "CONVERGE",
+      "at": "2026-09-26T06:35:36Z",
+      "note": "Both stories done and accepted; simplify pass merged the tile readers"
     }
   ],
   "gates": {
@@ -179,7 +184,7 @@
   ],
   "budgets": {
     "converge_cycles": {
-      "used": 0,
+      "used": 1,
       "max": 2
     },
     "review_cycles": {

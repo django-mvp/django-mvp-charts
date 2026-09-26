@@ -77,3 +77,8 @@ Mutations of tests/urls.py, each restored afterwards (`TestDecalPatterns` run ea
 - turn label off on described-by-echarts → red: surface-labelled-by-echarts-and-not-the-tag.
 - colour-only `decals` entries → red: tiles-of-different-shape (the first version of this test stayed green; fixed in T006).
 - an `itemStyle.decal` on scatter series: still green. ECharts computes a decal visual for the points but never draws it on the symbol, so a patterned scatter symbol cannot be produced from pyecharts; the legend test is the demonstration that the read works on this chart type.
+
+## 2026-09-26T06:35:36Z · Forge · S5 CONVERGE
+
+Did: every FR-001–FR-011 traced to a test or a README passage; no gaps. Merged the two tile readers in the browser tests into one (colour and shape in one pass) and confirmed the shape test still goes red when both entries share a symbol. No migrations. Every decision carries an ADR verdict; none graduates.
+Next: review.
