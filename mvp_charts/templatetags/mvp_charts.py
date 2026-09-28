@@ -8,13 +8,9 @@ from pyecharts.charts.base import Base
 
 register = template.Library()
 
-#: The three character sequences that can end a `<script>` element early, or
-#: smuggle a line/paragraph separator past a browser's line-comment JS parsing
-#: — the same three sequences `django.utils.html.json_script` escapes.
-#:
-#: pyecharts escapes none of them. A chart label read out of the database and
-#: containing `</script>` reaches `dump_options()`'s output verbatim, so this
-#: is what stands between a page's data and its structure.
+#: The characters `django.utils.html.json_script` escapes so data cannot end a
+#: `<script>` element early. pyecharts escapes none of them, so a label holding
+#: `</script>` would otherwise reach the page verbatim.
 SCRIPT_SAFE_ESCAPES = {
     ord("<"): "\\u003C",
     ord(">"): "\\u003E",
@@ -27,17 +23,23 @@ OPTION_KEY_BEFORE = re.compile(r'"([^"]+)"\s*:\s*$')
 
 
 def callback_option_name(plain: str, quoted: str) -> str | None:
-    """The option a JavaScript callback sits on, or `None` if it cannot be read.
+    """Name the option a JavaScript callback sits on.
 
-    pyecharts serialises a `JsCode` behind a sentinel and then strips it two
-    ways: one leaves the function bare, the other leaves it quoted. The two
-    documents are therefore identical up to the first callback and differ at
-    the quote in front of it, which puts the option carrying it immediately
-    before the point where they diverge.
+    pyecharts serialises a `JsCode` behind a sentinel and strips it two ways:
+    one leaves the function bare, the other quoted. The two documents match up
+    to the first callback and differ at the quote in front of it, so the option
+    carrying it is the last key before the point where they diverge.
+
+    Args:
+        plain: The chart's options from `dump_options()`.
+        quoted: The same options from `dump_options_with_quotes()`.
+
+    Returns:
+        The option's key, or `None` when the documents agree or no key precedes
+        the divergence.
     """
-    # `strict=False` because the two are different lengths exactly when a
-    # callback is present: the quoted document carries two quotes the other
-    # does not. Their common prefix is where the divergence is.
+    # The quoted document is longer exactly when a callback is present, so the
+    # divergence lies within their common prefix.
     divergence = next(
         (i for i, (a, b) in enumerate(zip(plain, quoted, strict=False)) if a != b),
         None,
@@ -50,22 +52,25 @@ def callback_option_name(plain: str, quoted: str) -> str | None:
 
 @register.simple_tag
 def chart_options(chart: Base) -> str:
-    """A chart's options, as JSON that is safe inside a `<script>` element.
+    """Render a chart's options as JSON that is safe inside a `<script>` element.
 
     The chart builds its own options and serialises its own values, including
     the dates, times, decimals and missing values a Django view produces. This
     package adds nothing to what it returns and takes nothing away.
 
-    Raises `ValueError` if the chart carries a JavaScript callback, which
-    cannot travel to the browser as data. See the README.
+    Args:
+        chart: The pyecharts chart to serialise.
+
+    Returns:
+        The chart's options as JSON, marked safe for the template.
+
+    Raises:
+        ValueError: The chart carries a JavaScript callback, which cannot
+            travel to the browser as data.
     """
-    # The annotated locals are what narrow pyecharts' `Any` — it ships no type
-    # information — to `str`; returning a call directly is a mypy
-    # `no-any-return`.
-    #
-    # The two serialisations differ only where a chart carries a callback, so
-    # comparing them is what detects one. The quoted form is the one returned
-    # because it is valid JSON in every case, including any the check misses.
+    # Annotated locals narrow pyecharts' untyped `Any` to `str` for mypy. The
+    # quoted form is returned because it is valid JSON even where the
+    # callback check below misses one.
     quoted: str = chart.dump_options_with_quotes()
     plain: str = chart.dump_options()
     if plain != quoted:

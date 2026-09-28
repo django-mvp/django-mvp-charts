@@ -1,63 +1,16 @@
-{# ============================================================ #}
-{# <c-chart> — the one component this package ships              #}
-{#                                                               #}
-{# Draws a chart built in Python with pyecharts. The view makes  #}
-{# the chart and puts it in the context; this renders the space  #}
-{# it draws into and carries its options to the browser as JSON. #}
-{#                                                               #}
-{# Props:                                                        #}
-{#   :chart      – a pyecharts chart, with a colon. Required.    #}
-{#   id          – element id, the author's to give. Required:   #}
-{#                 the caption and the drawing surface are tied  #}
-{#                 to it, and an id invented here would shift    #}
-{#                 the moment a second chart went above it.      #}
-{#   height      – a CSS height for the figure. Optional.        #}
-{#   aspect-ratio – the shape of the figure instead of its       #}
-{#                 height: the figure takes the width it is      #}
-{#                 given and derives a height from it. Optional, #}
-{#                 and ignored when height is also given.        #}
-{#                 Leave both out and the figure fills the       #}
-{#                 element around it instead.                    #}
-{#   name        – accessible name. Optional; carried as the     #}
-{#                 drawing surface's aria-label when given.      #}
-{#   caption     – text printed under the chart, for everybody.  #}
-{#                 Optional; the figure's figcaption when given, #}
-{#                 and read out with the chart as well.          #}
-{#   description – text alternative for what the chart shows.    #}
-{#                 Optional; hidden text the surface points at,  #}
-{#                 read after the caption when both are given.   #}
-{#                                                               #}
-{# Everything else about the chart — its type, its data, its     #}
-{# axes, its colours, its tooltip — is set on the chart object   #}
-{# in Python. This component names none of it.                   #}
-{#                                                               #}
-{# The options travel as data in a script tag, never as script   #}
-{# this package wrote. mvp-charts.js reads them, and the project #}
-{# loads that file and the charting library from its own base    #}
-{# template.                                                     #}
-{#                                                               #}
-{# The renderer is the one thing about the chart that does not   #}
-{# travel in its options: ECharts takes it when the chart is     #}
-{# created, so pyecharts keeps it apart as an init option. The   #}
-{# figure carries what the chart named, and the module passes it #}
-{# on. It is still the chart's choice, not an attribute here.    #}
-{# ============================================================ #}
+{# @description A chart built in Python with pyecharts: the space it draws into, and its options carried to the browser as JSON. #}
+{# @prop chart:text | description:"The pyecharts chart to draw. Pass it with a colon, :chart, because it is a Python value." | required #}
+{# @prop id:text | description:"The figure's id. The caption and the drawing surface are tied to it." | required #}
+{# @prop height:text | description:"A CSS height for the chart. Leave it and aspect-ratio out and the figure fills the element around it." #}
+{# @prop aspect-ratio:text | description:"The chart's shape, such as 16/9, instead of a height. Ignored when height is given." #}
+{# @prop name:text | description:"Accessible name, carried as the drawing surface's aria-label." #}
+{# @prop caption:text | description:"Text printed under the chart and read out with it." #}
+{# @prop description:text | description:"Hidden text alternative for what the chart shows, read after the caption." #}
 <c-vars chart id="" name="" caption="" description="" height="" aspect-ratio="" />
 {% load mvp_charts %}
 {% comment %}
-  The figure is a column: the chart's box, then the caption.
-
-  A size given on the tag is the chart's, so the chart is exactly the height
-  or the shape asked for and a caption adds to the figure below it. With no
-  size, the figure fills the element around it and the chart takes whatever
-  the caption leaves, because there the page has already decided the box.
-
-  Both children carry `w-full` rather than trusting the column to stretch
-  them, because a figure is not only ever styled from here: daisyUI centres
-  the children of a figure inside a card, which leaves a child with no width
-  of its own at a width of nothing.
-
-  `calc()` is what makes a ratio written as `16/9` one number rather than two.
+  `w-full` on both children because daisyUI centres a figure's children inside a card, which leaves
+  a child with no width of its own at zero width. `calc()` makes a ratio like `16/9` one number.
 {% endcomment %}
 <figure id="{{ id }}"
         class="flex flex-col w-full{% if not height and not aspect_ratio %} h-full{% endif %}"
@@ -65,18 +18,7 @@
         data-mvp-chart-renderer="{{ chart.renderer }}">
   <div class="relative w-full{% if not height and not aspect_ratio %} flex-1 min-h-0{% endif %}"
        {% if height %}style="height: {{ height }}"{% elif aspect_ratio %}style="aspect-ratio: calc({{ aspect_ratio }})"{% endif %}>
-    {% comment %}
-      Every figure waits before it draws, so every figure says so, and the
-      module takes this out once the chart is on the surface. One element, with
-      no box around it to sit in the middle of: `inset-0` with automatic margins
-      centres an absolutely positioned element on both axes, and daisyUI gives
-      the spinner a definite width and a square ratio for those margins to
-      divide up.
-
-      It is hidden from assistive technology because the surface below already
-      carries the figure's accessible name, and a second announcement of one
-      figure is one too many.
-    {% endcomment %}
+    {# Hidden from assistive technology: the surface already carries the figure's name. #}
     <span class="loading loading-spinner loading-lg absolute inset-0 m-auto"
           aria-hidden="true"
           data-mvp-chart-placeholder></span>
@@ -91,10 +33,7 @@
     <p id="{{ id }}-description" class="sr-only">{{ description }}</p>
   {% endif %}
   <script type="application/json" data-mvp-chart-options>{% chart_options chart %}</script>
-  {% comment %}
-    Last, because HTML allows a figure's caption only as its first or its last
-    child, and a caption under a chart is the last.
-  {% endcomment %}
+  {# Last: HTML allows a figcaption only as a figure's first or last child. #}
   {% if caption %}
     <figcaption id="{{ id }}-caption" class="mt-2 w-full text-sm">{{ caption }}</figcaption>
   {% endif %}

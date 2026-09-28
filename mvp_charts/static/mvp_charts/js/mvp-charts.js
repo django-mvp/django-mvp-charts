@@ -1,18 +1,7 @@
 /*
- * Draw every chart on the page, and keep each one at the size of its box.
- *
- * The server has already built the options — this reads them and hands them
- * to ECharts. Anything that goes wrong goes to the console: a message drawn
- * into the page would be this package deciding what a project shows its
- * readers when something is broken, and that is the project's decision.
- *
- * The one thing removed from the page here is a placeholder the page itself
- * asked for, once the chart it was standing in for has been drawn.
- *
- * Each figure announces its chart with an `mvp-chart:drawn` event carrying
- * the ECharts instance, which is how a project's own script reaches it.
- *
- * No dependencies, and safe to evaluate twice.
+ * Draw every chart on the page and keep each at the size of its box. Failures
+ * go to the console: what a page shows when something breaks is the project's
+ * call. Each figure fires `mvp-chart:drawn` with its ECharts instance.
  */
 (function () {
   "use strict";
@@ -25,9 +14,8 @@
 
     var surface = figure.querySelector("[data-mvp-chart-surface]");
     var options = figure.querySelector("[data-mvp-chart-options]");
-    // The renderer the chart was built with. Whatever it names has to be
-    // registered in the page's ECharts, which a full build always is and a
-    // bundle is only if it imported it.
+    // Whatever renderer this names must be registered in the page's ECharts:
+    // always in a full build, in a bundle only if it imported it.
     var chart = window.echarts.init(surface, null, {
       renderer: figure.dataset.mvpChartRenderer,
     });
@@ -49,10 +37,8 @@
       }).observe(surface);
     }
 
-    // Last, so a listener is handed a chart that is drawn, uncovered and
-    // already following its box. Once per figure, because a figure is only
-    // ever drawn once. It bubbles, so one listener on the document hears
-    // every chart on the page.
+    // Last, so a listener gets a chart that is drawn, uncovered and following
+    // its box. It bubbles, so one listener on the document hears every chart.
     figure.dispatchEvent(
       new window.CustomEvent("mvp-chart:drawn", {
         bubbles: true,
@@ -62,22 +48,8 @@
   }
 
   /*
-   * A figure with width but no height, said once.
-   *
-   * This is the one way a chart fails that leaves no trace anywhere: the
-   * options are correct, ECharts initialised, nothing threw, and the reader
-   * sees blank page. It is almost always a percentage height inside an
-   * ancestor sized by its own content.
-   *
-   * Width-but-no-height is the whole test, and it is what makes the check
-   * safe to run on every resize. A chart inside a `display: none` panel or an
-   * unselected tab measures 0x0 — both zero — which is not a mistake and not
-   * reported. It is also self-correcting: the panel opening fires the
-   * observer again with a real box, and the chart draws.
-   *
-   * It measures the surface, not the figure. A caption gives the figure a
-   * height of its own, so a figure can be tall enough to read while the chart
-   * inside it has none.
+   * Warn once about a surface with width but no height, the one failure that
+   * leaves no other trace. A hidden panel measures 0x0 and is not reported.
    */
   function reportIfFlat(figure, surface) {
     if (figure.dataset.mvpChartFlatReported) {
