@@ -77,7 +77,7 @@ class TestShippedTemplates:
 
     @pytest.mark.parametrize(**BY_TEMPLATE)
     def test_no_shipped_template_names_a_remote_origin(self, template):
-        """Article XII, asserted over what ships rather than left to review.
+        """Article XI, asserted over what ships rather than left to review.
 
         A component that loaded a third-party script on a reader's behalf
         would give every project installing this package an external origin

@@ -32,7 +32,7 @@ diagnose than an honest message, not easier.
 includes it deliberately in its own base template. A region never loads a third-party script itself.
 
 **Why**: two requirements pull against each other here. The roadmap item wants the library present
-during development without a build pipeline. Article XII forbids a component injecting a script tag
+during development without a build pipeline. Article XI forbids a component injecting a script tag
 pointing at a third-party origin on a reader's behalf, and states that installing this package gains a
 project no external origin it did not already have.
 
@@ -79,7 +79,7 @@ each other.
 **Decided**: the region carries both, the template author supplies both, and a missing or empty value
 is reported rather than filled in.
 
-**Why**: Article XV requires them on every packaged component and forbids silently defaulting either
+**Why**: Article XIV requires them on every packaged component and forbids silently defaulting either
 to the empty string. The region is the component being placed, so it is the component that carries
 them. Deferring the obligation to the first chart type would mean changing the region's surface later
 instead of extending it, and would ship an interim version of the package that cannot be used by
@@ -128,15 +128,15 @@ library-neutral tag.
 
 **Why**: the region checks for a specific library's presence, reports that library by name when it is
 absent, and states the range of that library's versions it renders against. All three tie it to
-ECharts. Article XIII makes the namespace the way a template author chooses a backend, so a region
+ECharts. Article XII makes the namespace the way a template author chooses a backend, so a region
 that is about ECharts belongs in the ECharts namespace. Article III says the shared plumbing is
 factored out when there is a second namespace to share it with, not before.
 
 **Revisit if**: a second backend arrives. At that point the sizing markup, the module and the failure
-messages are the shared plumbing Article XIII names, and they move once — with two real callers to
+messages are the shared plumbing Article XII names, and they move once — with two real callers to
 shape the move.
 
-**ADR:** none. Article XIII of the constitution already decides that a component tied to a library
+**ADR:** none. Article XII of the constitution already decides that a component tied to a library
 lives in that library's namespace, and this is that rule applied rather than a choice made. An ADR
 would restate a standard the repository already holds.
 

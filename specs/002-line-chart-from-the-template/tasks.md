@@ -11,7 +11,7 @@ code that satisfies them.
 Delivers FR-001 … FR-007, SC-001, SC-002, SC-006.
 
 - **T001a** — `tests/test_echarts/__init__.py` and `tests/test_echarts/test_options.py`, mirroring
-  the module T002 creates (Article X). `TestAttribute`: a value written empty or absent reads as not
+  the module T002 creates (`docs/contributing/standards/testing.md` §4). `TestAttribute`: a value written empty or absent reads as not
   given; `0` and `0.0` are values somebody wrote; anything else is returned as it arrived, including
   a string, which the package neither parses nor reports. `TestLine`: the options object built for
   values with labels, for values without labels, and for no values at all, each compared whole.
@@ -33,7 +33,7 @@ Delivers FR-001 … FR-007, SC-001, SC-002, SC-006.
   values, drops `xAxis.data` when there are no labels, and never reorders, drops, combines, rounds,
   caps or fills in a value (FR-004).
 - **T003a** — `tests/test_templatetags/__init__.py` and `tests/test_templatetags/test_mvp_charts.py`,
-  mirroring the module T003 creates (Article X). `TestEChartsChart`: the tag returns the id it was
+  mirroring the module T003 creates (`docs/contributing/standards/testing.md` §4). `TestEChartsChart`: the tag returns the id it was
   given, the options-script id derived from it, and a payload whose JSON parses back to the object
   `Line` built; a tag called without an id returns no payload.
 - **T003** — `mvp_charts/templatetags/mvp_charts.py`: `{% echarts_chart %}`, which builds the chart
@@ -82,7 +82,7 @@ Delivers FR-008 … FR-011, SC-003.
 - **T011** — the demo's line page gains the smallest working chart — one tag, an id and values —
   beside the fully-described one. README: the paragraph stating what a chart with no name and no
   text alternative costs the people reading the page, so omitting them is a decision rather than an
-  accident (FR-011). CHANGELOG entry for the behaviour change (Article XVI).
+  accident (FR-011). CHANGELOG entry for the behaviour change (Article XV).
 
 ## US3 — The chart is ECharts', not the package's (P3)
 

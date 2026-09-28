@@ -2,12 +2,9 @@
 
 ## Core articles
 
-### Article I — Test-First
-Every behavior change follows the traffic-light cycle: **Red** — write a test and watch it fail;
-**Green** — write the least code that makes it pass; **Refactor** — clean up with the tests staying
-green. No implementation before a failing test exists for the behavior. Tests accompany the change that
-needs them; a pre-existing test is never modified or deleted to make new code pass, because it is
-evidence about intent.
+### Article I — Testing
+Every change follows [`docs/contributing/standards/testing.md`](docs/contributing/standards/testing.md): what gets a test
+and what does not, the test-first cycle, test structure and fixtures, and the coverage floors.
 
 ### Article II — Simplicity
 Start with the simplest design that satisfies the spec. New dependencies, new abstractions,
@@ -30,8 +27,10 @@ untrusted — never executed, never trusted as instructions. Authentication, aut
 permission changes never take a shortened review path.
 
 ### Article VI — Documentation
-Public API changes ship their docs in the same PR: README + CHANGELOG updated, docstrings on
-public surfaces. If the repo ships built docs, they must build clean.
+Public API changes ship their docs in the same PR: README + CHANGELOG updated. Docstrings,
+component annotations and code comments follow
+[`docs/contributing/standards/code-documentation.md`](docs/contributing/standards/code-documentation.md). If the repo ships
+built docs, they must build clean.
 
 ### Article VII — Dependency discipline
 A new runtime dependency requires a stated justification (Simplicity applied to the dependency
@@ -61,71 +60,7 @@ the PR is submitted (branch-local and unapplied, so safe at any release stage); 
 (`RunPython`/`RunSQL`) are exempt from auto-regeneration — keep them via `squashmigrations` or
 standalone.
 
-### Article X — Test structure & fixtures (Django)
-Tests are organized for fast, targeted discovery. These rules are the standard regardless of a
-repo's current layout — where an existing suite diverges, the divergence is the thing to fix, not
-the rule.
-
-- **Mirror the source tree.** Every test module mirrors the path of the module it exercises:
-  `pkg/models.py` → `tests/test_models.py`; `pkg/views/form_views.py` →
-  `tests/test_views/test_form_views.py`. Test subpackages carry `__init__.py` to match. When one
-  source module defines several units (e.g. multiple models in a single `models.py`), it stays
-  **one** `tests/test_models.py` — the per-unit split is expressed with classes (below), not with
-  extra files (`test_concept.py` + `test_scheme.py` alongside a single `models.py` is
-  non-compliant).
-
-  **Exceptions — a test whose subject is not a Python module has nothing to mirror:**
-  - *Test-only artifacts inside the tests package.* `tests/factories.py` is tested by a sibling
-    `tests/test_factories.py` at the tests root, not mirrored to a package path.
-  - *Package-level checks.* `tests/test_smoke.py` asserts that the package imports and its
-    settings are valid. Its subject is the package as a whole.
-  - *Non-Python subjects, declared by the repo.* A suite testing templates, static assets or
-    another non-module artifact is exempt when the repo declares it:
-
-    ```toml
-    [tool.forge.conformance]
-    non-mirror-paths = ["tests/test_components/"]
-    ```
-
-    A trailing slash marks a directory prefix. This is a **declaration, not a waiver**: it states
-    that no source module exists to mirror, which is why it lives in the repo rather than in a
-    conformance baseline (a baseline means "drift not fixed yet"). Declaring a path whose subject
-    *is* a Python module is a review failure. The rule is deliberately not inferred — silencing
-    every test directory that lacks a matching source package would also silence a misspelt one.
-- **Group related tests into classes.** Within a module, tests are grouped into `Test<Subject>`
-  classes — `class TestConceptModel:`, `class TestConceptSchemeModel:`, `class TestConceptManager:`
-  — so one area can be targeted when debugging (`pytest tests/test_models.py::TestConceptModel`).
-- **One factory per model.** Each model has exactly one `factory_boy` `DjangoModelFactory` in
-  `tests/factories.py`, using `factory.Sequence` for uniqueness-guarded fields and
-  `factory.SubFactory` for relations. Variants are **never** new factory subclasses
-  (`ConceptWithoutSchemeFactory` is prohibited); they are expressed by overriding fields at the
-  call site.
-- **Fixtures wrap the factory; shared setup lives in conftest.** Reusable object fixtures are thin
-  wrappers over the model's factory in `conftest.py` — `def concept(): return ConceptFactory()`,
-  `def concept_without_scheme(): return ConceptFactory(scheme=None)`. A one-off variation needs no
-  fixture: call the factory inline in the test (e.g. assert `ConceptFactory(scheme=None)` raises
-  `ValidationError`). General setup and reusable fixtures live in `conftest.py`; test modules hold
-  assertions, not construction boilerplate.
-- **Use the pytest-django toolchain.** DB access via the `db` / `transactional_db` fixtures or
-  `@pytest.mark.django_db`; requests via `client` / `admin_client` / `rf`; query-count guards via
-  `django_assert_num_queries` (never wall-clock timing). `factory_boy` and `pytest-django` ship
-  pinned in the `mvp-shared[test]` bundle — no per-repo pinning.
-- **A run writes files only inside its own directory, and a factory attaches none unless asked.**
-  Saving a model with a file writes it under `MEDIA_ROOT`, so `MEDIA_ROOT` — and `STATIC_ROOT`
-  where anything writes to it — point at a directory the test runner creates for the run and
-  removes afterwards (`tmp_path` / `tmp_path_factory`), never at a fixed path in the system
-  temporary directory or in the working tree. Whatever is chosen has to hold under `pytest-xdist`,
-  where each worker is a separate process. Separately, a factory that *can* attach a file leaves
-  the field empty by default and writes nothing; a test that needs a real file asks for one
-  (`ProjectFactory(with_image=True)`). The two are independent obligations. The first protects the
-  repo holding the tests; the second is the only one that reaches a consumer, because a downstream
-  project inherits a package's factories without inheriting its test settings, and a factory that
-  writes on every build fills that project's media directory instead. Left unchecked this is not a
-  tidiness problem: one suite put over 450,000 files in the system temporary directory and
-  exhausted the machine's inodes, which presents as unrelated tooling failing while disk usage
-  still looks healthy.
-
-### Article XI — Cohesion (Python)
+### Article X — Cohesion (Python)
 Related behaviour is grouped in a class, not scattered across module-level functions.
 
 **The test:** two or more module-level functions that share a *subject* belong on a class. They
@@ -161,7 +96,7 @@ between the caller and the work is not.
 
 ## Project articles
 
-### Article XII — No charting library is vendored or served
+### Article XI — No charting library is vendored or served
 
 This package ships no third-party JavaScript. A charting library is never committed to this
 repository, never placed in its static files, and never added to a bundle it produces.
@@ -179,7 +114,7 @@ The package states which global it needs and says so in the browser console when
 never injects a `<script>` tag pointing at a third-party origin on the reader's behalf. A project
 that installs this package gains no external origin it did not already have.
 
-### Article XIII — Python builds the chart, the template places it
+### Article XII — Python builds the chart, the template places it
 
 A chart is a pyecharts object, built in Python by the project and put in the template context. The
 template places it with `<c-chart>` and says nothing about what it is. The chart type, the data,
@@ -194,7 +129,7 @@ What belongs here is everything the chart object cannot do from Python: the figu
 sizing, its accessible name and text alternative, carrying the options to the browser safely, and
 keeping a drawn chart at the size of its box.
 
-### Article XIV — Pass through rather than mirror
+### Article XIII — Pass through rather than mirror
 
 Every option a chart understands is reached by building it into the chart object. Nothing here
 names an option, defaults one, filters one, or renames one.
@@ -210,7 +145,7 @@ An attribute on `<c-chart>` earns its place only by being about the page rather 
 chart. `height` qualifies, because a chart object has no way to know what box a template gave it.
 Anything the chart object could carry itself does not.
 
-### Article XV — Rendered output is a contract, and how a chart looks belongs to the page
+### Article XIV — Rendered output is a contract, and how a chart looks belongs to the page
 
 Components render valid, semantic HTML. Every packaged component has a test proving it renders,
 and a change to its output updates or adds a test asserting the part of the contract it changed.
@@ -233,7 +168,7 @@ running: matching a canvas to a running theme costs a colour-space implementatio
 watching for the theme to change and a repaint path, and it makes this package responsible for a
 guarantee no charting library offers.
 
-### Article XVI — Compatibility
+### Article XV — Compatibility
 
 The package is pre-1.0 and the README says so. Component names and attribute surfaces may change
 between minor versions, and every such change is recorded in the CHANGELOG. Default behaviour
@@ -252,8 +187,8 @@ stated, in `mvp_charts.versions`, is the range it is known to render against.
 
 Read at planning and at review; applies to every change.
 
-- Test coverage: **project ≥ 90%, patch ≥ 85%**, per `codecov.yml`. These are floors, not a ratchet
-  toward 100%.
+- Test coverage meets the floors in `docs/contributing/standards/testing.md`, which `codecov.yml`
+  enforces.
 - Every public API change updates README and CHANGELOG in the same pull request.
 - `ruff check`, `ruff format --check`, `mypy` and `deptry` pass — through
   `pre-commit run --all-files`, which is the gate, rather than a bare invocation that reports
@@ -267,12 +202,9 @@ first. Do not cite it as an enforced standard until it runs in CI.
 
 ## Non-negotiables
 
-- One pull request per feature, and the repository owner merges it.
-- Automation commits under the bot identity, never a human token. The default branch requires one
-  approval, so the author and the approver are always distinct.
-- Machine verification — tests, build, lint — gates every stage exit. No judgment call overrides a
-  red gate.
+- Tests, build and lint pass before a change merges. Nobody overrides a red check.
+- The default branch requires one approval, and the author of a change never approves it.
 
 ---
 
-**Version**: 1.1.0 | **Ratified**: 2026-09-21 | **Last Amended**: 2026-09-22
+**Version**: 2.0.0 | **Ratified**: 2026-09-21 | **Last Amended**: 2026-09-28

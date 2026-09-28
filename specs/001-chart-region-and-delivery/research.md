@@ -38,7 +38,7 @@ the delivery component renders.
 
 The namespace claims `>=6.0,<7.0` — the range it is known to render against, which is the range it
 is tested against. 5.x is not claimed, because nothing here has been run against it. The library is
-not a dependency of this package and is not pinned as one (FR-011, Article XII).
+not a dependency of this package and is not pinned as one (FR-011, Article XI).
 
 ## Browser tests: available locally, blocked on CI by one line
 

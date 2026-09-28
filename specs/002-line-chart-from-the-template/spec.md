@@ -228,7 +228,7 @@ decisions recorded on the tracker. Rationale too long to carry here is in `decis
 - **Q**: The roadmap puts the escape hatch to unnamed options in R3, where four chart types make the
   rule for a named attribute disagreeing with a passed option worth writing. Does the first chart
   type therefore ship without one?
-  **A**: No. Article XIV makes reachability a standing property of every component, not a feature that
+  **A**: No. Article XIII makes reachability a standing property of every component, not a feature that
   arrives later, and this package supplies no appearance of its own by deliberate decision. A chart
   type with neither would be unstyleable, so pass-through ships here. What stays with R3 is the part
   that genuinely needs several types: one vocabulary across them, and a stated and tested rule for
@@ -244,11 +244,11 @@ decisions recorded on the tracker. Rationale too long to carry here is in `decis
   different and stays required: the package invents none, and a generated one is stable only until a
   chart is added above it. Integrated as FR-008, FR-009 and FR-010.
 
-- **Q**: Article XV says chart colour comes from the daisyUI semantic palette supplied by django-mvp,
+- **Q**: Article XIV says chart colour comes from the daisyUI semantic palette supplied by django-mvp,
   never a literal and never a hard-coded series palette. This feature writes no colour at all.
   **A**: The article is wrong and is being changed, recorded as issue #22. How a chart looks belongs
   to whoever writes the page, and matching it to the surrounding theme is not something this package
-  attempts. The parts of Article XV this feature does hold to are rendered output as a tested
+  attempts. The parts of Article XIV this feature does hold to are rendered output as a tested
   contract and assertions made against that output rather than against class names. Integrated as
   FR-013 and FR-015.
 

@@ -29,7 +29,7 @@ in this feature rather than in R3.
 
 **Why**: the roadmap puts the escape hatch in R3 because the rule for a named attribute disagreeing
 with a passed option can only be written honestly against several chart types. That reasoning is about
-the *rule*, not about reachability. Article XIV makes reachability a standing property of every
+the *rule*, not about reachability. Article XIII makes reachability a standing property of every
 component in the package, and this feature names only the attributes that carry data, so there is no
 disagreement for it to rule on: nothing the component names and nothing an author passes can collide.
 
@@ -76,7 +76,7 @@ default this package leaves out costs an author one line restoring it. A default
 cannot be undone from a template at all, because by the time the component holds the data the
 original is gone.
 
-**The collision this creates**: Article XV says chart colour comes from the daisyUI semantic palette
+**The collision this creates**: Article XIV says chart colour comes from the daisyUI semantic palette
 supplied by django-mvp, never a literal value and never a hard-coded series palette. This feature
 contradicts it directly. The article is being changed rather than the feature, recorded as issue #22.
 Deriving a palette from the running theme costs a colour-space implementation, something watching for
@@ -177,11 +177,11 @@ from the sketch is only the rule that the package never reads data out of text.
 to put Python under `mvp_charts/`, so `tests/test_echarts/test_options.py` and
 `tests/test_templatetags/test_mvp_charts.py` are new. `pyproject.toml`'s non-mirror declaration
 covers `tests/test_components/`, whose subject is the Cotton templates, and it stays exactly as it
-is — Article X calls declaring a path whose subject is a Python module a review failure, and
+is — `docs/contributing/standards/testing.md` §4 calls declaring a path whose subject is a Python module a review failure, and
 leaning on that declaration to skip unit tests for a real module would have been one.
 
 **ADR:** none — the first is an application of a ruling already in the specification, and the second
-applies Article X as written.
+applies `docs/contributing/standards/testing.md` §4 as written.
 
 ## D5 — the payload's escaping is reproduced, not called through `json_script`
 

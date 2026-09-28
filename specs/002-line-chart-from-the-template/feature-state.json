@@ -56,8 +56,8 @@
       "at": "2026-09-22T16:20:00Z",
       "self_resolved": [
         "DES-001 (medium, spec-compliance): dropped the string refusal carried over from the sketch; the specification had already ruled it out.",
-        "DES-002 (high, architecture): added mirrored test modules for the two new Python modules, per Article X.",
-        "Note swept: the Article III justification for Line reworded to Article XI cohesion."
+        "DES-002 (high, architecture): added mirrored test modules for the two new Python modules, per `docs/contributing/standards/testing.md` §4.",
+        "Note swept: the Article III justification for Line reworded to Article X cohesion."
       ]
     },
     "walkthrough": {

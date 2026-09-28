@@ -123,7 +123,7 @@ here is a breaking change to anyone — but it replaces everything the package p
 - A chart's appearance is pyecharts' rather than ECharts' bare defaults. Point labels, the legend,
   the tooltip and the animation are on because pyecharts turns them on. This package still writes
   no appearance of its own, and the README says whose the defaults are.
-- `CONSTITUTION.md` Articles XII to XV, `CONTEXT.md`, `GOALS.md` and the roadmap, all rewritten
+- `CONSTITUTION.md` Articles XI to XIV, `CONTEXT.md`, `GOALS.md` and the roadmap, all rewritten
   against the one-component design.
 - django-mvp 0.24.0 is the minimum, up from 0.23.0. It ships the display surface that
   `{% show_code %}` renders through, which this project had been supplying itself for want of one

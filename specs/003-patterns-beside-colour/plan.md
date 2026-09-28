@@ -31,8 +31,8 @@ the demo. No new dependency.
 
 **Project type**: reusable Django package with a demo project in the same repository.
 
-**Constraints**: nothing in `mvp_charts/` changes (FR-005, Articles XIV and XV). Assertions are
-made against rendered output and drawn elements, never class names (Article XV).
+**Constraints**: nothing in `mvp_charts/` changes (FR-005, Articles XIII and XIV). Assertions are
+made against rendered output and drawn elements, never class names (Article XIV).
 
 **Scale/scope**: two stories, eight tasks.
 
@@ -144,9 +144,9 @@ pattern exists.
 | V Security | no new input surface; the probe reuses the existing urlconf |
 | VI Documentation | README section, CHANGELOG entry, CONTEXT terms, same PR |
 | VIII i18n | demo copy is demo-only; no package strings added |
-| X Test structure | new tests go in existing, declared modules (`test_demo.py`, `test_components/`) |
-| XIV Pass-through | the package names, defaults and filters no `aria` key; the chart object carries it |
-| XV Rendered output | assertions against payloads and drawn elements, not class names |
+| Testing standard §4 Test structure | new tests go in existing, declared modules (`test_demo.py`, `test_components/`) |
+| XIII Pass-through | the package names, defaults and filters no `aria` key; the chart object carries it |
+| XIV Rendered output | assertions against payloads and drawn elements, not class names |
 
 No violations. Complexity Tracking: none.
 
