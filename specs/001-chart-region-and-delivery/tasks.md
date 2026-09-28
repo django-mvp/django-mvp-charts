@@ -23,7 +23,7 @@ each one is asserted as part of the element contract it belongs to.
 *Implement*: `mvp_charts/templates/cotton/echarts/region.html` per plan.md *The region's markup*. Add
 `"tests/test_components/"` to `[tool.forge.conformance] non-mirror-paths` in `pyproject.toml` beside
 the two entries already there — this directory's subject is a template, so there is no module to
-mirror, and Article X requires the declaration rather than inferring it.
+mirror, and `docs/contributing/standards/testing.md` §4 requires the declaration rather than inferring it.
 
 Closes FR-001, FR-002, FR-003, FR-005. Serves SC-001, SC-006.
 

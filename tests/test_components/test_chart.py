@@ -36,8 +36,6 @@ def payload(html):
 
 
 class TestTheFigure:
-    """What the component renders around the chart."""
-
     def test_the_figure_carries_the_id_it_was_given(self, render, line):
         assert '<figure id="revenue"' in render(A_CHART, chart=line)
 
@@ -51,19 +49,12 @@ class TestTheFigure:
         assert 'aria-label="Revenue"' in html
 
     def test_the_description_is_hidden_text_the_surface_points_at(self, render, line):
-        """Read instead of the picture, and never the figure's caption.
-
-        A figure has one caption and it is the one a reader can see, so the
-        text alternative sits in an element of its own, visible only to
-        assistive technology.
-        """
         html = render(A_CHART, chart=line)
         assert 'aria-describedby="revenue-description"' in html
         assert '<p id="revenue-description" class="sr-only">By month.</p>' in html
         assert "figcaption" not in html
 
     def test_a_chart_given_no_name_renders_without_the_attribute(self, render, line):
-        """Not with an empty one, which a screen reader announces as nameless."""
         html = render('<c-chart :chart="chart" id="revenue" />', chart=line)
         assert "<figure" in html
         assert "aria-label" not in html
@@ -107,8 +98,6 @@ def chart_box_tag(html):
 
 
 class TestTheCaption:
-    """A caption printed under the chart, for everybody."""
-
     CAPTIONED = '<c-chart :chart="chart" id="scores" caption="Usually 6 out of 10." />'
 
     def test_it_is_the_figures_caption_and_it_is_visible(self, render, line):
@@ -120,12 +109,9 @@ class TestTheCaption:
         assert "Usually 6 out of 10." in html
 
     def test_it_is_the_last_thing_in_the_figure(self, render, line):
-        """HTML allows a figcaption only as the first or last child, and a
-        caption under a chart is the last."""
         assert figure_children(render(self.CAPTIONED, chart=line))[-1] == "figcaption"
 
     def test_the_surface_points_at_it(self, render, line):
-        """Read out with the chart as well as printed under it."""
         html = render(self.CAPTIONED, chart=line)
         assert 'aria-describedby="scores-caption"' in html
 
@@ -141,11 +127,7 @@ class TestTheCaption:
 
 
 class TestSizing:
-    """A height, a ratio, or the element around it. The package invents none."""
-
     def test_a_height_on_the_tag_is_the_charts_and_not_the_figures(self, render, line):
-        """The chart is the height asked for, and a caption adds to the figure
-        rather than taking from the chart."""
         html = render(
             '<c-chart :chart="chart" id="revenue" height="320px" />', chart=line
         )
@@ -158,13 +140,11 @@ class TestSizing:
         assert "h-full" in html
 
     def test_no_size_of_any_kind_is_invented(self, render, line):
-        """A chart given no size attribute gets none from here."""
         html = render('<c-chart :chart="chart" id="revenue" />', chart=line)
         assert "min-height" not in html
         assert "aspect-" not in html
 
     def test_a_ratio_on_the_tag_is_the_charts_and_not_the_figures(self, render, line):
-        """The shape asked for is the chart's, however long its caption is."""
         html = render(
             '<c-chart :chart="chart" id="revenue" aspect-ratio="2" />', chart=line
         )
@@ -172,7 +152,6 @@ class TestSizing:
         assert "style=" not in figure_tag(html)
 
     def test_a_sized_chart_does_not_give_way_to_its_caption(self, render, line):
-        """Growing to fill what is left is for a figure the page sizes."""
         html = render(
             '<c-chart :chart="chart" id="revenue" height="320px" caption="C" />',
             chart=line,
@@ -180,7 +159,6 @@ class TestSizing:
         assert "flex-1" not in chart_box_tag(html)
 
     def test_a_ratio_is_written_as_the_fraction_it_is(self, render, line):
-        """`calc()` is what makes `16/9` a number rather than two of them."""
         html = render(
             '<c-chart :chart="chart" id="revenue" aspect-ratio="16/9" />', chart=line
         )
@@ -189,7 +167,6 @@ class TestSizing:
     def test_a_figure_with_a_ratio_is_not_also_told_to_fill_its_parent(
         self, render, line
     ):
-        """`h-full` would hand it a height, and the ratio would have nothing to say."""
         html = render(
             '<c-chart :chart="chart" id="revenue" aspect-ratio="2" />', chart=line
         )
@@ -199,8 +176,6 @@ class TestSizing:
     def test_a_height_and_a_ratio_together_leave_the_height_in_charge(
         self, render, line
     ):
-        """Both describe the same box, so one of them has to win, and it is the
-        one that says what the box is rather than what shape it should be."""
         html = render(
             '<c-chart :chart="chart" id="revenue" height="320px" aspect-ratio="2" />',
             chart=line,
@@ -210,30 +185,17 @@ class TestSizing:
 
 
 class TestThePlaceholder:
-    """What stands in the figure until the chart is drawn into it."""
-
     def test_every_figure_gets_one_with_nothing_asked_for(self, render, line):
-        """Every chart waits before it draws, so there is nothing to opt into."""
         html = render(A_CHART, chart=line)
         assert "data-mvp-chart-placeholder" in html
 
     def test_it_is_hidden_from_anyone_listening_to_the_page(self, render, line):
-        """The drawing surface carries the accessible name already, and a
-        second announcement of the same figure is one too many."""
         html = render('<c-chart :chart="chart" id="revenue" name="R" />', chart=line)
         tag = re.search(r"<[a-z]+[^>]*data-mvp-chart-placeholder[^>]*>", html)
         assert tag is not None, "nothing in the figure is marked as the placeholder"
         assert 'aria-hidden="true"' in tag.group(0)
 
     def test_it_is_a_spinner_and_nothing_around_it(self, render, line):
-        """A chart is arriving rather than missing, and a spinner says so.
-
-        The classes are asserted here because they are not decoration: they
-        are the whole of what daisyUI needs to animate, and this package
-        writes them itself rather than taking them from a component. That
-        they put the spinner in the middle of the figure is measured in the
-        browser instead, where a stylesheet exists.
-        """
         html = render(A_CHART, chart=line)
         tag = re.search(r"<[a-z]+[^>]*data-mvp-chart-placeholder[^>]*>", html)
         assert "loading loading-spinner loading-lg" in tag.group(0)
@@ -241,8 +203,6 @@ class TestThePlaceholder:
 
 
 class TestTheOptionsPayload:
-    """What the chart built, carried to the browser and nothing else."""
-
     def test_the_payload_is_exactly_what_the_chart_dumped(self, render, line):
         assert payload(render(A_CHART, chart=line)) == json.loads(line.dump_options())
 
@@ -261,12 +221,10 @@ class TestTheOptionsPayload:
         ],
     )
     def test_one_component_carries_every_chart_type(self, render, chart, expected_type):
-        """The chart type is the class the view built, never a tag attribute."""
         html = render('<c-chart :chart="chart" id="c" />', chart=chart)
         assert payload(html)["series"][0]["type"] == expected_type
 
     def test_an_option_this_package_never_named_reaches_the_browser(self, render):
-        """Nothing here filters, allow-lists or renames a key."""
         chart = (
             Line()
             .add_xaxis(["a"])
@@ -281,7 +239,6 @@ class TestTheOptionsPayload:
         assert options["toolbox"]["show"] is True
 
     def test_the_types_a_view_produces_survive_the_trip(self, render):
-        """Dates, decimals and a gap, none of them converted first."""
         chart = (
             Line()
             .add_xaxis([date(2026, 1, 1), date(2026, 2, 1)])
@@ -295,8 +252,6 @@ class TestTheOptionsPayload:
 
 
 class TestDataCannotBecomeMarkup:
-    """Text out of a database has no business changing the page's structure."""
-
     @pytest.mark.parametrize(
         "hostile",
         [
@@ -306,12 +261,6 @@ class TestDataCannotBecomeMarkup:
         ],
     )
     def test_a_label_cannot_end_the_options_script_early(self, render, hostile):
-        """pyecharts escapes none of these. This package is what does.
-
-        Asserted twice, because either half alone passes while the page is
-        broken: the raw sequence is gone from the markup, *and* the label
-        still arrives at the chart intact.
-        """
         chart = Line().add_xaxis([hostile]).add_yaxis("s", [1])
         html = render('<c-chart :chart="chart" id="c" />', chart=chart)
         body = html.split("data-mvp-chart-options>")[1].split("</script>")[0]
@@ -328,20 +277,11 @@ def figure_tag(html):
 
 
 class TestTheRenderer:
-    """The renderer is the chart's to name, and the figure carries it across.
-
-    pyecharts holds it on the chart as an init option rather than in the
-    options it dumps, because ECharts takes it when the chart is created and
-    not afterwards. So it does not travel in the payload, and without this a
-    chart asking for SVG was drawn to a canvas regardless.
-    """
-
     def test_a_chart_built_for_svg_says_so_on_its_figure(self, render):
         chart = Line(init_opts=opts.InitOpts(renderer="svg")).add_xaxis(["a"])
         html = render('<c-chart :chart="chart" id="c" />', chart=chart)
         assert 'data-mvp-chart-renderer="svg"' in figure_tag(html)
 
     def test_a_chart_that_names_none_carries_pyecharts_default(self, render, line):
-        """pyecharts' own default, stated rather than left for ECharts to guess."""
         html = render(A_CHART, chart=line)
         assert 'data-mvp-chart-renderer="canvas"' in figure_tag(html)

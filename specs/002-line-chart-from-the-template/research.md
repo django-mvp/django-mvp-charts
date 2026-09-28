@@ -96,6 +96,6 @@ rendered output.
 that deliberately knows nothing about chart types — carry a chart type's wiring, and every future
 backend would have to agree on the attribute name.
 
-**Mirroring ECharts options as named attributes.** Article XIV forbids it, and the specification
+**Mirroring ECharts options as named attributes.** Article XIII forbids it, and the specification
 names only the attributes carrying data. Axes, legends and tooltips are R5, and they are reachable
 through `options` today.

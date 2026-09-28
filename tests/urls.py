@@ -4,12 +4,8 @@ from mvp.views import MVPTemplateView
 from pyecharts import options as opts
 from pyecharts.charts import Bar, Line, Pie, Scatter
 
-# The demo project's routes, behind a urlconf of the suite's own so a route
-# that exists only to exercise a component has somewhere to go.
-#
-# The probe routes below are that: pages built to put the component in one
-# exact situation a browser test needs, which no page a reader would visit
-# should have to contort itself into.
+# The demo's routes plus probe pages that put the component in one exact
+# situation a browser test needs, which no page a reader visits should have to.
 
 
 def a_chart():

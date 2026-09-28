@@ -309,7 +309,7 @@ founding notes. Rationale too long to carry here is in `decisions.md`.
   region that already rendered correctly and is not a mistake at all. The region has nothing to draw
   into, and recovers when the panel reopens. Integrated as FR-014 and FR-015.
 
-- **Q**: Article XV requires an accessible name and a text alternative on every packaged component and
+- **Q**: Article XIV requires an accessible name and a text alternative on every packaged component and
   forbids silently defaulting either to empty. Does that obligation start here, when nothing is drawn
   yet, or at the first chart type?
   **A**: Here. The region is the thing being placed, so it is the thing carrying them, and a region

@@ -16,25 +16,17 @@ from mvp_charts.templatetags.mvp_charts import callback_option_name, chart_optio
 
 
 class TestChartOptions:
-    """The chart's own options, escaped for a script element and nothing else."""
-
     def test_it_returns_what_the_chart_dumped(self):
         chart = Line().add_xaxis(["Jan"]).add_yaxis("Revenue", [12])
         assert json.loads(chart_options(chart)) == json.loads(chart.dump_options())
 
     def test_it_neither_adds_a_key_nor_removes_one(self):
-        """The package builds no options of its own and filters none away."""
         chart = Line().add_xaxis(["Jan"]).add_yaxis("Revenue", [12])
         assert set(json.loads(chart_options(chart))) == set(
             json.loads(chart.dump_options())
         )
 
     def test_the_three_sequences_that_end_a_script_early_are_escaped(self):
-        """`<`, `>` and `&`, the same three `json_script` escapes.
-
-        pyecharts escapes none of them, so without this a label carrying
-        `</script>` closes the element it is sitting in.
-        """
         chart = Line().add_xaxis(["a</script>&b"]).add_yaxis("s", [1])
         rendered = chart_options(chart)
         assert "<" not in rendered
@@ -43,7 +35,6 @@ class TestChartOptions:
         assert json.loads(rendered)["xAxis"][0]["data"] == ["a</script>&b"]
 
     def test_the_output_is_marked_safe_so_django_does_not_escape_it_again(self):
-        """Double-escaping produces `&amp;quot;`, and the JSON stops parsing."""
         chart = Line().add_xaxis(["Jan"]).add_yaxis("Revenue", [12])
         assert hasattr(chart_options(chart), "__html__")
 
@@ -64,24 +55,11 @@ def chart_with_a_callback(**tooltip_kwargs):
 
 
 class TestChartOptionsRejectsJavaScriptCallbacks:
-    """A chart carrying a `JsCode` is refused here, not in the browser.
-
-    `dump_options()` writes such a function into the document unquoted, which
-    is no longer JSON. The page reads the payload with `JSON.parse`, so what
-    reached the reader was a figure that never stopped waiting and one line in
-    a console nobody was watching.
-    """
-
     def test_a_chart_carrying_a_callback_is_refused(self):
         with pytest.raises(ValueError):
             chart_options(chart_with_a_callback())
 
     def test_nothing_that_is_returned_is_ever_unparseable(self):
-        """The guarantee the refusal buys: a payload out of here is JSON.
-
-        Without it a callback reaches `JSON.parse` as bare function text and
-        throws there, which is the defect this class exists for.
-        """
         try:
             rendered = chart_options(chart_with_a_callback())
         except ValueError:
@@ -89,17 +67,14 @@ class TestChartOptionsRejectsJavaScriptCallbacks:
         json.loads(rendered)
 
     def test_the_refusal_names_the_option_the_callback_sits_on(self):
-        """A chart with forty options should not have to be bisected by hand."""
         with pytest.raises(ValueError, match="formatter"):
             chart_options(chart_with_a_callback())
 
     def test_the_refusal_points_at_the_route_that_does_work(self):
-        """Writing it against the chart instance, per the README."""
         with pytest.raises(ValueError, match="getInstanceByDom"):
             chart_options(chart_with_a_callback())
 
     def test_it_names_whichever_option_carries_the_callback(self):
-        """Not only the ones called `formatter`."""
         chart = (
             Bar()
             .add_xaxis(["Jan"])
@@ -119,14 +94,6 @@ class TestChartOptionsRejectsJavaScriptCallbacks:
         assert json.loads(chart_options(chart)) == json.loads(chart.dump_options())
 
     def test_a_label_carrying_the_sentinel_is_refused_without_being_blamed(self):
-        """pyecharts marks a callback with `--x_x--0_0--` and strips it again.
-
-        It strips the sequence wherever it appears, so a label holding it —
-        out of a database, and so not ours to trust — breaks the serialisation
-        the same way a callback does. Refusing is right. Announcing a callback
-        the chart does not have is not, because it sends the reader looking
-        for one.
-        """
         chart = Line().add_xaxis(["--x_x--0_0--"]).add_yaxis("s", [1])
         with pytest.raises(ValueError) as refusal:
             chart_options(chart)
@@ -135,8 +102,6 @@ class TestChartOptionsRejectsJavaScriptCallbacks:
 
 
 class TestCallbackOptionName:
-    """Reading the option off the two serialisations of one chart."""
-
     def test_it_reads_the_key_immediately_before_the_divergence(self):
         assert (
             callback_option_name(
@@ -146,7 +111,6 @@ class TestCallbackOptionName:
         )
 
     def test_it_returns_nothing_when_no_key_precedes_the_divergence(self):
-        """The caller says "one of its options" rather than inventing a name."""
         assert callback_option_name("[1]", "[2]") is None
 
     def test_it_returns_nothing_when_the_two_agree(self):

@@ -5,7 +5,7 @@ A running log of what happened on this branch, newest entry last.
 ## 2026-09-22 — planning
 
 Branch cut from `3efca44` on main, which already carries the specification (merged as #23) and the
-constitution amendment that removed Article XV's colour claim (merged as #24). Baseline verified
+constitution amendment that removed Article XIV's colour claim (merged as #24). Baseline verified
 green on that commit: lint, typecheck, 119 tests, build, conformance.
 
 Plan, research and task list written. Thirteen tasks across the specification's three stories.

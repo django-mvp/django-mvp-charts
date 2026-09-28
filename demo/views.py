@@ -11,6 +11,7 @@ that ran, and a chart changed here changes what the page shows about it.
 """
 
 import inspect
+from collections.abc import Callable
 from datetime import date
 from decimal import Decimal
 
@@ -21,8 +22,15 @@ from pyecharts.charts import Bar, Line, Pie, Scatter
 MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
 
 
-def source_of(builder):
-    """The builder's own source, ready to put in a code block."""
+def source_of(builder: Callable[[], object]) -> str:
+    """Read a builder's own source, ready to put in a code block.
+
+    Args:
+        builder: The function that builds a chart.
+
+    Returns:
+        The function's source, without trailing whitespace.
+    """
     return inspect.getsource(builder).rstrip()
 
 
@@ -139,6 +147,7 @@ class OverviewView(MVPTemplateView):
     breadcrumbs = [{"text": "Overview"}]
 
     def get_context_data(self, **kwargs):
+        """Add the overview's chart."""
         context = super().get_context_data(**kwargs)
         context["revenue"] = revenue()
         return context
@@ -160,6 +169,7 @@ class ChartTypesView(MVPTemplateView):
     }
 
     def get_context_data(self, **kwargs):
+        """Add each chart and the source of the builder that made it."""
         context = super().get_context_data(**kwargs)
         for name, builder in self.builders.items():
             context[name] = builder()
@@ -178,6 +188,7 @@ class ChartOptionsView(MVPTemplateView):
     breadcrumbs = [{"text": "Options"}]
 
     def get_context_data(self, **kwargs):
+        """Add each chart and the source of the builder that made it."""
         context = super().get_context_data(**kwargs)
         context["styled"] = conversion_rate()
         context["awkward"] = invoiced()

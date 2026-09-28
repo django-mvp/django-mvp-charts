@@ -35,7 +35,7 @@ fitted were the ones that wanted exactly the version this package happened to ha
 keeping that pin current, re-hashing it on every bump, was upkeep paid for by a package that ships
 no JavaScript.
 
-**It was also the one hole in Article XII.** "No shipped template names a remote origin" had to be
+**It was also the one hole in Article XI.** "No shipped template names a remote origin" had to be
 written as "no shipped template except this one", and a rule with an exception is a rule that has to
 be re-argued every time something new is added. It is now unconditional.
 

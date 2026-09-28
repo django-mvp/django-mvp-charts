@@ -8,14 +8,9 @@ authors = [
 license = "MIT"
 readme = "README.md"
 requires-python = ">=3.12,<4.0"
-# django-mvp is a hard dependency, not an integration: the component's markup
-# sits inside django-mvp's layout primitives and uses the classes its prebuilt
-# stylesheet emits. Without it a chart renders into an unstyled page.
-#
-# pyecharts is a hard dependency because it is the API. The component takes a
-# pyecharts chart and nothing else, so a project without it has no way to build
-# the one argument the component requires. 2.1 is the floor: it is the first
-# release that targets ECharts 6.
+# django-mvp supplies the classes the component's markup uses. pyecharts is the
+# API: the component takes nothing else. 2.1 is its first release targeting
+# ECharts 6.
 dependencies = ["django>=5.2", "django-mvp>=0.24.0", "pyecharts>=2.1,<3.0"]
 keywords = ["django", "charts", "echarts", "pyecharts", "dataviz", "cotton"]
 classifiers = [
@@ -42,11 +37,8 @@ Issues = "https://github.com/django-mvp/django-mvp-charts/issues"
 [tool.hatch.build.targets.wheel]
 packages = ["mvp_charts"]
 
-# Hatchling's default source distribution is the whole working tree: tests, the
-# demonstration project, documentation, CI configuration and the repository's
-# own records. Listing what ships keeps it to the package, the readme and the
-# licence. Hatchling adds .gitignore itself, so that a build from the source
-# distribution leaves out what the repository does.
+# Hatchling's default sdist is the whole working tree; this keeps it to the
+# package, the readme and the licence.
 [tool.hatch.build.targets.sdist]
 include = ["mvp_charts", "README.md", "LICENSE"]
 
@@ -78,17 +70,9 @@ addopts = [
     "--tb=short",
     "-ra",
 ]
-# The browser tests run inside a greenlet with an event loop under it, and
-# Django refuses synchronous database work from an async context — so building
-# the test database for `live_server` raises before any page loads. The check
-# exists to stop application code calling the ORM from an async view. This
-# package has no models, no views and no ORM calls of any kind, so the only
-# database work in the suite is the harness building and tearing down its own
-# test database. There is nothing here for the check to protect.
-#
-# Scoping it to the browser tests was tried and does not work: pytest-django
-# sets the database up from an autouse fixture, which runs before any fixture
-# a test can ask for.
+# The browser tests' event loop makes Django refuse the harness's own test
+# database setup. This package makes no ORM calls, and pytest-django's autouse
+# database fixture rules out scoping the setting to the browser tests.
 env = ["DJANGO_ALLOW_ASYNC_UNSAFE=1"]
 
 [tool.coverage.report]
@@ -113,10 +97,8 @@ include = "H006,H013,H020,H021,H023,H025,H030,H031"
 ignore = "H017"
 extension = "html"
 
-# Lint and format are both ruff's: it replaces black (formatting), isort (the I
-# rules) and pyupgrade (the UP rules), so those three no longer appear here.
 # The shared rule set lives in ruff-base.toml, copied in from django-mvp/shared
-# rather than referenced remotely — `extend` only accepts a local path.
+# rather than referenced remotely, because `extend` only accepts a local path.
 [tool.ruff]
 extend = "ruff-base.toml"
 
@@ -145,23 +127,9 @@ django_settings_module = "tests.settings"
 ignore_missing_model_attributes = "True"
 
 [tool.forge.conformance]
-# test_app.py has no source module to mirror and should not have one. Its
-# subject is the Django app registry and the on-disk layout of the installed
-# package, so conforming to the mirror rule would mean inventing
-# mvp_charts/app.py purely to give the test file something to point at.
-#
-# test_demo.py's subject is the demonstration project, which sits beside the
-# package rather than inside it and is not distributed. There is no module
-# under mvp_charts/ for it to mirror, and adding demo/ to the distributed
-# packages purely to create one would ship the demonstration to every install.
-#
-# tests/test_components/'s subject is Cotton component templates, which have
-# no Python module of their own to mirror.
-#
-# tests/test_browser_guard.py's subject is the suite's own fixture deciding what
-# a missing browser means. That is test infrastructure, not shipped code, and
-# giving it a module under mvp_charts/ would put a testing concern in the
-# distribution.
+# None of these has a module under mvp_charts/ to mirror: the app registry and
+# installed layout, the undistributed demo, Cotton templates, and the suite's
+# own browser fixture.
 non-mirror-paths = [
   "tests/test_app.py",
   "tests/test_demo.py",
@@ -173,9 +141,6 @@ non-mirror-paths = [
 extend_exclude = ["tests/", "demo/", "docs/"]
 
 [tool.deptry.per_rule_ignores]
-# django-mvp is a real runtime dependency that no Python module here imports.
-# This package depends on it at the template and theme level: components render
-# inside django-mvp's layout and read their colours from the daisyUI theme it
-# supplies. Dropping the dependency would leave every chart unthemed while every
-# import still resolved.
+# django-mvp is a runtime dependency no module imports: the component renders
+# inside its layout and theme.
 DEP002 = ["django-mvp"]

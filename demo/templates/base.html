@@ -1,26 +1,8 @@
 {% extends "mvp/base.html" %}
 {% load static %}
 {% comment %}
-  The project-level base django-mvp's own page templates extend. Everything
-  the demo's pages need comes from mvp/base.html, so this file adds nothing of
-  its own beyond the two lines below — it exists because page_view.html extends
-  "base.html" by that name, and because it is the one place a project-wide
-  override goes.
-
-  Both scripts are loaded here, by this project. Neither comes from the
-  package, which supplies no script tag of any kind.
-
-  ECharts first, from a public copy, which is what a project does while it has
-  no build step. The version is pinned and carries an integrity hash, so the
-  browser refuses the file if it is not the one it was expected to be.
-  `crossorigin` is not decoration: a browser only checks integrity on a
-  cross-origin request made in CORS mode, so without it the hash is never
-  verified while still looking as though it is. A project that builds its own
-  bundle drops this line and exposes the library as window.echarts instead.
-
-  Then mvp-charts.js, which draws every chart on the page. A demo whose every
-  page shows a chart puts it in the base template. A project with one
-  dashboard among fifty pages would put it on that page.
+  `crossorigin` is required: a browser checks integrity only on a CORS request, so without it the
+  hash is never verified. A project that bundles ECharts exposes it as window.echarts instead.
 {% endcomment %}
 {% block extra_js %}
   {{ block.super }}

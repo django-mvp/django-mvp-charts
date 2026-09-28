@@ -27,7 +27,7 @@ bundled front-end runtime); django-cotton, pinned by django-mvp and deliberately
 No new runtime dependency.
 
 **Front-end**: vanilla ES2020 in one file, `mvp_charts/static/mvp_charts/js/chart-region.js`. No
-build step, no bundler, no npm in this repository. ECharts is never vendored (Article XII).
+build step, no bundler, no npm in this repository. ECharts is never vendored (Article XI).
 
 **Charting library version**: ECharts 6.x. The development delivery pins 6.1.0 with a
 subresource-integrity hash; the package declares the range it is known to render against and pins
@@ -66,18 +66,18 @@ module, one JavaScript module, two demo pages, four stories, 23 tasks.
 | II — Simplicity | One template-tag module, one JavaScript module, no classes for behaviour the browser already has. No Alpine component, no registry, no settings. |
 | III — Anti-Abstraction | No shared "plumbing" layer for a second namespace that does not exist. The region lives in the `echarts` namespace and is factored out when a second backend arrives. |
 | IV — Integration-First | The contract a later chart type consumes — the drawing surface element and a resize event carrying the measured box — is designed and tested here, before any chart type exists. |
-| V — Security | Every author-supplied value is rendered through the template layer. The development delivery pins a version and carries an integrity hash; no third-party origin is added on a reader's behalf (Article XII). |
+| V — Security | Every author-supplied value is rendered through the template layer. The development delivery pins a version and carries an integrity hash; no third-party origin is added on a reader's behalf (Article XI). |
 | VI — Documentation | README gains the placement example with its wrapper, both delivery routes, the supported ECharts range and the two failure messages. CHANGELOG entry lands in the same pull request. |
 | VII — Dependency discipline | No new dependency of any kind. `deptry` unaffected. |
 | VIII — Internationalization | Every message the region can show is wrapped for translation, and the package gains `locale/` with a base English catalog — its first user-facing strings arrive with this feature. |
 | IX — Data-model conventions | N/A. No models, no migrations. |
-| X — Test structure | `tests/test_templatetags/test_mvp_charts.py` mirrors `mvp_charts/templatetags/mvp_charts.py`. Component and browser tests have no Python module to mirror, so `tests/test_components/` is added to the `[tool.forge.conformance] non-mirror-paths` list in `pyproject.toml`, which currently names only `tests/test_app.py` and `tests/test_demo.py`. That edit is part of T001, not an assumption. |
-| XI — Cohesion | The template tags share a subject — the region's per-request identity and its one-time asset tag — so they are methods on one class, with the tags as thin registered wrappers. |
-| XII — No library vendored or served | ECharts is never committed, never placed in static files, never bundled. The development delivery is a component the **project** places in its own base template; no region injects a script. |
-| XIII — One namespace per backend | The region is `<c-echarts.region>`, in the namespace that names the library whose presence it checks for. |
-| XIV — Pass through rather than mirror | The region names two attributes, both of which the accessibility contract requires. Nothing else is named. |
-| XV — Rendered output is a contract | Assertions are against rendered output and against measured boxes in a real browser, never against the presence of a class name. The name and the text alternative are required and reported when missing, never defaulted. |
-| XVI — Compatibility | Pre-1.0 surface, CHANGELOG entry for the new components, supported ECharts range stated per namespace. |
+| Testing standard §4 — Test structure | `tests/test_templatetags/test_mvp_charts.py` mirrors `mvp_charts/templatetags/mvp_charts.py`. Component and browser tests have no Python module to mirror, so `tests/test_components/` is added to the `[tool.forge.conformance] non-mirror-paths` list in `pyproject.toml`, which currently names only `tests/test_app.py` and `tests/test_demo.py`. That edit is part of T001, not an assumption. |
+| X — Cohesion | The template tags share a subject — the region's per-request identity and its one-time asset tag — so they are methods on one class, with the tags as thin registered wrappers. |
+| XI — No library vendored or served | ECharts is never committed, never placed in static files, never bundled. The development delivery is a component the **project** places in its own base template; no region injects a script. |
+| XII — One namespace per backend | The region is `<c-echarts.region>`, in the namespace that names the library whose presence it checks for. |
+| XIII — Pass through rather than mirror | The region names two attributes, both of which the accessibility contract requires. Nothing else is named. |
+| XIV — Rendered output is a contract | Assertions are against rendered output and against measured boxes in a real browser, never against the presence of a class name. The name and the text alternative are required and reported when missing, never defaulted. |
+| XV — Compatibility | Pre-1.0 surface, CHANGELOG entry for the new components, supported ECharts range stated per namespace. |
 
 **One constraint this plan cannot satisfy inside its own pull request**, recorded rather than worked
 around: the browser tests need `install-playwright: true` on the `call-tests` job in
@@ -188,7 +188,7 @@ region at all. Empty string and omitted are the same thing.
   the module once, and a page with no regions loads nothing at all (SC-008, FR-010).
 
 Both are `simple_tag(takes_context=True)` wrappers over `ChartRegionAssets`, which is where the
-state and the logic live (Article XI; registered template tags are the framework-shaped exception
+state and the logic live (Article X; registered template tags are the framework-shaped exception
 for the wrappers themselves).
 
 ### How the library reaches the browser
@@ -198,7 +198,7 @@ sentence for both routes, which is what makes "no declaration either way" true (
 
 - **Development** — `<c-echarts.cdn />` renders a single pinned, integrity-checked script tag. The
   project places it in its own base template (the demo puts it in `{% block extra_js %}`). The
-  package never emits it from a region (Article XII, FR-010).
+  package never emits it from a region (Article XI, FR-010).
 - **Production** — the project's own bundle assigns the library to `window.echarts`. Nothing in the
   package changes, and no setting names which route is in play.
 
