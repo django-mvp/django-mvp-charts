@@ -21,8 +21,6 @@ probe = chromium.__wrapped__
 
 @pytest.fixture
 def no_browser(monkeypatch):
-    """Playwright present, chromium not — what an uninstalled runner looks like."""
-
     def launch_fails(*args, **kwargs):
         raise Error("Executable doesn't exist at ~/.cache/ms-playwright/chromium")
 
@@ -30,17 +28,7 @@ def no_browser(monkeypatch):
 
 
 class TestAMissingBrowser:
-    """The two environments, and what the absence of a browser means in each."""
-
     def test_fails_on_ci(self, no_browser, monkeypatch):
-        """CI cannot report these measurements as made when they were not.
-
-        Written as a `try` rather than `pytest.raises`, because the behaviour
-        this guards against is a skip — and a skip raised inside
-        `pytest.raises` skips this test too, leaving a green run and a silent
-        hole, which is the exact shape of the problem. Caught here, the old
-        behaviour fails out loud.
-        """
         monkeypatch.setenv("CI", "true")
 
         try:
@@ -62,7 +50,6 @@ class TestAMissingBrowser:
         )
 
     def test_skips_off_ci(self, no_browser, monkeypatch):
-        """A contributor who has not run the install step is not blocked by it."""
         monkeypatch.delenv("CI", raising=False)
 
         with pytest.raises(pytest.skip.Exception) as skipped:

@@ -44,22 +44,14 @@ def payloads(page):
 
 
 class TestOverviewPage:
-    """The page a reader lands on, and the shell it is drawn inside."""
-
     def test_page_is_served(self, client, db):
         assert client.get("/").status_code == 200
 
     def test_page_is_drawn_inside_the_application_shell(self, overview_page):
-        """The sidebar and the header, not a hand-rolled document.
-
-        The breadcrumb trail is the header's, drawn from what the view
-        declares, so its presence says the header is there and reading the
-        page rather than merely that some markup rendered.
-        """
         assert "<aside" in overview_page
         assert 'aria-label="Main navigation"' in overview_page
         assert 'aria-label="Breadcrumbs"' in overview_page
-    
+
     def test_page_shows_the_tag_that_places_it(self, overview_page):
         assert "&lt;c-chart" in overview_page
 
@@ -68,13 +60,7 @@ class TestOverviewPage:
 
 
 class TestSidebarMenu:
-    """What the navigation holds, which is exactly the pages that exist."""
-
     def test_it_holds_exactly_the_pages_that_exist(self, sidebar_navigation):
-        """The list below is the one place that says what the navigation holds.
-
-        A page added without a thought about where it belongs stops here.
-        """
         assert re.findall(r'href="([^"]*)"', sidebar_navigation) == [
             "/",
             "/chart-types/",
@@ -82,27 +68,11 @@ class TestSidebarMenu:
         ]
 
     def test_no_section_is_drawn_with_nothing_under_it(self, overview_page):
-        """A container added before it has children renders as a dead control.
-
-        django-mvp draws a navigation node from its leaf template until it has
-        children, so a section declared while its page list is empty reaches
-        the page as a button carrying ``href="None"``.
-        """
         assert 'href="None"' not in overview_page
 
 
 class TestDocumentationSurface:
-    """``{% show_code %}`` and the template it renders its examples through."""
-
     def test_the_display_template_is_the_packaged_one(self):
-        """django-mvp ships the surface alongside the tag from 0.24.0.
-
-        This project supplied its own while the package had none. What is
-        checked now is that it no longer does: ``demo`` comes first in
-        ``INSTALLED_APPS``, so a file of that name under ``demo/templates/``
-        would shadow the packaged surface and leave the demo showing an older
-        one after every other project had moved on.
-        """
         try:
             origin = get_template("cotton/documentation.html").origin.name
         except TemplateDoesNotExist:  # pragma: no cover - the failure message
@@ -119,19 +89,11 @@ class TestDocumentationSurface:
         assert "&lt;c-chart :chart=&quot;revenue&quot;" in overview_page
 
     def test_the_example_shows_the_html_it_rendered_to(self, overview_page):
-        """Attributes come back alphabetised, which is the prettifier's doing."""
         assert "&lt;figure" in overview_page
         assert "id=&quot;revenue&quot;" in overview_page
         assert "data-mvp-chart-surface" in overview_page
 
     def test_the_html_is_prettified(self, overview_page):
-        """The tag falls back to raw output when BeautifulSoup is absent.
-
-        It does so silently, and raw Cotton output already carries line breaks
-        and indentation of its own, so neither of those tells the two apart.
-        What does is that the prettifier puts every closing tag on a line of
-        its own, where the raw output keeps ``<span>text</span>`` inline.
-        """
         panes = re.findall(
             r"<pre[^>]*><code[^>]*>(.*?)</code></pre>", overview_page, re.S
         )
@@ -143,36 +105,20 @@ class TestDocumentationSurface:
 
 
 class TestChartTypesPage:
-    """One component placing four chart types, each built in the view."""
-
     def test_the_page_is_served(self, client, db):
         assert client.get(reverse("chart_types")).status_code == 200
 
     def test_it_draws_one_of_every_type_it_claims(self, chart_types_page):
-        """Read off the payloads rather than the prose, which can say anything."""
         drawn = {options["series"][0]["type"] for options in payloads(chart_types_page)}
         assert drawn == {"line", "bar", "pie", "scatter"}
 
     def test_every_chart_shows_the_code_that_built_it(self, chart_types_page):
-        """The listing beside a chart is read off the function that ran.
-
-        A page that hand-copies its own example is the usual way a demo ends
-        up describing a chart it is no longer drawing, so what is asserted is
-        that each listing is the builder's current source rather than that
-        something code-shaped is on the page.
-        """
         for builder in ChartTypesView.builders.values():
             assert escape(source_of(builder)) in chart_types_page, (
                 f"{builder.__name__} is not listed on the page it builds a chart for"
             )
 
     def test_every_chart_describes_its_own_caption(self, chart_types_page):
-        """Four distinct ids prove nothing on their own.
-
-        The failure this guards against is two charts on a page pointing at
-        one caption, which counts the same and reads wrong to anyone using a
-        screen reader.
-        """
         pairs = re.findall(
             r'<figure id="([^"]+)".*?aria-describedby="([^"]+)"',
             chart_types_page,
@@ -181,14 +127,12 @@ class TestChartTypesPage:
         assert len(pairs) >= 4
         assert all(described == f"{chart}-description" for chart, described in pairs)
 
-class TestChartOptionsPage:
-    """Every ECharts option reached in Python, and the awkward types."""
 
+class TestChartOptionsPage:
     def test_the_page_is_served(self, client, db):
         assert client.get(reverse("chart_options")).status_code == 200
 
     def test_both_listings_are_the_code_that_ran(self, chart_options_page):
-        """This page's whole claim is that the options are set in that code."""
         for builder in (conversion_rate, invoiced):
             assert escape(source_of(builder)) in chart_options_page, (
                 f"{builder.__name__} is not listed on the page it builds a chart for"
@@ -197,7 +141,6 @@ class TestChartOptionsPage:
     def test_the_styled_chart_carries_options_no_attribute_names(
         self, chart_options_page
     ):
-        """The claim the page makes, read back off what it actually sent."""
         styled = next(
             options for options in payloads(chart_options_page) if "title" in options
         )
@@ -220,25 +163,16 @@ class TestChartOptionsPage:
 
 
 class TestAChartReachedFromThePage:
-    """The Options page's third chart: built for SVG in Python, and given a
-    JavaScript formatter by the page's own script once it is drawn."""
-
     def test_the_listing_is_the_builder_that_ran(self, chart_options_page):
         assert escape(source_of(signups)) in chart_options_page
 
     def test_the_listener_runs_on_the_page_it_is_shown_on(self, chart_options_page):
-        """One partial, included once to run and once to be read.
-
-        Written twice, the listing would be free to drift from the script.
-        """
         listener = get_template("demo/signups_formatter.html").template.source.strip()
         assert listener in chart_options_page
         assert escape(listener) in chart_options_page
 
 
 class TestPatternsBesideColour:
-    """The Options page's patterned chart, and that nothing else turns them on."""
-
     @staticmethod
     def patterned(page):
         return [
@@ -260,7 +194,6 @@ class TestPatternsBesideColour:
     def test_the_chart_leaves_ECharts_choice_of_pattern_per_series_alone(
         self, chart_options_page
     ):
-        """A single `decals` object would give every series the same pattern."""
         (options,) = self.patterned(chart_options_page)
         assert "decals" not in options["aria"]["decal"]
 
@@ -295,15 +228,6 @@ class TestPatternsBesideColour:
 
 
 class TestDocumentedExample:
-    """The README's example is the markup the demo actually renders.
-
-    A documented example is only worth anything if it is exercised, so the
-    README's placement example has a counterpart on the overview page, and the
-    demo page rendering is what proves it works. Comparing them here is what
-    stops the two drifting apart silently, which is the usual way a README
-    example stops being true.
-    """
-
     @staticmethod
     def readme_example(anchor):
         readme = (Path(settings.BASE_DIR) / "README.md").read_text()
@@ -327,12 +251,6 @@ class TestDocumentedExample:
 
 
 class TestTheReadmeShowsThePatternedChart:
-    """The README's Python is the builder the Options page runs.
-
-    Anchored on the `def` line rather than on `aria_opts`, because the section
-    holds more than one Python block and another of them mentions `aria_opts`.
-    """
-
     @staticmethod
     def readme():
         return (Path(settings.BASE_DIR) / "README.md").read_text()
@@ -349,8 +267,6 @@ class TestTheReadmeShowsThePatternedChart:
         )
 
     def test_the_colour_example_is_the_call_the_browser_tests_measure(self):
-        """The fragment is not a builder, so it is matched to the probe chart
-        whose pattern colours the browser tests read back."""
         (fragment,) = [
             block
             for block in re.findall(r"```python\n(.*?)\n```", self.readme(), re.S)
@@ -360,9 +276,8 @@ class TestTheReadmeShowsThePatternedChart:
             ast.literal_eval(fragment.removeprefix("aria_opts=")) == COLOURED_PATTERNS
         )
 
-class TestTheDemoLoadsTheLibraryItself:
-    """The project places the delivery; no component reaches off-site for it."""
 
+class TestTheDemoLoadsTheLibraryItself:
     def test_every_page_carries_the_delivery_the_project_placed(
         self, overview_page, chart_types_page, chart_options_page
     ):
@@ -375,6 +290,5 @@ class TestTheDemoLoadsTheLibraryItself:
         assert 'crossorigin="anonymous"' in script
 
     def test_the_package_module_is_loaded_once_beside_it(self, chart_types_page):
-        """Four charts on the page, one module."""
         real_tags = re.findall(r"<script[^>]*mvp-charts\.js", chart_types_page)
         assert len(real_tags) == 1

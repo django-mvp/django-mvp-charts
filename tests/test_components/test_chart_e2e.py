@@ -32,15 +32,12 @@ CHARTS_DRAWN = """
 
 @pytest.fixture
 def drawn_page(chromium, live_server, page):
-    """The demo's chart types page, with every chart on it drawn."""
     page.goto(f"{live_server.url}/chart-types/")
     page.wait_for_function(CHARTS_DRAWN, timeout=10000)
     return page
 
 
 class TestAChartIsDrawn:
-    """The options the server sent reached ECharts and became a chart."""
-
     def test_the_chart_holds_the_values_the_view_gave_it(self, drawn_page):
         chart = drawn_page.evaluate(READ_CHART, "revenue-and-costs")
         assert chart is not None, "ECharts never initialised on the drawing surface"
@@ -65,17 +62,11 @@ class TestAChartIsDrawn:
     def test_every_chart_type_on_the_page_draws(
         self, drawn_page, element_id, expected_type
     ):
-        """One component, and each chart drawn as the class the view built."""
         chart = drawn_page.evaluate(READ_CHART, element_id)
         assert chart is not None
         assert chart["type"] == expected_type
 
     def test_a_canvas_is_actually_painted(self, drawn_page):
-        """An ECharts instance with a zero-sized canvas draws nothing.
-
-        The instance existing is not the same claim as the chart occupying
-        the box it was given, and the second is what a reader sees.
-        """
         box = drawn_page.evaluate(
             "() => document.querySelector('#revenue-and-costs canvas')"
             ".getBoundingClientRect()"
@@ -85,8 +76,6 @@ class TestAChartIsDrawn:
 
 
 class TestAChartFollowsItsBox:
-    """A page is not a fixed rectangle, and a chart is redrawn when its box moves."""
-
     def test_a_narrower_window_narrows_the_chart(self, drawn_page):
         before = drawn_page.evaluate(READ_CHART, "revenue-and-costs")["width"]
         drawn_page.set_viewport_size({"width": 640, "height": 900})
@@ -112,7 +101,6 @@ MEASURE = """
 
 @pytest.fixture
 def sizing_page(chromium, live_server, page):
-    """The probe page of awkward boxes, with anything drawable drawn."""
     warnings = []
     page.on(
         "console",
@@ -125,16 +113,7 @@ def sizing_page(chromium, live_server, page):
 
 
 class TestAChartThatHasNoBoxYet:
-    """A chart is not always drawable at first paint, and not always at fault."""
-
     def test_a_chart_in_a_collapsed_panel_draws_when_the_panel_opens(self, sizing_page):
-        """0x0 at load, a real box once revealed, and no complaint either way.
-
-        A panel that is closed is the page working as designed. The old
-        `IntersectionObserver` existed to tell this apart from a mistake; the
-        resize observer now does it by arithmetic, because a hidden element
-        measures zero on both axes and a mis-sized one does not.
-        """
         page, warnings = sizing_page
         assert page.evaluate(MEASURE, "in-collapsed-panel") == {
             "width": 0,
@@ -154,12 +133,6 @@ class TestAChartThatHasNoBoxYet:
         assert not any("in-collapsed-panel" in text for text in warnings)
 
     def test_a_wrapper_that_resolves_to_no_height_is_reported(self, sizing_page):
-        """The one failure that otherwise leaves no trace anywhere.
-
-        The options are right, ECharts initialised, nothing threw, and the
-        reader sees blank page. Width without height is what separates it
-        from the collapsed panel above, and the console is where it is said.
-        """
         page, warnings = sizing_page
         measured = page.evaluate(MEASURE, "never-has-height")
         assert measured["width"] > 0
@@ -174,8 +147,6 @@ class TestAChartThatHasNoBoxYet:
         assert not any("control" in text for text in warnings)
 
     def test_it_is_said_once_rather_than_on_every_resize(self, sizing_page):
-        """The check runs on every resize, and a stream of identical warnings
-        is how a console stops being read."""
         page, warnings = sizing_page
         page.set_viewport_size({"width": 700, "height": 900})
         page.set_viewport_size({"width": 1100, "height": 900})
@@ -184,13 +155,6 @@ class TestAChartThatHasNoBoxYet:
 
 
 class TestAChartSizedByItsRatio:
-    """A ratio is a height the figure works out from the width it was given.
-
-    Measured rather than asserted against the style attribute, because the
-    attribute proves a string reached the markup and says nothing about the
-    box the browser gave the chart.
-    """
-
     def test_the_height_is_the_width_divided_by_the_ratio(self, sizing_page):
         page, _ = sizing_page
         assert page.evaluate(MEASURE, "sized-by-its-ratio") == {
@@ -199,7 +163,6 @@ class TestAChartSizedByItsRatio:
         }
 
     def test_the_ratio_holds_when_the_width_changes(self, sizing_page):
-        """The point of the ratio: the chart keeps its shape at any width."""
         page, _ = sizing_page
         page.evaluate(
             "() => { document.getElementById('sized-by-its-ratio')"
@@ -213,29 +176,18 @@ class TestAChartSizedByItsRatio:
         assert page.evaluate(MEASURE, "sized-by-its-ratio")["height"] == 300
 
     def test_a_ratio_is_a_way_out_of_the_wrapper_with_no_height(self, sizing_page):
-        """Same wrapper as the chart that cannot draw, and nothing to report."""
         page, warnings = sizing_page
         assert not any("sized-by-its-ratio" in text for text in warnings)
 
 
 class TestThePlaceholder:
-    """What stands in the figure until the chart is drawn into it."""
-
     @pytest.fixture
     def waiting_page(self, chromium, live_server, page):
-        """A figure holding its spinner, because no library ever arrives."""
         page.goto(f"{live_server.url}/probe/placeholder/")
         page.wait_for_function("() => document.readyState === 'complete'", timeout=5000)
         return page
 
     def test_it_sits_in_the_middle_of_the_figure(self, waiting_page):
-        """Centred with nothing around it to do the centring.
-
-        Measured rather than read off a class list, because the classes that
-        put an element in the middle of its figure only do so while it has a
-        size of its own for the automatic margins to divide up — and a class
-        list looks identical either way.
-        """
         centres = waiting_page.evaluate(
             "() => { const figure = document.getElementById('waiting');"
             " const spinner = figure"
@@ -252,12 +204,6 @@ class TestThePlaceholder:
         assert centres["offset"] == [0, 0]
 
     def test_the_spinner_is_drawn_rather_than_only_classed(self, waiting_page):
-        """`loading` is a class daisyUI has to have built for it to spin.
-
-        An element carrying a class the stylesheet never emitted is an empty
-        inline span with no box at all, and the markup looks identical either
-        way — which is why this measures instead of reading the class back.
-        """
         box = waiting_page.evaluate(
             "() => document.querySelector('#waiting .loading').getBoundingClientRect()"
         )
@@ -267,20 +213,16 @@ class TestThePlaceholder:
         assert box["height"] < 200
 
     def test_it_stays_while_there_is_no_chart_to_replace_it(self, waiting_page):
-        """A figure that goes empty and stays empty is the worse of the two."""
         assert (
             waiting_page.locator("#waiting [data-mvp-chart-placeholder]").count() == 1
         )
 
     def test_it_is_gone_once_the_chart_is_drawn(self, drawn_page):
-        """Every chart on that page starts with one, and none of them kept it."""
         assert drawn_page.locator("[data-mvp-chart-placeholder]").count() == 0
         assert drawn_page.locator("[data-mvp-chart]").count() > 0
 
 
 class TestWithNoChartingLibrary:
-    """The one failure the package reports, and where it reports it."""
-
     @pytest.fixture
     def no_library_page(self, chromium, live_server, page):
         messages = []
@@ -290,11 +232,6 @@ class TestWithNoChartingLibrary:
         return page, messages
 
     def test_it_says_so_in_the_console(self, no_library_page):
-        """In the console, not in the page.
-
-        What a project shows its readers when something is broken is the
-        project's decision, and a message drawn into the page takes it away.
-        """
         _, messages = no_library_page
         errors = [m.text for m in messages if m.type == "error"]
         assert any("window.echarts is not loaded" in text for text in errors)
@@ -311,20 +248,12 @@ class TestWithNoChartingLibrary:
 
 @pytest.fixture
 def renderer_page(chromium, live_server, page):
-    """The probe page of one SVG chart and one canvas chart, both drawn."""
     page.goto(f"{live_server.url}/probe/renderer/")
     page.wait_for_function(CHARTS_DRAWN, timeout=10000)
     return page
 
 
 class TestTheRendererTheChartNamed:
-    """A chart is drawn with the renderer it was built with.
-
-    Counted by element rather than read off the instance: a chart drawn with
-    SVG is real elements in the page and a canvas chart is one bitmap, and
-    that difference is the reason a project asks for one over the other.
-    """
-
     def test_a_chart_built_for_svg_is_drawn_as_svg(self, renderer_page):
         figure = renderer_page.locator("#drawn-as-svg")
         assert figure.locator("svg").count() == 1
@@ -337,8 +266,6 @@ class TestTheRendererTheChartNamed:
 
 
 class TestTheDrawnEvent:
-    """A project reaches a drawn chart without knowing the figure's insides."""
-
     def test_each_figure_announces_its_chart_once(self, renderer_page):
         counts = renderer_page.evaluate(
             "() => Object.fromEntries(Object.entries(window.drawnCharts)"
@@ -347,7 +274,6 @@ class TestTheDrawnEvent:
         assert counts == {"drawn-as-svg": 1, "drawn-to-canvas": 1}
 
     def test_it_carries_the_instance_echarts_holds(self, renderer_page):
-        """The chart itself, not a copy or a description of it."""
         same = renderer_page.evaluate(
             "() => window.drawnCharts['drawn-as-svg'][0] === echarts.getInstanceByDom("
             "document.querySelector('#drawn-as-svg [data-mvp-chart-surface]'))"
@@ -355,7 +281,6 @@ class TestTheDrawnEvent:
         assert same is True
 
     def test_the_chart_is_ready_to_be_changed_when_it_arrives(self, renderer_page):
-        """What the event is for: an option set from the page's own script."""
         title = renderer_page.evaluate(
             "() => { const chart = window.drawnCharts['drawn-to-canvas'][0];"
             " chart.setOption({ title: { text: 'Set from the page' } });"
@@ -364,7 +289,6 @@ class TestTheDrawnEvent:
         assert title == "Set from the page"
 
     def test_drawing_again_does_not_announce_again(self, renderer_page):
-        """`mvpCharts.draw()` is safe to call twice, and so is listening."""
         renderer_page.evaluate("() => window.mvpCharts.draw()")
         counts = renderer_page.evaluate(
             "() => window.drawnCharts['drawn-as-svg'].length"
@@ -373,8 +297,6 @@ class TestTheDrawnEvent:
 
 
 class TestTheDemosChartReachedFromThePage:
-    """The worked example on the Options page does what the page says."""
-
     @pytest.fixture
     def options_page(self, chromium, live_server, page):
         page.goto(f"{live_server.url}/options/")
@@ -411,8 +333,6 @@ BOXES = """
 
 
 class TestACaptionedFigure:
-    """A caption is part of the figure, and never changes the chart's size."""
-
     def test_a_height_is_the_charts_and_the_caption_adds_to_it(self, sizing_page):
         page, _ = sizing_page
         boxes = page.evaluate(BOXES, "captioned")
@@ -422,8 +342,6 @@ class TestACaptionedFigure:
         assert boxes["figure"]["height"] > 300
 
     def test_a_ratio_is_the_charts_however_long_the_caption(self, sizing_page):
-        """The reason the size belongs to the chart: a caption running to
-        three lines would otherwise squash a 2:1 chart into something else."""
         page, _ = sizing_page
         assert page.evaluate(MEASURE, "captioned-by-ratio") == {
             "width": 400,
@@ -440,8 +358,6 @@ class TestACaptionedFigure:
     def test_there_a_caption_that_grows_takes_its_room_from_the_chart(
         self, sizing_page
     ):
-        """The figure keeps its height, so only the drawing surface changes
-        size. A chart watching the figure would never hear about it."""
         page, _ = sizing_page
         before = page.evaluate(BOXES, "captioned-filling")["chart"]
         page.evaluate(
@@ -459,8 +375,6 @@ class TestACaptionedFigure:
         assert page.evaluate(BOXES, "captioned-filling")["chart"] < before
 
     def test_a_caption_does_not_hide_a_chart_with_no_height(self, sizing_page):
-        """The figure has the caption's height, and the chart still has none,
-        which is the mistake the warning exists for."""
         page, warnings = sizing_page
         assert page.evaluate(MEASURE, "captioned-with-no-height")["height"] == 0
         assert any(
@@ -469,10 +383,8 @@ class TestACaptionedFigure:
         )
 
 
-# What ECharts drew, not what it was sent. A pattern is a fill object carrying
-# an `image`. A bar keeps its solid fill and gets the pattern as an overlay
-# element of its own, reached from the bar through its data; a legend icon is
-# reached through ZRender's display list.
+# What ECharts drew, not what it was sent. A bar's pattern is an overlay element
+# reached through its data; a legend icon's is in ZRender's display list.
 READ_PATTERNS = """
 (elementId) => {
   const surface = document
@@ -570,10 +482,9 @@ READ_MARKS = """
 }
 """
 
-# A pattern tile read from its pixels. Its colour is the most opaque pixel it
-# paints, since the edge of a circle is blended with the transparent pixels
-# around it. Its shape is which pixels are more than half opaque, colour set
-# aside, so two tiles that differ only in colour have the same shape.
+# Colour is the most opaque pixel, because a circle's edge blends into the
+# transparent pixels around it. Shape ignores colour, so two tiles differing
+# only in colour share a shape.
 READ_TILE = """
 (dataUrl) => new Promise((resolve) => {
   const image = new Image();
@@ -601,19 +512,12 @@ READ_TILE = """
 
 @pytest.fixture
 def patterns_page(chromium, live_server, page):
-    """The probe page of patterned charts, with every chart on it drawn."""
     page.goto(f"{live_server.url}/probe/patterns/")
     page.wait_for_function(CHARTS_DRAWN, timeout=10000)
     return page
 
 
 class TestDecalPatterns:
-    """A chart built with the documented call is drawn with patterns.
-
-    Read off the elements ECharts drew, never off the options it was sent:
-    the statement the guidance makes is about what a reader sees.
-    """
-
     def test_every_bar_of_each_series_carries_a_pattern(self, patterns_page):
         drawn = patterns_page.evaluate(READ_PATTERNS, "patterned-bar")
         assert [series["name"] for series in drawn["series"]] == ["Online", "In store"]
@@ -680,8 +584,6 @@ class TestDecalPatterns:
             assert not any(series["marks"]), f"{series['name']} has a patterned symbol"
 
     def test_the_scatter_legend_icons_do_carry_a_pattern(self, patterns_page):
-        """The read finds a pattern on scatter's legend, so its finding none on
-        the symbols is the chart's doing and not the read's."""
         legend = patterns_page.evaluate(READ_MARKS, "patterned-scatter")["legend"]
         assert len(legend) == 2
         assert legend[0] != legend[1]
@@ -702,8 +604,6 @@ class TestDecalPatterns:
     def test_the_two_series_are_drawn_with_tiles_of_different_shape(
         self, patterns_page
     ):
-        """Different in shape and not only in colour, which is what an entry's
-        own `symbol` is for."""
         drawn = patterns_page.evaluate(READ_PATTERNS, "coloured-patterns")
         online, in_store = (series["bars"][0] for series in drawn["series"])
         assert online != in_store
