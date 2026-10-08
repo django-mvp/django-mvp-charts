@@ -2,7 +2,7 @@
   "feature": "001-chart-region-and-delivery",
   "branch": "001-chart-region-and-delivery",
   "repo": "django-mvp/django-mvp-charts",
-  "state": "CONVERGE",
+  "state": "MERGED",
   "state_history": [
     {
       "state": "QUEUED",
@@ -28,6 +28,11 @@
       "state": "CONVERGE",
       "at": "2026-09-21T14:16:07Z",
       "note": "All four stories complete and reported; machine verify green on all six steps"
+    },
+    {
+      "state": "MERGED",
+      "at": "2026-09-21T14:56:34Z",
+      "note": "PR #11 merged; no approving review found"
     }
   ],
   "gates": {
@@ -44,7 +49,7 @@
     },
     "merge": {
       "approved_by": null,
-      "at": null
+      "at": "2026-09-21T14:56:34Z"
     },
     "design_review": {
       "approved_by": "design-panel",
@@ -233,6 +238,6 @@
   },
   "pr": {
     "number": 11,
-    "draft": true
+    "draft": false
   }
 }
