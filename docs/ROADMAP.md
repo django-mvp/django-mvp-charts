@@ -79,13 +79,14 @@ Serves G3.
 
 ### R4 — A chart that is genuinely usable without seeing it
 
-*feature · advances G4*
+*delivered in [#55](https://github.com/django-mvp/django-mvp-charts/issues/55) · advances G4*
 
-`name` and `description` are carried today, and that is the floor rather than the finish. What is
-open is whether a canvas chart can offer more than a text alternative — ECharts' own `aria` support
-emits a generated description and decal patterns for colour-blind readers, and both are off by
-default in pyecharts. Whether to document them, recommend them, or leave them alone is the question
-this item answers.
+`name` and `description` on the tag are the chart's text alternative, and they remain its only
+one. Beyond that, ECharts can draw each series with its own decal pattern as well as its own
+colour, so a reader who cannot tell the colours apart can still follow the chart. The documentation
+shows how to turn the patterns on where the chart is built and when it is worth doing. The package
+draws nothing itself and defaults nothing: the patterns are the chart object's to ask for. ECharts'
+generated description is left alone, so a chart keeps the name its author gave it.
 
 Serves G4.
 
