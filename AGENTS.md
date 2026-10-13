@@ -60,9 +60,9 @@ The sidebar holds the pages that exist: **Overview**, **Chart types** and **Opti
    without it Cotton compiles the markup before the tag can capture it.
 4. A `MenuItem` in `demo/menus.py`.
 
-`{% show_code %}` renders through a template named `cotton/documentation.html`, which django-mvp
-ships alongside the tag from 0.24.0 onwards. This project supplied its own while the package had
-none and no longer does. Do not add one back: `demo` comes first in `INSTALLED_APPS`, so a copy
+`{% show_code %}` renders through a template named `cotton/mvp/documentation.html`, which django-mvp
+ships alongside the tag. This project supplied its own while the package had none and no longer
+does. Do not add one back: `demo` comes first in `INSTALLED_APPS`, so a copy
 here shadows the packaged surface by name, and this demo would go on showing an older one after
 every other project had moved.
 

@@ -1,24 +1,24 @@
 {% extends "page_view.html" %}
 {% load mvp %}
 {% block page.content %}
-  <c-section title="What this is" icon="info">
-    <c-text>
+  <c-mvp.section title="What this is" icon="info">
+    <c-mvp.text>
       A chart on a Django page is mostly plumbing. You serialise a queryset to JSON,
       drop a div with an id, then write a script that finds the div and hands the JSON
       to a charting library — and do all of it again on the next page with a slightly
       different id. This package moves the plumbing into one Cotton component so the
       template keeps only the placement.
-    </c-text>
-    <c-text>
+    </c-mvp.text>
+    <c-mvp.text>
       The chart itself is built in the view, with
       <a href="https://pyecharts.org" class="link">pyecharts</a>. There are no models,
       no views and no URLs in the package: it renders markup, and that is all.
-    </c-text>
-  </c-section>
-  <c-section title="The whole of it" icon="chart">
-    <c-text>
+    </c-mvp.text>
+  </c-mvp.section>
+  <c-mvp.section title="The whole of it" icon="chart">
+    <c-mvp.text>
       The view builds a chart and puts it in the context:
-    </c-text>
+    </c-mvp.text>
     <div class="mockup-code w-full text-sm">
       <pre class="px-6"><code>from pyecharts.charts import Line
 
@@ -34,10 +34,10 @@ class RevenueView(TemplateView):
         )
         return context</code></pre>
     </div>
-    <c-text>
+    <c-mvp.text>
       The template places it. That is the entire public surface of this package — one
       component, and the attributes below.
-    </c-text>
+    </c-mvp.text>
     {% comment %}
       cotton:verbatim is required, not decoration: without it Cotton compiles
       the markup before show_code can capture it, and the source pane comes out
@@ -52,14 +52,14 @@ class RevenueView(TemplateView):
                  description="Revenue by month over the first half of the year, rising from January to a June peak." />
       {% endcotton:verbatim %}
     {% endshow_code %}
-  </c-section>
-  <c-section title="What the component names" icon="document">
-    <c-text>
+  </c-mvp.section>
+  <c-mvp.section title="What the component names" icon="document">
+    <c-mvp.text>
       Where the chart goes and how it is announced, and nothing about the chart. Its
       type, its data, its axes, its colours and its tooltip are all set on the chart
       object in Python, where the whole of ECharts is reachable rather than the part a
       template attribute happens to name.
-    </c-text>
+    </c-mvp.text>
     <div class="overflow-x-auto">
       <table class="table">
         <thead>
@@ -108,13 +108,13 @@ class RevenueView(TemplateView):
         </tbody>
       </table>
     </div>
-  </c-section>
-  <c-section title="Three ways to give a chart a box" icon="chart">
-    <c-text>
+  </c-mvp.section>
+  <c-mvp.section title="Three ways to give a chart a box" icon="chart">
+    <c-mvp.text>
       A chart is drawn into a canvas, and a canvas has to be told how big it is. Write a
       height on the tag, write a ratio and let the width decide the height, or write
       neither and let the element around it do both.
-    </c-text>
+    </c-mvp.text>
     {% comment %}
       The source is shown rather than captured with show_code, because show_code
       renders a live preview of whatever it captures — which would put a second
@@ -127,10 +127,10 @@ class RevenueView(TemplateView):
     </div>
     <div class="grid gap-6 md:grid-cols-2">
       <div>
-        <c-text>
+        <c-mvp.text>
           <strong>240 pixels tall</strong>, whatever the column does. Narrow the window
           and it keeps its height while losing width, so the chart grows squatter.
-        </c-text>
+        </c-mvp.text>
         <c-chart :chart="revenue"
                  id="sizing-fixed"
                  height="240px"
@@ -138,11 +138,11 @@ class RevenueView(TemplateView):
                  description="Revenue by month over the first half of the year, rising from January to a June peak." />
       </div>
       <div>
-        <c-text>
+        <c-mvp.text>
           <strong>Sixteen by nine</strong>, at any width. Narrow the window and the
           height follows it down, so the chart keeps its shape and the column below it
           moves up.
-        </c-text>
+        </c-mvp.text>
         <c-chart :chart="revenue"
                  id="sizing-ratio"
                  aspect-ratio="16/9"
@@ -150,21 +150,21 @@ class RevenueView(TemplateView):
                  description="Revenue by month over the first half of the year, rising from January to a June peak." />
       </div>
     </div>
-  </c-section>
-  <c-section title="While the chart is still on its way" icon="info">
-    <c-text>
+  </c-mvp.section>
+  <c-mvp.section title="While the chart is still on its way" icon="info">
+    <c-mvp.text>
       A chart is drawn by the browser, so there is a moment before it appears. Every
       figure spends that moment holding a spinner in its centre, and loses it the
       instant the chart is on the surface. There is no attribute for this and nothing
       to switch on. Throttle the network and reload to watch it on any chart here.
-    </c-text>
-  </c-section>
-  <c-section title="The library reaches the browser from your project" icon="info">
-    <c-text>
+    </c-mvp.text>
+  </c-mvp.section>
+  <c-mvp.section title="The library reaches the browser from your project" icon="info">
+    <c-mvp.text>
       The charting library is never shipped from here. This project loads it from a public
       CDN, which suits a demonstration and keeps local development free of a Node
       toolchain. An application is expected to bundle it instead, importing only the
       chart types it draws and the renderer they are built with.
-    </c-text>
-  </c-section>
+    </c-mvp.text>
+  </c-mvp.section>
 {% endblock page.content %}

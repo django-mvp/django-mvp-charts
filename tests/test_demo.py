@@ -74,10 +74,10 @@ class TestSidebarMenu:
 class TestDocumentationSurface:
     def test_the_display_template_is_the_packaged_one(self):
         try:
-            origin = get_template("cotton/documentation.html").origin.name
+            origin = get_template("cotton/mvp/documentation.html").origin.name
         except TemplateDoesNotExist:  # pragma: no cover - the failure message
             pytest.fail(
-                "cotton/documentation.html is missing, so {% show_code %} "
+                "cotton/mvp/documentation.html is missing, so {% show_code %} "
                 "raises instead of rendering"
             )
         assert "/demo/templates/" not in Path(origin).as_posix(), (

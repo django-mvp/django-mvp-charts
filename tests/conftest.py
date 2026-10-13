@@ -57,7 +57,7 @@ def chart_options_page(client, db):
 @pytest.fixture
 def sidebar_navigation(overview_page):
     start = overview_page.index('aria-label="Main navigation"')
-    start = overview_page.rindex("<ul", 0, start)
+    start = overview_page.index("<ul", start)
     depth, cursor = 0, start
     while True:
         opened = overview_page.find("<ul", cursor)
