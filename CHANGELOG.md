@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   as well as a colour, with the name and description on the tag left as the chart's text
   alternative. The demo's Options page has a chart built that way beside the function that built it.
 
+### Changed
+
+- The package is tested against django-mvp 0.28.2. The minimum is still 0.24.0, because the chart
+  component uses none of the components django-mvp renamed in 0.27.
+
 ## [v0.2.0] - 2026-09-24
 
 ### Added

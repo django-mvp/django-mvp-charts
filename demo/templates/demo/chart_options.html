@@ -1,13 +1,13 @@
 {% extends "page_view.html" %}
 {% load mvp %}
 {% block page.content %}
-  <c-section title="Options are set where the chart is built" icon="chart">
-    <c-text>
+  <c-mvp.section title="Options are set where the chart is built" icon="chart">
+    <c-mvp.text>
       The chart below has a title, a subtitle, a smoothed line in a colour chosen by the
       page, no point labels, a tooltip that follows the axis rather than the point, a
       per cent suffix on the value axis, and ECharts' toolbox. None of that is an
       attribute on the tag, and none of it is something this package knows the name of.
-    </c-text>
+    </c-mvp.text>
     {% comment %}
       Read back off the function that ran, in demo/views.py, so the listing
       cannot describe a chart the page is not showing.
@@ -29,15 +29,15 @@
                  description="Conversion rate per cent by month over the first half of the year, rising from 2.1 in January to 3.4 in June." />
       {% endcotton:verbatim %}
     {% endshow_code %}
-  </c-section>
-  <c-section title="The types a view actually produces" icon="document">
-    <c-text>
+  </c-mvp.section>
+  <c-mvp.section title="The types a view actually produces" icon="document">
+    <c-mvp.text>
       Dates, decimals and gaps are ordinary data in a Django view, and all three survive
       the trip without being converted first. The chart below is built from
       <code>datetime.date</code> objects on the x axis and a <code>Decimal</code> column
       on the y axis, with <code>None</code> where February has no invoice. pyecharts
       serialises all of it, so there is nothing here for this package to do.
-    </c-text>
+    </c-mvp.text>
     <div class="mockup-code w-full text-sm">
       <pre class="px-6"><code>{{ source.awkward }}</code></pre>
     </div>
@@ -49,15 +49,15 @@
                caption="No invoice was raised in February."
                description="Amount invoiced in January and March, 1420.50 and 1683.75. February has no invoice, so the line has a gap." />
     </div>
-  </c-section>
-  <c-section title="Drawn as SVG, and finished by the page's own script" icon="chart">
-    <c-text>
+  </c-mvp.section>
+  <c-mvp.section title="Drawn as SVG, and finished by the page's own script" icon="chart">
+    <c-mvp.text>
       The renderer is chosen where the chart is built, like everything else about it,
       so this chart is drawn as SVG and stays sharp when you zoom in or print. Its
       tooltip is worded by a JavaScript function, which cannot travel in the options.
       The page sets it instead, from the event each figure dispatches once its chart is
       drawn. Hover a point to see it.
-    </c-text>
+    </c-mvp.text>
     <div class="mockup-code w-full text-sm">
       <pre class="px-6"><code>{{ source.signups }}</code></pre>
     </div>
@@ -76,15 +76,15 @@
                name="Sign-ups by week"
                description="Weekly sign-ups over six weeks, rising from 40 in week 1 to 84 in week 6." />
     </div>
-  </c-section>
-  <c-section title="Patterns as well as colour" icon="chart">
-    <c-text>
+  </c-mvp.section>
+  <c-mvp.section title="Patterns as well as colour" icon="chart">
+    <c-mvp.text>
       ECharts can draw each series with a pattern as well as a colour, so a reader who
       cannot tell the colours apart can still follow the chart. pyecharts leaves the
       patterns off. This chart turns them on where it is built, with ECharts' generated
       description off, so the name and description on the tag stay the chart's text
       alternative.
-    </c-text>
+    </c-mvp.text>
     <div class="mockup-code w-full text-sm">
       <pre class="px-6"><code>{{ source.orders_by_channel }}</code></pre>
     </div>
@@ -97,5 +97,5 @@
                  description="Orders by region, online against in store. Online leads in North, East and West, and In store leads in South." />
       {% endcotton:verbatim %}
     {% endshow_code %}
-  </c-section>
+  </c-mvp.section>
 {% endblock page.content %}
