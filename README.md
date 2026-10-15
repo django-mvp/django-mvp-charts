@@ -1,6 +1,19 @@
 # django-mvp-charts
 
-Charts as a Cotton component for [django-mvp](https://github.com/django-mvp/django-mvp) projects, built in Python with [pyecharts](https://pyecharts.org) and drawn by [Apache ECharts](https://echarts.apache.org/).
+[![Tests](https://github.com/django-mvp/django-mvp-charts/actions/workflows/tests.yml/badge.svg)](https://github.com/django-mvp/django-mvp-charts/actions/workflows/tests.yml)
+[![Build](https://github.com/django-mvp/django-mvp-charts/actions/workflows/build.yml/badge.svg)](https://github.com/django-mvp/django-mvp-charts/actions/workflows/build.yml)
+[![Publish](https://github.com/django-mvp/django-mvp-charts/actions/workflows/publish.yml/badge.svg)](https://github.com/django-mvp/django-mvp-charts/actions/workflows/publish.yml)
+[![Coverage](https://codecov.io/gh/django-mvp/django-mvp-charts/branch/main/graph/badge.svg)](https://codecov.io/gh/django-mvp/django-mvp-charts)
+[![PyPI](https://img.shields.io/pypi/v/django-mvp-charts)](https://pypi.org/project/django-mvp-charts/)
+[![Development status](https://img.shields.io/pypi/status/django-mvp-charts)](https://pypi.org/project/django-mvp-charts/)
+[![Python](https://img.shields.io/pypi/pyversions/django-mvp-charts)](https://pypi.org/project/django-mvp-charts/)
+[![Django](https://img.shields.io/pypi/djversions/django-mvp-charts)](https://pypi.org/project/django-mvp-charts/)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Licence](https://img.shields.io/github/license/django-mvp/django-mvp-charts)](https://github.com/django-mvp/django-mvp-charts/blob/main/LICENSE)
+
+Charts for django-mvp projects: build them in Python with pyecharts, place them with one Cotton component.
+
+The chart is built with [pyecharts](https://pyecharts.org), placed in a [django-mvp](https://github.com/django-mvp/django-mvp) page by a Cotton component, and drawn by [Apache ECharts](https://echarts.apache.org/).
 
 Putting a chart on a Django page is mostly plumbing. You serialise a queryset to JSON, drop a `<div>` with an id, write a `<script>` block that finds the div and hands the JSON to a charting library, then repeat all of it on the next page with slightly different options and a slightly different id.
 
@@ -326,6 +339,17 @@ Where you need a JavaScript formatter, write it in your own JavaScript and set i
 - **Not a theming layer.** Nothing here reads the daisyUI theme your site is running, translates it into chart colours, or repaints a chart when the theme changes. Give a chart the colours you want it to have.
 
 **Tie-breaks.** When these pull against each other: passing through beats abstracting, what the chart object says beats anything this package could add, and one obvious way to place a chart beats a second way to do the same thing.
+
+## Contributing
+
+Changes follow [CONSTITUTION.md](https://github.com/django-mvp/django-mvp-charts/blob/main/CONSTITUTION.md), the
+[testing standards](https://github.com/django-mvp/django-mvp-charts/blob/main/docs/contributing/standards/testing.md), the
+[code documentation standards](https://github.com/django-mvp/django-mvp-charts/blob/main/docs/contributing/standards/code-documentation.md) and the
+[Django standards](https://github.com/django-mvp/django-mvp-charts/blob/main/docs/contributing/standards/django.md).
+
+## Changelog
+
+See [CHANGELOG.md](https://github.com/django-mvp/django-mvp-charts/blob/main/CHANGELOG.md).
 
 ## License
 
