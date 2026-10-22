@@ -33,7 +33,7 @@ Delivers FR-001 … FR-006, SC-001, SC-002, SC-004. Issue #57.
   series' pattern; the surface's `aria-label` equals the tag's `name` and `aria-describedby` still
   names the description element. No production change is expected: if a test passes on first run,
   mutate the probe (drop `decal.show`, add a single `decals` object, drop `label.enabled: false`)
-  and confirm the matching assertion goes red, then restore — record that in progress.md.
+  and confirm the matching assertion goes red, then restore — record that in the build log.
 - **T003** — `README.md`: new `## Patterns as well as colour` section after `## Placing the chart`
   and its subsections, carrying plan items 1, 2, 3 and 8 (what the patterns are and when they are
   worth it; the Python; why not `AriaDecalOpts`; the ECharts link). The paragraph in "Giving the
@@ -75,4 +75,4 @@ Delivers FR-007 … FR-011, SC-003. Issue #58.
 - **T008** — Mutation check of T006, as in T002: for each mark test, make the probe contradict the
   statement (shade the plain line, drop the area from the shaded one, turn the patterns off on the
   pie, leave the generated description off on `described-by-echarts`) and confirm the matching test
-  goes red; restore. Record each in progress.md.
+  goes red; restore. Record each in the build log.

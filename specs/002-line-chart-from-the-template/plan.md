@@ -169,9 +169,7 @@ specs/002-line-chart-from-the-template/
 ├── decisions.md         # on main, appended to
 ├── plan.md              # this file
 ├── research.md
-├── tasks.md
-├── progress.md
-└── feature-state.json
+└── tasks.md
 ```
 
 ### Source code
