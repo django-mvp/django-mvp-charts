@@ -96,9 +96,7 @@ specs/001-chart-region-and-delivery/
 ├── decisions.md         # on main; appended to by this stage and by implementation
 ├── plan.md              # this file
 ├── research.md          # what was established before the design was chosen
-├── tasks.md             # the task graph
-├── progress.md          # per-task narrative
-└── feature-state.json   # the ledger
+└── tasks.md             # the task graph
 ```
 
 ### Source (repository root)
